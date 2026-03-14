@@ -1,718 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LandscapeAdsAI — AI Ad Generator for Landscapers</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
-  --green:#2ea043;--green2:#3fb950;--green3:#56d364;
-  --border:#30363d;--border2:#21262d;
-  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
-  --font:'Inter',sans-serif;
-}
-body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;font-size:15px}
+🌿
+LandscapeAdsAI
+Create Visual Ad →
 
-/* NAV */
-nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
-.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
-.logo-icon{width:34px;height:34px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.logo-text{font-size:17px;font-weight:700;color:var(--text)}
-.nav-links{display:flex;align-items:center;gap:6px}
-.nav-link{background:none;border:none;color:var(--text2);font-size:14px;font-weight:500;padding:7px 14px;border-radius:6px;cursor:pointer;font-family:var(--font);transition:all .15s}
-.nav-link:hover{color:var(--text);background:var(--bg3)}
-.nav-cta{background:var(--green);color:white;border:none;font-size:14px;font-weight:600;padding:8px 18px;border-radius:8px;cursor:pointer;font-family:var(--font);transition:all .15s;margin-left:6px}
-.nav-cta:hover{background:var(--green2)}
+Visual Ad Creator · Built for Landscapers
+Turn Your Lawn Photos Into Professional Ads
+Upload your own photos, pick a template, and generate scroll-stopping social ads for Facebook, Instagram & Google in under 60 seconds.
+🎨 Create Visual Ad Free →
+✍️ Text Ads Only
+No credit card required · 3 free generations · Download as PNG
+WHAT YOU GET
+Not just ad copy.
+Actual visual ads.
+Upload your lawn photos, pick a template, and download a finished ad image ready to post.
+🖼️
+Visual Ad Templates
+3 professional templates: Before/After split, Spots Open promo, and Spring Offer. All designed for landscaping.
+📸
+Use Your Own Photos
+Upload 1-2 photos of your actual work. The AI places your text on top with professional overlays and typography.
+⬇️
+Download as PNG
+Export your finished ad as a high-quality PNG image. Paste it straight into Facebook, Instagram, or Google Ads.
+✍️
+AI-Written Copy
+AI generates your headline, offer text, and CTA based on your business info. Edit it before exporting.
+📐
+Square & Portrait
+Generate in square (1:1) for feed posts or portrait (4:5) for stories and reels. Both in one click.
+📊
+Ad Quality Score
+Every ad gets automatically scored on hook strength, offer clarity, and CTA quality so you know it'll convert.
+AD TEMPLATES
+3 templates ready to use
+Before / After Split
+Template 1
+BEFORE
+AFTER
+Two images side by side with BEFORE/AFTER badges, headline, and CTA. Perfect for showing lawn transformations.
+Spots Open This Week
+Template 2
+⚡ LIMITED SPOTS
+THIS WEEK
 
-/* PAGE SYSTEM */
-.page{display:none}
-.page.active{display:block}
+One background photo with dark overlay, bold headline, bullet service list, and a CTA bar at the bottom.
+Spring Offer Promo
+Template 3
+🌱 SPRING OFFER
+20% OFF First Mow
+Background photo with offer badge top-left, large promo headline, supporting text, and CTA button near bottom.
+SIMPLE PRICING
+Simple pricing for landscapers
+Start free. No credit card needed.
+FREE PLAN
+$0 /forever
+Try it out, no commitment.
 
-/* ===== LANDING ===== */
-.hero{padding:100px 40px 80px;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(46,160,67,.12) 0%,transparent 70%)}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(46,160,67,.1);border:1px solid rgba(46,160,67,.25);padding:6px 14px;border-radius:100px;font-size:13px;color:var(--green3);font-weight:500;margin-bottom:28px}
-.hero-badge-dot{width:7px;height:7px;background:var(--green3);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hero h1{font-size:clamp(38px,6vw,72px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:20px}
-.hero h1 em{font-style:normal;color:var(--green2)}
-.hero-sub{font-size:18px;color:var(--text2);max-width:520px;margin:0 auto 40px;line-height:1.65;font-weight:400}
-.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:var(--green);color:white;border:none;font-size:16px;font-weight:700;padding:14px 32px;border-radius:10px;cursor:pointer;font-family:var(--font);transition:all .2s;letter-spacing:-.2px}
-.btn-primary:hover{background:var(--green2);transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);font-size:15px;font-weight:500;padding:14px 28px;border-radius:10px;cursor:pointer;font-family:var(--font);transition:all .15s}
-.btn-ghost:hover{border-color:var(--text3);background:var(--bg3)}
-.hero-trust{color:var(--text3);font-size:13px;margin-top:20px}
+✓
+3 visual ad generations
+✓
+All 3 templates
+✓
+Download as PNG
+✓
+Facebook & Instagram text ads
+✗
+Unlimited generations
+✗
+TikTok scripts
+✗
+AI Business Coach Get Started Free
+PRO PLAN
+$12 /month
+For landscapers running ads every week.
 
-.section{padding:80px 40px;max-width:1200px;margin:0 auto}
-.section-label{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green2);margin-bottom:10px}
-.section-title{font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1px;margin-bottom:12px;line-height:1.1}
-.section-sub{font-size:16px;color:var(--text2);line-height:1.6;max-width:520px}
+✓
+Unlimited visual ad generations
+✓
+All 3 templates + new ones added monthly
+✓
+Square & portrait layouts
+✓
+Facebook, Google, Instagram & TikTok text
+✓
+Ad quality scoring
+✓
+AI Business Coach unlimited
+✓
+Seasonal content calendar Start Free — 7 Days
+🚀
+Start Creating Visual Ads Today
+Upload your lawn photos and have a professional ad ready to post in under 60 seconds.
+🎨 Create My First Ad →
+Text Ads Only
+No credit card·Cancel anytime·3 free ads
 
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:48px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.step{background:var(--bg2);padding:32px 28px}
-.step-num{width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;margin-bottom:20px}
-.step-icon{font-size:24px;margin-bottom:12px}
-.step h3{font-size:17px;font-weight:700;margin-bottom:8px}
-.step p{font-size:14px;color:var(--text2);line-height:1.6}
-
-.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
-.preview-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.preview-header{padding:14px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
-.preview-platform{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
-.preview-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:rgba(46,160,67,.15);color:var(--green3)}
-.preview-body{padding:18px}
-.preview-text{font-size:13px;color:var(--text2);line-height:1.7}
-.preview-text strong{color:var(--text);font-weight:600}
-
-.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
-.benefit-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;transition:all .2s}
-.benefit-card:hover{border-color:rgba(46,160,67,.3)}
-.benefit-icon{font-size:28px;margin-bottom:14px}
-.benefit-title{font-size:17px;font-weight:700;margin-bottom:8px}
-.benefit-desc{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:14px}
-.benefit-stat{font-size:13px;color:var(--green2);font-weight:600}
-
-.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
-.diff-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;display:flex;gap:18px;transition:all .2s}
-.diff-card:hover{border-color:rgba(46,160,67,.35)}
-.diff-num{width:40px;height:40px;border-radius:10px;background:rgba(46,160,67,.12);border:1px solid rgba(46,160,67,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-top:2px}
-.diff-content h3{font-size:16px;font-weight:700;margin-bottom:6px}
-.diff-content p{font-size:14px;color:var(--text2);line-height:1.6}
-
-/* PRICING */
-.pricing-wrap{background:var(--bg);padding:80px 40px}
-.pricing-inner{max-width:900px;margin:0 auto;text-align:center}
-.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px;text-align:left}
-.price-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px}
-.price-card.pro{border-color:rgba(46,160,67,.4);background:var(--bg3);position:relative}
-.price-card.pro::before{content:'MOST POPULAR';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--green);color:white;font-size:11px;font-weight:800;letter-spacing:1.5px;padding:4px 16px;border-radius:0 0 8px 8px}
-.plan-label{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;letter-spacing:.5px}
-.plan-price{font-size:52px;font-weight:900;letter-spacing:-2px;color:var(--text);line-height:1}
-.plan-price span{font-size:18px;font-weight:400;color:var(--text2);letter-spacing:0}
-.plan-desc{font-size:14px;color:var(--text2);margin:10px 0 24px;line-height:1.5}
-.plan-divider{border:none;border-top:1px solid var(--border);margin:0 0 20px}
-.plan-feature{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);margin-bottom:12px;line-height:1.4}
-.check{color:var(--green2);flex-shrink:0;margin-top:1px}
-.cross{color:var(--text3);flex-shrink:0;margin-top:1px}
-.pro .plan-feature{color:var(--text)}
-.plan-btn{width:100%;margin-top:24px;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);border:none;transition:all .2s}
-.btn-free-plan{background:transparent;color:var(--text);border:1px solid var(--border)!important}
-.btn-free-plan:hover{background:var(--bg4)}
-.btn-pro-plan{background:var(--green);color:white}
-.btn-pro-plan:hover{background:var(--green2)}
-
-.cta-section{padding:100px 40px;text-align:center;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(46,160,67,.08) 0%,transparent 70%)}
-.cta-icon{width:64px;height:64px;background:rgba(46,160,67,.12);border:1px solid rgba(46,160,67,.2);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 28px}
-.cta-section h2{font-size:clamp(30px,5vw,54px);font-weight:900;letter-spacing:-1.5px;margin-bottom:16px}
-.cta-section p{font-size:17px;color:var(--text2);max-width:500px;margin:0 auto 36px;line-height:1.6}
-.cta-trust{font-size:13px;color:var(--text3);margin-top:16px}
-.cta-trust span{margin:0 8px}
-
-/* ===== GENERATOR ===== */
-.gen-wrap{display:grid;grid-template-columns:400px 1fr;height:calc(100vh - 60px)}
-.gen-form{background:var(--bg2);border-right:1px solid var(--border);padding:28px;overflow-y:auto}
-.gen-form h2{font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
-.gen-form>p{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.5}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
-.form-group{margin-bottom:16px}
-.form-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border .15s}
-.form-input:focus{border-color:rgba(46,160,67,.5)}
-.form-input::placeholder{color:var(--text3)}
-select.form-input option{background:var(--bg2)}
-.platform-row{display:flex;gap:8px;flex-wrap:wrap}
-.plat-pill{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--font)}
-.plat-pill.on{border-color:rgba(46,160,67,.5);background:rgba(46,160,67,.08);color:var(--green3)}
-.usage-bar{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.usage-text{font-size:13px;color:var(--text2)}
-.upgrade-link{font-size:13px;color:var(--green2);font-weight:600;cursor:pointer;background:none;border:none;font-family:var(--font)}
-.upgrade-link:hover{color:var(--green3)}
-.gen-btn{width:100%;padding:14px;background:var(--green);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.gen-btn:hover{background:var(--green2)}
-.gen-btn:disabled{opacity:.4;cursor:not-allowed}
-.gen-output{background:var(--bg);padding:28px;overflow-y:auto}
-.out-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
-.out-header h2{font-size:20px;font-weight:800;letter-spacing:-.5px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap}
-.tab-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:500;padding:7px 14px;border-radius:7px;cursor:pointer;font-family:var(--font);transition:all .15s}
-.tab-btn.active{background:var(--green);border-color:var(--green);color:white}
-.tab-content{display:none}
-.tab-content.active{display:block}
-.ad-output-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
-.aoc-header{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
-.aoc-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
-.aoc-body{padding:18px}
-.ad-text-block{font-size:14px;color:var(--text);line-height:1.75;white-space:pre-wrap}
-.ad-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.ad-action-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;padding:7px 13px;border-radius:7px;cursor:pointer;font-family:var(--font);transition:all .15s}
-.ad-action-btn:hover{border-color:var(--green2);color:var(--green2)}
-.ad-action-btn.copy-btn{background:rgba(46,160,67,.1);border-color:rgba(46,160,67,.3);color:var(--green2)}
-.score-bar{margin-top:14px;padding:12px 14px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.score-label{font-size:12px;color:var(--text3);font-weight:500}
-.score-dots{display:flex;gap:3px}
-.score-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
-.score-dot.filled{background:var(--green2)}
-.score-val{font-size:13px;font-weight:700;color:var(--green2)}
-.empty-out{text-align:center;padding:80px 32px;color:var(--text3)}
-.empty-out-icon{font-size:40px;margin-bottom:12px;opacity:.5}
-.loading-wrap{text-align:center;padding:60px 32px}
-.loading-wrap p{color:var(--text2);font-size:14px;margin-top:16px}
-.spinner{display:inline-flex;gap:6px}
-.sp{width:10px;height:10px;border-radius:50%;background:var(--green);animation:sp .7s ease-in-out infinite}
-.sp:nth-child(2){animation-delay:.15s}.sp:nth-child(3){animation-delay:.3s}
-@keyframes sp{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
-
-/* IDEAS PAGE */
-.ideas-wrap{max-width:960px;margin:0 auto;padding:40px}
-.ideas-wrap h2{font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
-.ideas-wrap>p{font-size:15px;color:var(--text2);margin-bottom:32px;line-height:1.5}
-.ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:28px}
-.idea-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .15s}
-.idea-card:hover{border-color:rgba(46,160,67,.35);transform:translateY(-1px)}
-.idea-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:inline-block;padding:3px 9px;border-radius:5px}
-.tag-ig{background:rgba(131,58,180,.15);color:#c084fc}
-.tag-fb{background:rgba(59,130,246,.12);color:#93c5fd}
-.tag-tt{background:rgba(239,68,68,.1);color:#fca5a5}
-.tag-gg{background:rgba(34,197,94,.1);color:var(--green3)}
-.tag-str{background:rgba(234,179,8,.1);color:#fde047}
-.idea-card h3{font-size:15px;font-weight:700;margin-bottom:6px}
-.idea-card p{font-size:13px;color:var(--text2);line-height:1.5}
-.idea-result-box{background:var(--bg2);border:1px solid rgba(46,160,67,.3);border-radius:12px;padding:24px;display:none}
-.idea-result-box.show{display:block}
-.irb-title{font-size:15px;font-weight:700;color:var(--green2);margin-bottom:12px}
-.irb-text{font-size:14px;color:var(--text);line-height:1.75;white-space:pre-wrap}
-
-/* COACH PAGE */
-.coach-wrap{display:flex;flex-direction:column;height:calc(100vh - 60px)}
-.coach-msgs{flex:1;overflow-y:auto;padding:28px 40px}
-.coach-msgs-inner{max-width:700px;margin:0 auto}
-.msg{margin-bottom:18px}
-.msg.user{text-align:right}
-.msg-bubble{display:inline-block;padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.65;max-width:560px;text-align:left}
-.msg.user .msg-bubble{background:var(--green);color:white;border-radius:12px 12px 3px 12px}
-.msg.ai .msg-bubble{background:var(--bg2);border:1px solid var(--border);border-radius:12px 12px 12px 3px}
-.msg-name{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:5px}
-.coach-bottom{border-top:1px solid var(--border);padding:20px 40px;background:var(--bg2)}
-.coach-bottom-inner{max-width:700px;margin:0 auto}
-.suggs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.sugg-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer;font-family:var(--font);transition:all .15s}
-.sugg-btn:hover{border-color:rgba(46,160,67,.4);color:var(--green2)}
-.coach-input-row{display:flex;gap:10px}
-.coach-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;font-family:var(--font);outline:none}
-.coach-input:focus{border-color:rgba(46,160,67,.4)}
-.coach-input::placeholder{color:var(--text3)}
-.coach-send{background:var(--green);color:white;border:none;border-radius:10px;padding:0 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s}
-.coach-send:hover{background:var(--green2)}
-
-.toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
-.toast.show{opacity:1;transform:none}
-
-@media(max-width:900px){
-  .gen-wrap{grid-template-columns:1fr}
-  .gen-output{min-height:500px}
-  .steps-grid,.preview-grid,.benefits-grid,.diff-grid,.pricing-grid{grid-template-columns:1fr}
-  nav{padding:0 16px}
-  .nav-link{display:none}
-  .hero,.section{padding-left:20px;padding-right:20px}
-}
-</style>
-</head>
-<body>
-
-<nav>
-  <div class="logo" onclick="show('landing')">
-    <div class="logo-icon">🌿</div>
-    <span class="logo-text">LandscapeAdsAI</span>
-  </div>
-  <div class="nav-links">
-    <button class="nav-link" onclick="show('generator')">Generator</button>
-    <button class="nav-link" onclick="show('ideas')">Ad Ideas</button>
-    <button class="nav-link" onclick="show('coach')">AI Coach</button>
-    <button class="nav-link" onclick="show('landing');setTimeout(()=>document.getElementById('pricing').scrollIntoView({behavior:'smooth'}),50)">Pricing</button>
-    <button class="nav-cta" onclick="show('generator')">Get Started Free →</button>
-  </div>
-</nav>
-
-<!-- ======= LANDING ======= -->
-<div class="page active" id="page-landing">
-  <div class="hero">
-    <div class="hero-badge"><span class="hero-badge-dot"></span> AI-Powered · Built for Landscapers</div>
-    <h1>Stop Guessing.<br>Start Getting <em>Clients.</em></h1>
-    <p class="hero-sub">Generate Facebook, Google, Instagram & TikTok ads tailored to your landscaping business in under 30 seconds.</p>
-    <div class="hero-btns">
-      <button class="btn-primary" onclick="show('generator')">Generate My First Ad Free →</button>
-      <button class="btn-ghost" onclick="show('coach')">Talk to AI Coach</button>
-    </div>
-    <p class="hero-trust">No credit card required · 3 free ads included · Cancel anytime</p>
-  </div>
-
-  <div class="section">
-    <div class="section-label">How It Works</div>
-    <div class="section-title">From blank page to live ad in 3 steps</div>
-    <div class="section-sub">Your business details to ready-to-launch copy in seconds.</div>
-    <div class="steps-grid">
-      <div class="step"><div class="step-num">1</div><div class="step-icon">✏️</div><h3>Enter Your Details</h3><p>Business name, city, service type, and any special offer. Takes under a minute.</p></div>
-      <div class="step"><div class="step-num">2</div><div class="step-icon">🤖</div><h3>AI Generates Copy</h3><p>Instantly writes conversion-optimized copy for Facebook, Google, Instagram & TikTok — tailored to your market.</p></div>
-      <div class="step"><div class="step-num">3</div><div class="step-icon">🚀</div><h3>Copy & Launch</h3><p>One-click copy and paste directly into Facebook Ads Manager or Instagram to start driving local leads today.</p></div>
-    </div>
-  </div>
-
-  <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 40px">
-    <div style="max-width:1200px;margin:0 auto">
-      <div class="section-label">See What AI Generates</div>
-      <div class="section-title">Real output. Real results.</div>
-      <div class="section-sub">Here's exactly what LandscapeAdsAI produces for a lawn care business in Austin, TX.</div>
-      <div class="preview-grid">
-        <div class="preview-card">
-          <div class="preview-header"><div class="preview-platform">📘 Facebook Ad</div><span class="preview-badge">Live Example</span></div>
-          <div class="preview-body"><p class="preview-text">🌿 Tired of spending your weekends battling overgrown grass? <strong>Green Thumb Landscaping in Austin, TX</strong> keeps your lawn looking pristine all season long.<br><br>Lawn mowing starting at just $49/visit. ✅ Licensed & Insured ✅ No contracts required<br><br>👉 Book today and get <strong>20% OFF your first mow!</strong> Limited spots available.</p><div style="margin-top:14px;padding:10px 16px;background:var(--bg3);border-radius:8px;font-size:13px;color:var(--green2);font-weight:600;text-align:center">Learn More →</div></div>
-        </div>
-        <div class="preview-card">
-          <div class="preview-header"><div class="preview-platform">🔍 Google Search Ad</div><span class="preview-badge">Live Example</span></div>
-          <div class="preview-body"><p style="font-size:12px;color:var(--green2);margin-bottom:4px">greenthumbaustin.com › lawn-mowing</p><p style="font-size:15px;font-weight:700;color:#93c5fd;margin-bottom:6px;line-height:1.3">Austin Lawn Mowing – $49/Visit | Same-Week Service</p><p class="preview-text">Professional lawn care in Austin, TX. Licensed & insured. 5-star reviews. Book in 60 seconds.<br><br>20% off your first mow. No contracts. Cancel anytime.</p><div style="display:flex;gap:16px;margin-top:12px;font-size:13px;color:var(--text2)"><span>📞 Call Now</span><span>📍 Austin, TX</span><span>⭐ 4.9</span></div></div>
-        </div>
-        <div class="preview-card">
-          <div class="preview-header"><div class="preview-platform">📸 Instagram Caption</div><span class="preview-badge">Live Example</span></div>
-          <div class="preview-body"><div style="height:90px;background:linear-gradient(135deg,#1a3d20,#2d6e35);border-radius:8px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:28px">🌱</div><p class="preview-text">✨ Your lawn deserves the best. We're Green Thumb Landscaping — Austin's trusted crew. 🌿 Fresh cuts. Clean edges. Happy homeowners.<br><br>This month: 20% off your first visit! Link in bio to book.<br><br><span style="color:var(--green2)">#AustinLawnCare #LawnMowing #LandscapingAustin #YardGoals #LocalBusiness</span></p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-label">Why Not Just Use ChatGPT?</div>
-    <div class="section-title">Everything ChatGPT<br>doesn't do for you</div>
-    <div class="section-sub">ChatGPT gives generic text. We give ready-to-launch ads built for landscapers.</div>
-    <div class="diff-grid">
-      <div class="diff-card"><div class="diff-num">📊</div><div class="diff-content"><h3>Ad Quality Score</h3><p>Every ad gets scored on hook strength, offer clarity, and CTA quality. ChatGPT just gives you text — we tell you if it'll actually convert.</p></div></div>
-      <div class="diff-card"><div class="diff-num">🎯</div><div class="diff-content"><h3>Platform-Formatted Output</h3><p>Google Ads has strict character limits. Instagram needs hashtags. TikTok needs a hook. We format every ad correctly for each platform automatically.</p></div></div>
-      <div class="diff-card"><div class="diff-num">📅</div><div class="diff-content"><h3>Seasonal Content Calendar</h3><p>Know exactly what to post every week. Spring cleanup, summer maintenance, fall leaf removal, winter prep — tailored to landscapers.</p></div></div>
-      <div class="diff-card"><div class="diff-num">🔄</div><div class="diff-content"><h3>Multiple Ad Variations</h3><p>Get different angles for every ad — one leading with price, one with urgency, one with social proof. Test what works for your market.</p></div></div>
-      <div class="diff-card"><div class="diff-num">📋</div><div class="diff-content"><h3>Ad History & Library</h3><p>Every ad you generate is saved. Come back, copy, and reuse your best performers. ChatGPT forgets everything when you close the tab.</p></div></div>
-      <div class="diff-card"><div class="diff-num">🤖</div><div class="diff-content"><h3>Landscaping Business Coach</h3><p>Ask about pricing, slow seasons, Google Business Profile, getting reviews — built specifically for the landscaping industry.</p></div></div>
-    </div>
-  </div>
-
-  <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 40px">
-    <div style="max-width:1200px;margin:0 auto">
-      <div class="section-label">Built to Grow Your Business</div>
-      <div class="section-title">Everything you need to run better local ads</div>
-      <div class="benefits-grid" style="margin-top:40px">
-        <div class="benefit-card"><div class="benefit-icon">👥</div><div class="benefit-title">More Lawn Clients</div><div class="benefit-desc">Highly targeted copy aimed at local homeowners actively searching for landscaping services in your area.</div><div class="benefit-stat">↗ Average 3.2x more local inquiries</div></div>
-        <div class="benefit-card"><div class="benefit-icon">⚡</div><div class="benefit-title">Save Tons of Time</div><div class="benefit-desc">What used to take hours of writing now takes 30 seconds. Spend that time doing what you do best.</div><div class="benefit-stat">⏱ Generates 4 platform ads in under 30 seconds</div></div>
-        <div class="benefit-card"><div class="benefit-icon">⭐</div><div class="benefit-title">Look Professional</div><div class="benefit-desc">Expert-level copy that makes your landscaping business look like an established brand — even on day one.</div><div class="benefit-stat">✓ Zero marketing experience needed</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="pricing" class="pricing-wrap">
-    <div class="pricing-inner">
-      <div class="section-label" style="display:block;text-align:center">Simple Pricing</div>
-      <div class="section-title">Simple Pricing for Landscaping Businesses</div>
-      <p style="color:var(--text2);font-size:15px;margin-top:8px">Start free and upgrade when you're ready for unlimited ads.</p>
-      <div class="pricing-grid">
-        <div class="price-card">
-          <div class="plan-label">FREE PLAN</div>
-          <div class="plan-price">$0 <span>/forever</span></div>
-          <div class="plan-desc">Perfect for getting started and trying the tool.</div>
-          <hr class="plan-divider">
-          <div class="plan-feature"><span class="check">✓</span> 3 total ad generations</div>
-          <div class="plan-feature"><span class="check">✓</span> Facebook, Google & Instagram formats</div>
-          <div class="plan-feature"><span class="check">✓</span> Copy generated ads to clipboard</div>
-          <div class="plan-feature"><span class="cross">✗</span> Saved ad history</div>
-          <div class="plan-feature"><span class="cross">✗</span> Multiple ad variations</div>
-          <div class="plan-feature"><span class="cross">✗</span> TikTok scripts</div>
-          <div class="plan-feature"><span class="cross">✗</span> Ad quality scoring</div>
-          <div class="plan-feature"><span class="cross">✗</span> AI Business Coach</div>
-          <button class="plan-btn btn-free-plan" onclick="show('generator')" style="border:1px solid var(--border)">Get Started Free</button>
-        </div>
-        <div class="price-card pro">
-          <div class="plan-label">PRO PLAN</div>
-          <div class="plan-price" style="color:var(--green2)">$12 <span style="color:var(--text2)">/month</span></div>
-          <div class="plan-desc">Best for landscapers running ads regularly.</div>
-          <hr class="plan-divider">
-          <div class="plan-feature"><span class="check">✓</span> Unlimited ad generations</div>
-          <div class="plan-feature"><span class="check">✓</span> Multiple ad variations per generation</div>
-          <div class="plan-feature"><span class="check">✓</span> Facebook, Google, Instagram & TikTok</div>
-          <div class="plan-feature"><span class="check">✓</span> Saved ad history & library</div>
-          <div class="plan-feature"><span class="check">✓</span> Ad quality score on every ad</div>
-          <div class="plan-feature"><span class="check">✓</span> Seasonal content calendar</div>
-          <div class="plan-feature"><span class="check">✓</span> AI Business Coach (unlimited)</div>
-          <div class="plan-feature"><span class="check">✓</span> Download ad content (.txt)</div>
-          <button class="plan-btn btn-pro-plan" onclick="show('generator')">Start Pro Free — 7 Days</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="cta-section">
-    <div class="cta-icon">🚀</div>
-    <h2>Start Generating<br>Landscaping Ads Today</h2>
-    <p>Your first 3 ads are completely free — no credit card required.</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <button class="btn-primary" onclick="show('generator')" style="font-size:17px;padding:16px 40px">Try It Free →</button>
-      <button class="btn-ghost" onclick="show('coach')">Talk to AI Coach</button>
-    </div>
-    <p class="cta-trust"><span>No credit card required</span>·<span>Cancel anytime</span>·<span>3 free ads included</span></p>
-  </div>
-</div>
-
-<!-- ======= GENERATOR ======= -->
-<div class="page" id="page-generator">
-  <div class="gen-wrap">
-    <div class="gen-form">
-      <h2>🌿 Ad Generator</h2>
-      <p>Fill in your details and we'll write high-converting ads for your business.</p>
-      <div class="form-group"><label class="form-label">Business Name</label><input class="form-input" id="gBiz" placeholder="e.g. Green Thumb Landscaping"></div>
-      <div class="form-group"><label class="form-label">City / Location</label><input class="form-input" id="gCity" placeholder="e.g. Austin, TX"></div>
-      <div class="form-group">
-        <label class="form-label">Service Type</label>
-        <select class="form-input" id="gService">
-          <option value="">Select a service...</option>
-          <option>Lawn Mowing</option><option>Landscaping Design</option><option>Yard Cleanup</option>
-          <option>Tree Trimming</option><option>Leaf Removal</option><option>Irrigation / Sprinklers</option>
-          <option>Sod Installation</option><option>Mulching</option><option>Snow Removal</option>
-          <option>Full Property Maintenance</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Special Offer <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional)</span></label><input class="form-input" id="gOffer" placeholder="e.g. 20% off first mow, Free estimate"></div>
-      <div class="form-group">
-        <label class="form-label">Target Customer</label>
-        <select class="form-input" id="gTarget">
-          <option value="">Select target...</option>
-          <option>Homeowners</option><option>Commercial Properties</option>
-          <option>HOA Communities</option><option>Rental Property Managers</option><option>New Homeowners</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tone</label>
-        <select class="form-input" id="gTone">
-          <option>Professional & Trustworthy</option><option>Friendly & Local</option>
-          <option>Bold & Direct</option><option>Affordable & Value-Focused</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Platforms</label>
-        <div class="platform-row">
-          <div class="plat-pill on" data-p="facebook" onclick="this.classList.toggle('on')">📘 Facebook</div>
-          <div class="plat-pill on" data-p="instagram" onclick="this.classList.toggle('on')">📸 Instagram</div>
-          <div class="plat-pill on" data-p="google" onclick="this.classList.toggle('on')">🔍 Google</div>
-          <div class="plat-pill on" data-p="tiktok" onclick="this.classList.toggle('on')">🎵 TikTok</div>
-        </div>
-      </div>
-      <div class="usage-bar">
-        <span class="usage-text">📊 Free plan: <strong id="usageCount">0</strong> of 3 ads used</span>
-        <button class="upgrade-link" onclick="show('landing');setTimeout(()=>document.getElementById('pricing').scrollIntoView({behavior:'smooth'}),50)">Upgrade →</button>
-      </div>
-      <button class="gen-btn" id="genBtn" onclick="runGenerate()">✨ Generate Ads</button>
-    </div>
-    <div class="gen-output">
-      <div class="out-header">
-        <h2>Generated Ad Output</h2>
-        <div class="tabs" id="tabRow" style="display:none">
-          <button class="tab-btn active" onclick="switchTab(this,'fb')">Facebook</button>
-          <button class="tab-btn" onclick="switchTab(this,'ig')">Instagram</button>
-          <button class="tab-btn" onclick="switchTab(this,'gg')">Google</button>
-          <button class="tab-btn" onclick="switchTab(this,'tt')">TikTok</button>
-        </div>
-      </div>
-      <div id="emptyState" class="empty-out">
-        <div class="empty-out-icon">📋</div>
-        <p style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:6px">Your AI-written ads will appear here</p>
-        <p style="font-size:14px">Fill in your business details on the left and click Generate Ads.</p>
-      </div>
-      <div id="loadingState" style="display:none" class="loading-wrap">
-        <div class="spinner"><div class="sp"></div><div class="sp"></div><div class="sp"></div></div>
-        <p>Writing your ads... this takes about 15 seconds</p>
-      </div>
-      <div id="tab-fb" class="tab-content active" style="display:none"></div>
-      <div id="tab-ig" class="tab-content" style="display:none"></div>
-      <div id="tab-gg" class="tab-content" style="display:none"></div>
-      <div id="tab-tt" class="tab-content" style="display:none"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ======= IDEAS ======= -->
-<div class="page" id="page-ideas">
-  <div class="ideas-wrap">
-    <h2>🌱 Landscaper Growth Playbook</h2>
-    <p>Click any idea to instantly generate ready-to-use content. No blank page, no guessing.</p>
-    <div class="ideas-grid" id="ideasGrid"></div>
-    <div class="idea-result-box" id="ideaBox">
-      <div class="irb-title" id="ideaBoxTitle"></div>
-      <div class="irb-text" id="ideaBoxText"></div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="ad-action-btn copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('ideaBoxText').textContent).then(()=>toast('Copied!'))">📋 Copy</button>
-        <button class="ad-action-btn" onclick="document.getElementById('ideaBox').classList.remove('show')">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ======= COACH ======= -->
-<div class="page" id="page-coach">
-  <div class="coach-wrap">
-    <div class="coach-msgs" id="coachMsgs">
-      <div class="coach-msgs-inner">
-        <div class="msg ai">
-          <div class="msg-name">🤖 AI Business Coach</div>
-          <div class="msg-bubble">Hey! I'm your landscaping business coach. Ask me anything — pricing, finding customers, social media, handling slow seasons, getting more reviews, or growing your referrals. What's on your mind?</div>
-        </div>
-      </div>
-    </div>
-    <div class="coach-bottom">
-      <div class="coach-bottom-inner">
-        <div class="suggs" id="coachSuggs">
-          <button class="sugg-btn" onclick="useSugg(this)">How do I get more 5-star reviews?</button>
-          <button class="sugg-btn" onclick="useSugg(this)">What should I charge for a yard cleanup?</button>
-          <button class="sugg-btn" onclick="useSugg(this)">Best way to get clients in winter?</button>
-          <button class="sugg-btn" onclick="useSugg(this)">How often to post on Instagram?</button>
-        </div>
-        <div class="coach-input-row">
-          <input class="coach-input" id="coachIn" placeholder="Ask anything about growing your landscaping business..." onkeydown="if(event.key==='Enter')sendCoach()">
-          <button class="coach-send" onclick="sendCoach()">Send →</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toastEl"></div>
-
-<script>
-let usage = 0;
-let chatHistory = [];
-
-function show(p){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  window.scrollTo(0,0);
-  if(p==='ideas') initIdeas();
-}
-
-function toast(msg){
-  const t=document.getElementById('toastEl');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-function switchTab(btn,id){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.tab-content').forEach(c=>{c.classList.remove('active');c.style.display='none'});
-  const panel=document.getElementById('tab-'+id);
-  if(panel&&panel.innerHTML){panel.classList.add('active');panel.style.display='block'}
-}
-
-function scoreAd(text){
-  let s=0;
-  const t=text.toLowerCase();
-  if(t.includes('?')||t.includes('tired')||t.includes('struggling'))s+=2;
-  if(t.includes('%')||t.includes('off')||t.includes('free')||t.includes('save'))s+=2;
-  if(t.includes('call')||t.includes('book')||t.includes('get')||t.includes('click'))s+=2;
-  if(text.length>150)s+=2;
-  if(t.includes('today')||t.includes('limited')||t.includes('now'))s+=1;
-  if(t.includes('trusted')||t.includes('rated')||t.includes('insured')||t.includes('guaranteed'))s+=1;
-  return Math.min(s,10);
-}
-
-function renderScore(score){
-  const dots=Array(10).fill(0).map((_,i)=>`<div class="score-dot${i<score?' filled':''}"></div>`).join('');
-  const label=score>=8?'Excellent':score>=6?'Good':score>=4?'Fair':'Needs Work';
-  const color=score>=8?'var(--green2)':score>=6?'#fde047':score>=4?'#fb923c':'#f87171';
-  return `<div class="score-bar"><span class="score-label">Ad Quality Score</span><div class="score-dots">${dots}</div><span class="score-val" style="color:${color}">${score}/10 — ${label}</span></div>`;
-}
-
-function makeCard(platform,icon,badge,content,biz,city,service){
-  const score=scoreAd(content);
-  const safeId='ad-'+platform.replace(/[^a-z]/gi,'');
-  return `<div class="ad-output-card">
-    <div class="aoc-header">
-      <div class="aoc-title">${icon} ${platform}</div>
-      <span class="preview-badge">${badge}</span>
-    </div>
-    <div class="aoc-body">
-      <div class="ad-text-block" id="${safeId}">${esc(content)}</div>
-      ${renderScore(score)}
-      <div class="ad-actions">
-        <button class="ad-action-btn copy-btn" onclick="copyAd('${safeId}')">📋 Copy Ad</button>
-        <button class="ad-action-btn" onclick="regenAd(this,'${platform}','${esc(biz)}','${esc(city)}','${esc(service)}','${safeId}')">🔄 Regenerate</button>
-        <button class="ad-action-btn" onclick="downloadAd('${platform}','${safeId}')">⬇ Download .txt</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function copyAd(id){
-  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>toast('Copied to clipboard!'));
-}
-
-function downloadAd(platform,id){
-  const text=document.getElementById(id).textContent;
-  const a=document.createElement('a');
-  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(text);
-  a.download=platform.replace(/\s/g,'_')+'_ad.txt';
-  a.click();
-  toast('Downloaded!');
-}
-
-async function regenAd(btn,platform,biz,city,service,safeId){
-  btn.textContent='Regenerating...';btn.disabled=true;
-  const el=document.getElementById(safeId);
-  el.style.opacity='.3';
-  try{
-    const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'regen',platform,biz,city,service})});
-    const d=await r.json();
-    if(d.text){
-      el.textContent=d.text;
-      const sb=el.closest('.aoc-body').querySelector('.score-bar');
-      if(sb) sb.outerHTML=renderScore(scoreAd(d.text));
-    }
-  }catch(e){toast('Try again')}
-  el.style.opacity='1';btn.textContent='🔄 Regenerate';btn.disabled=false;
-}
-
-async function runGenerate(){
-  const biz=document.getElementById('gBiz').value.trim();
-  const city=document.getElementById('gCity').value.trim();
-  const service=document.getElementById('gService').value;
-  const offer=document.getElementById('gOffer').value.trim()||'No current offer';
-  const target=document.getElementById('gTarget').value||'homeowners';
-  const tone=document.getElementById('gTone').value;
-  const platforms=[...document.querySelectorAll('.plat-pill.on')].map(p=>p.dataset.p);
-
-  if(!biz||!city||!service){toast('Please fill in business name, city & service');return}
-  if(!platforms.length){toast('Select at least one platform');return}
-
-  document.getElementById('genBtn').disabled=true;
-  document.getElementById('genBtn').textContent='Generating...';
-  document.getElementById('emptyState').style.display='none';
-  document.getElementById('loadingState').style.display='block';
-  document.getElementById('tabRow').style.display='none';
-  ['fb','ig','gg','tt'].forEach(t=>{const p=document.getElementById('tab-'+t);p.innerHTML='';p.style.display='none';p.classList.remove('active')});
-
-  try{
-    const r=await fetch('/api/generate',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({type:'generate',biz,city,service,offer,target,tone,platforms})
-    });
-    const d=await r.json();
-    if(d.error){toast('Error: '+d.error);throw new Error(d.error)}
-
-    const platMap={facebook:{id:'fb',icon:'📘',label:'Facebook Ad',badge:'Facebook'},instagram:{id:'ig',icon:'📸',label:'Instagram Caption',badge:'Instagram'},google:{id:'gg',icon:'🔍',label:'Google Ad',badge:'Google'},tiktok:{id:'tt',icon:'🎵',label:'TikTok Script',badge:'TikTok'}};
-    const sectionMap={facebook:'===FACEBOOK===',instagram:'===INSTAGRAM===',google:'===GOOGLE===',tiktok:'===TIKTOK==='};
-    const text=d.text;
-    let first=null;
-    platforms.forEach((p,i)=>{
-      const cfg=platMap[p];
-      const start=text.indexOf(sectionMap[p]);
-      if(start===-1)return;
-      const nexts=platforms.slice(i+1).map(pp=>text.indexOf(sectionMap[pp])).filter(x=>x>start);
-      const end=nexts.length?Math.min(...nexts):text.length;
-      const content=text.slice(start+sectionMap[p].length,end).trim();
-      document.getElementById('tab-'+cfg.id).innerHTML=makeCard(cfg.label,cfg.icon,cfg.badge,content,biz,city,service);
-      if(!first)first=cfg.id;
-    });
-
-    if(first){
-      document.getElementById('tabRow').style.display='flex';
-      document.getElementById('tab-'+first).style.display='block';
-      document.getElementById('tab-'+first).classList.add('active');
-      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-      document.querySelector(`.tab-btn[onclick*="'${first}'"]`)?.classList.add('active');
-    }
-    usage++;
-    document.getElementById('usageCount').textContent=usage;
-  }catch(e){
-    document.getElementById('emptyState').style.display='block';
-    if(!e.message.includes('Error:'))toast('Generation failed — check your API key in Vercel settings');
-  }
-
-  document.getElementById('loadingState').style.display='none';
-  document.getElementById('genBtn').disabled=false;
-  document.getElementById('genBtn').textContent='✨ Generate Ads';
-}
-
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;')}
-
-const IDEAS=[
-  {cat:'Instagram',tag:'tag-ig',title:'Before & After Post',desc:'Lawn transformation photos get 4x more engagement than regular posts.'},
-  {cat:'Facebook',tag:'tag-fb',title:'Seasonal Promo Ad',desc:'Spring cleanup or fall leaf removal campaign targeting local homeowners.'},
-  {cat:'TikTok',tag:'tag-tt',title:'Time-lapse Mow Video',desc:'15-second time-lapse of a full yard mow — one of TikTok\'s top formats.'},
-  {cat:'Strategy',tag:'tag-str',title:'Referral Program Script',desc:'Turn your existing customers into your best salespeople.'},
-  {cat:'Google',tag:'tag-gg',title:'Local Search Ad Copy',desc:'Dominate "lawn care near me" searches with proven headline formulas.'},
-  {cat:'Instagram',tag:'tag-ig',title:'Customer Review Graphic',desc:'Turn your best 5-star reviews into shareable social content.'},
-  {cat:'TikTok',tag:'tag-tt',title:'Meet The Crew Video',desc:'Humanize your business. Show who does the work — builds massive trust.'},
-  {cat:'Strategy',tag:'tag-str',title:'Slow Season Survival Plan',desc:'Keep revenue steady through winter with these proven strategies.'},
-  {cat:'Facebook',tag:'tag-fb',title:'HOA Community Targeting Ad',desc:'One ad to reach entire HOA communities — the highest-value clients.'},
-  {cat:'Instagram',tag:'tag-ig',title:'Services & Pricing Post',desc:'A clean graphic listing your services and starting prices. Saves you calls.'},
-  {cat:'Strategy',tag:'tag-str',title:'Google Business Profile Tips',desc:'Optimize your free Google listing to get more calls without paying for ads.'},
-  {cat:'TikTok',tag:'tag-tt',title:'Equipment Showcase Video',desc:'Show off your equipment. Surprisingly great for building credibility.'},
-];
-
-function initIdeas(){
-  const g=document.getElementById('ideasGrid');
-  if(g.children.length)return;
-  IDEAS.forEach(idea=>{
-    const d=document.createElement('div');
-    d.className='idea-card';
-    d.innerHTML=`<span class="idea-tag ${idea.tag}">${idea.cat}</span><h3>${idea.title}</h3><p>${idea.desc}</p>`;
-    d.onclick=()=>generateIdea(idea);
-    g.appendChild(d);
-  });
-}
-
-async function generateIdea(idea){
-  const box=document.getElementById('ideaBox');
-  const title=document.getElementById('ideaBoxTitle');
-  const textEl=document.getElementById('ideaBoxText');
-  title.textContent='Generating: '+idea.title+'...';
-  textEl.textContent='';
-  box.classList.add('show');
-  box.scrollIntoView({behavior:'smooth',block:'nearest'});
-  try{
-    const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'idea',ideaTitle:idea.title,ideaCat:idea.cat,ideaDesc:idea.desc})});
-    const d=await r.json();
-    title.textContent=idea.title+' — '+idea.cat;
-    textEl.textContent=d.text||'Failed to generate. Please try again.';
-  }catch(e){textEl.textContent='Failed to generate. Please try again.'}
-}
-
-async function sendCoach(){
-  const input=document.getElementById('coachIn');
-  const msg=input.value.trim();
-  if(!msg)return;
-  input.value='';
-  document.getElementById('coachSuggs').style.display='none';
-  addMsg('user',msg);
-  chatHistory.push({role:'user',content:msg});
-  const typingEl=addMsg('ai','...');
-  try{
-    const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'coach',messages:chatHistory})});
-    const d=await r.json();
-    const reply=d.text||'Something went wrong. Try again.';
-    chatHistory.push({role:'assistant',content:reply});
-    typingEl.querySelector('.msg-bubble').textContent=reply;
-  }catch(e){typingEl.querySelector('.msg-bubble').textContent='Something went wrong. Try again.'}
-}
-
-function addMsg(role,text){
-  const wrap=document.getElementById('coachMsgs');
-  const inner=wrap.querySelector('.coach-msgs-inner');
-  const d=document.createElement('div');
-  d.className='msg '+role;
-  d.innerHTML=(role==='ai'?'<div class="msg-name">🤖 AI Business Coach</div>':'')+`<div class="msg-bubble">${esc(text)}</div>`;
-  inner.appendChild(d);
-  wrap.scrollTop=wrap.scrollHeight;
-  return d;
-}
-
-function useSugg(btn){document.getElementById('coachIn').value=btn.textContent;sendCoach()}
-</script>
-</body>
-</html>
