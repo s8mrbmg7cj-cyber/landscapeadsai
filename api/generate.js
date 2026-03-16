@@ -190,12 +190,25 @@ async function genVisual(apiKey, b) {
 Good examples: "Licensed & Insured • Free Estimates" / "Same-Week Service • Satisfaction Guaranteed" / "Locally Trusted • Fast Response • Quality Work"
 Bad examples: "We provide great service" (too vague)`;
 
-  const ctaGuide = `CTA style guide — return 3 strong options:
-Free-estimate CTAs:  "Get Your Free Estimate" / "Book Your Free Lawn Quote" / "Claim Your Free Lawn Check"
-Discount CTAs:       "Claim ${offerUpper} Today" / "Lock In Your First-Cut Discount" / "Save On Your First Service"
-Urgency CTAs:        "Book Before Spots Fill" / "Secure Your Spot Today" / "Limited Slots — Book Now"
-DM/message CTAs:     'DM "CUT" For A Free Estimate' / 'Message "LAWN" For A Fast Quote'
-Pick the 3 best options for this specific business, service, and offer.`;
+  const ctaGuide = `CTA style guide — return exactly 3 strong options as a JSON array.
+Mix styles — ideally one free-estimate, one DM/message, and one urgency or discount.
+
+FREE ESTIMATE CTAs:
+  "Get Your Free Estimate" / "Book Your Free Lawn Estimate" / "Schedule Your Free Quote"
+
+DISCOUNT CTAs (use when offer includes a discount):
+  "Claim ${offerUpper} Today" / "Save ${offerUpper} on Your First Cut" / "Unlock Your Lawn Discount"
+
+URGENCY CTAs:
+  "Book Before Spots Fill" / "Limited Spots This Week" / "Reserve Your Lawn Service Now"
+
+DM / MESSAGE CTAs (always include at least one of these — they convert very well):
+  'DM "CUT" for a Free Estimate' / 'Message Us "CUT" for Pricing' / 'Text "CUT" to Get Your Quote' / 'Send "CUT" to Claim Your Discount'
+
+PHONE CTAs (only use occasionally, not as the primary):
+  "Call Now for Same-Week Service" / "Call Today Before Spots Fill"
+
+Pick the 3 best options for this specific business, service, and offer. Always include at least one DM/message CTA.`;
 
   const raw = await callOpenAI(apiKey, [
     { role: 'system', content: 'You are a premium landscaping ad copywriter. Always respond with valid JSON only. Never use weak CTAs like "Call Now" or "Contact Us".' },
@@ -233,7 +246,7 @@ Respond with this exact JSON (fill every field, no empty strings):
   // Ensure ctaOptions is always an array of 3
   const fallbackCtas = [
     'Get Your Free Estimate',
-    `Claim ${offerUpper} Today`,
+    'DM "CUT" for a Free Estimate',
     'Book Before Spots Fill'
   ];
   const ctaOptions = Array.isArray(d.ctaOptions) && d.ctaOptions.length > 0
