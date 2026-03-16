@@ -170,19 +170,52 @@ Phone/CTA: ${b.phone || 'Call for a free estimate'}`;
 // ── 1. VISUAL AD TEXT ────────────────────────────────────
 async function genVisual(apiKey, b) {
   const offerUpper = (b.offer || 'Free Estimate').toUpperCase();
-  const cityUpper = (b.city || '').toUpperCase();
+  const cityUpper  = (b.city  || '').toUpperCase();
+  const city       = b.city   || 'your area';
+  const service    = b.service|| 'lawn care';
+  const biz        = b.biz    || 'the business';
+  const offer      = b.offer  || 'Free Estimate';
+  const tmpl       = b.template || 'promotional';
+
+  // Headline style guide injected into prompt so output quality is consistent
+  const headlineGuide = `Headline style: 4-8 words, punchy, feels like a real ad. Examples by angle:
+- General:    "A Better Lawn Starts Here" / "Clean Cuts. Great Results." / "Lawn Care Done Right"
+- Local:      "${city}'s Trusted Lawn Experts" / "Local Lawn Care You Can Trust"
+- Urgency:    "Limited Lawn Spots This Week" / "Book Before Spots Fill"
+- Transform:  "From Overgrown To Beautiful" / "The Lawn Your Neighbors Notice"
+- Trust:      "Reliable Lawn Care. Guaranteed." / "Local Experts. Proven Results."
+- Convenience:"No Hassle. Just Great Lawns." / "Lawn Care Without The Stress"`;
+
+  const supportGuide = `Supporting text style: 1-2 short lines, premium feel, include trust + value signals.
+Good examples: "Licensed & Insured • Free Estimates" / "Same-Week Service • Satisfaction Guaranteed" / "Locally Trusted • Fast Response • Quality Work"
+Bad examples: "We provide great service" (too vague)`;
+
+  const ctaGuide = `CTA style guide — return 3 strong options:
+Free-estimate CTAs:  "Get Your Free Estimate" / "Book Your Free Lawn Quote" / "Claim Your Free Lawn Check"
+Discount CTAs:       "Claim ${offerUpper} Today" / "Lock In Your First-Cut Discount" / "Save On Your First Service"
+Urgency CTAs:        "Book Before Spots Fill" / "Secure Your Spot Today" / "Limited Slots — Book Now"
+DM/message CTAs:     'DM "CUT" For A Free Estimate' / 'Message "LAWN" For A Fast Quote'
+Pick the 3 best options for this specific business, service, and offer.`;
+
   const raw = await callOpenAI(apiKey, [
-    { role: 'system', content: 'You are a landscaping ad copywriter. Always respond with valid JSON only.' },
+    { role: 'system', content: 'You are a premium landscaping ad copywriter. Always respond with valid JSON only. Never use weak CTAs like "Call Now" or "Contact Us".' },
     {
       role: 'user',
-      content: `Write visual ad copy for a ${b.template || 'promotional'} landscaping ad.
-Business: ${b.biz || 'the business'} | City: ${b.city || 'local area'} | Service: ${b.service || 'lawn care'} | Offer: ${b.offer || 'Free Estimate'} | CTA line: ${b.phone || 'Call for a free estimate'}
+      content: `Write visual ad copy for a ${tmpl} landscaping ad.
+Business: ${biz} | City: ${city} | Service: ${service} | Offer: ${offer} | Phone: ${b.phone || 'Call for a free estimate'}
 
-Respond with this exact JSON structure (fill every field, no empty strings):
+${headlineGuide}
+
+${supportGuide}
+
+${ctaGuide}
+
+Respond with this exact JSON (fill every field, no empty strings):
 {
-  "headline": "4-8 word punchy headline",
-  "supportingText": "1-2 supporting lines about the service",
-  "ctaText": "short CTA button text max 6 words",
+  "headline": "strong 4-8 word headline",
+  "supportingText": "1-2 short premium lines with trust signals",
+  "ctaText": "best single CTA for the canvas button",
+  "ctaOptions": ["option 1", "option 2", "option 3"],
   "offerBadge": "${offerUpper}",
   "trustLine": "Licensed & Insured • Free Estimates • Locally Trusted",
   "detailLine1": "Same-Week Service Available",
@@ -191,94 +224,81 @@ Respond with this exact JSON structure (fill every field, no empty strings):
   "cityLine": "${cityUpper}"
 }`
     }
-  ], { maxTokens: 600, jsonMode: true });
+  ], { maxTokens: 700, jsonMode: true });
 
   const { parsed: d, parseOk, parseError } = safeParseJSON(raw, {});
   if (!parseOk) {
     return { ok: false, feature: 'visual', error: 'JSON parse failed: ' + parseError, rawText: raw };
   }
+  // Ensure ctaOptions is always an array of 3
+  const fallbackCtas = [
+    'Get Your Free Estimate',
+    `Claim ${offerUpper} Today`,
+    'Book Before Spots Fill'
+  ];
+  const ctaOptions = Array.isArray(d.ctaOptions) && d.ctaOptions.length > 0
+    ? d.ctaOptions.slice(0, 3)
+    : fallbackCtas;
   return {
-    ok: true,
-    feature: 'visual',
-    rawText: raw,
-    headline:       d.headline      || `Professional ${b.service || 'Lawn Care'}`,
-    supportingText: d.supportingText|| 'Reliable professional service you can count on.',
-    ctaText:        d.ctaText       || d.cta || b.phone || 'Call Now for Free Estimate',
-    offerBadge:     d.offerBadge    || offerUpper,
-    trustLine:      d.trustLine     || 'Licensed & Insured • Free Estimates • Locally Trusted',
-    detailLine1:    d.detailLine1   || 'Same-Week Service Available',
-    detailLine2:    d.detailLine2   || 'Satisfaction Guaranteed',
-    urgencyLine:    d.urgencyLine   || 'Limited spots available this week',
-    cityLine:       d.cityLine      || cityUpper
+    ok:             true,
+    feature:        'visual',
+    rawText:        raw,
+    headline:       d.headline       || `${city}'s Trusted ${service}`,
+    supportingText: d.supportingText || 'Licensed & Insured • Free Estimates',
+    ctaText:        d.ctaText        || d.cta || ctaOptions[0],
+    ctaOptions,
+    offerBadge:     d.offerBadge     || offerUpper,
+    trustLine:      d.trustLine      || 'Licensed & Insured • Free Estimates • Locally Trusted',
+    detailLine1:    d.detailLine1    || 'Same-Week Service Available',
+    detailLine2:    d.detailLine2    || 'Satisfaction Guaranteed',
+    urgencyLine:    d.urgencyLine    || 'Limited spots available this week',
+    cityLine:       d.cityLine       || cityUpper
   };
 }
 
 // ── 2. 5 VARIATIONS ─────────────────────────────────────
 async function genVariations(apiKey, b) {
-  const offer = b.offer || 'Free Estimate';
+  const offer  = b.offer  || 'Free Estimate';
+  const city   = b.city   || 'your area';
+  const service= b.service|| 'lawn care';
+
   const raw = await callOpenAI(apiKey, [
-    { role: 'system', content: 'You are a landscaping ad copywriter. Always respond with valid JSON only.' },
+    { role: 'system', content: 'You are a premium landscaping ad copywriter. Always respond with valid JSON only. Never use weak CTAs like "Call Now" or "Contact Us".' },
     {
       role: 'user',
-      content: `Generate exactly 5 ad variations for a landscaping business.
-Business: ${b.biz || 'the business'} | City: ${b.city || 'local area'} | Service: ${b.service || 'lawn care'} | Offer: ${offer} | CTA: ${b.phone || 'Call for a free estimate'}
+      content: `Generate 5 high-converting ad variations for a landscaping business.
+Business: ${b.biz || 'the business'} | City: ${city} | Service: ${service} | Offer: ${offer} | Phone: ${b.phone || 'Call for a free estimate'}
 
-Use these 5 angles: 1-Urgency, 2-Transformation, 3-Trust, 4-Offer, 5-Local Authority.
+5 angles (use in order):
+1. Urgency       — scarcity, limited spots, time pressure
+2. Transformation — before/after, visual results, dramatic improvement
+3. Trust         — licensed, insured, reviews, guarantee, reliability
+4. Offer         — lead with the deal/discount, savings front and center
+5. Local Authority — city-specific, established presence, community trusted
+
+Headline style (4-8 words, punchy, real-ad feel):
+- Urgency:    "Limited Lawn Spots This Week"
+- Transform:  "From Overgrown To Beautiful"
+- Trust:      "Reliable Lawn Care. Guaranteed."
+- Offer:      "Save Big On Your First Cut"
+- Local:      "${city}'s Trusted Lawn Experts"
+
+Supporting text style (1-2 short lines, premium, include trust/value signals):
+Good: "Licensed & Insured • Free Estimates" / "Same-Week Service • Satisfaction Guaranteed"
+
+CTA style (strong, specific, never "Call Now"):
+Good: "Get Your Free Estimate" / "Claim ${offer.toUpperCase()}" / "Book Before Spots Fill" / 'DM "CUT" For A Free Quote'
+
 The offer "${offer}" MUST appear in offerBadge for every variation.
 
-Respond with this exact JSON (the "variations" key is required at root):
+Respond with this exact JSON (variations key required at root):
 {
   "variations": [
-    {
-      "id": 1,
-      "angle": "Urgency",
-      "headline": "headline here",
-      "supportingText": "supporting text here",
-      "ctaText": "CTA here",
-      "offerBadge": "${offer.toUpperCase()}",
-      "detailLine": "detail line here",
-      "trustLine": "Licensed & Insured • Free Estimates"
-    },
-    {
-      "id": 2,
-      "angle": "Transformation",
-      "headline": "headline here",
-      "supportingText": "supporting text here",
-      "ctaText": "CTA here",
-      "offerBadge": "${offer.toUpperCase()}",
-      "detailLine": "detail line here",
-      "trustLine": "Licensed & Insured • Free Estimates"
-    },
-    {
-      "id": 3,
-      "angle": "Trust",
-      "headline": "headline here",
-      "supportingText": "supporting text here",
-      "ctaText": "CTA here",
-      "offerBadge": "${offer.toUpperCase()}",
-      "detailLine": "detail line here",
-      "trustLine": "Licensed & Insured • 5-Star Rated"
-    },
-    {
-      "id": 4,
-      "angle": "Offer",
-      "headline": "headline here",
-      "supportingText": "supporting text here",
-      "ctaText": "CTA here",
-      "offerBadge": "${offer.toUpperCase()}",
-      "detailLine": "detail line here",
-      "trustLine": "Licensed & Insured • Free Estimates"
-    },
-    {
-      "id": 5,
-      "angle": "Local Authority",
-      "headline": "headline here",
-      "supportingText": "supporting text here",
-      "ctaText": "CTA here",
-      "offerBadge": "${offer.toUpperCase()}",
-      "detailLine": "detail line here",
-      "trustLine": "Trusted in ${b.city || 'your area'} • Free Estimates"
-    }
+    {"id":1,"angle":"Urgency","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"..."},
+    {"id":2,"angle":"Transformation","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"..."},
+    {"id":3,"angle":"Trust","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"..."},
+    {"id":4,"angle":"Offer","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"..."},
+    {"id":5,"angle":"Local Authority","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"..."}
   ]
 }`
     }
@@ -288,7 +308,6 @@ Respond with this exact JSON (the "variations" key is required at root):
   if (!parseOk) {
     return { ok: false, feature: 'variations', error: 'JSON parse failed: ' + parseError, rawText: raw, variations: [] };
   }
-  // Handle all possible wrapping patterns from the model
   let vars = [];
   if (Array.isArray(d)) vars = d;
   else if (Array.isArray(d.variations)) vars = d.variations;
@@ -300,16 +319,15 @@ Respond with this exact JSON (the "variations" key is required at root):
   if (vars.length === 0) {
     return { ok: false, feature: 'variations', error: 'Parsed OK but found no variations array. See rawText.', rawText: raw, parsedObject: d, variations: [] };
   }
-  // Normalize field names
   vars = vars.map((v, i) => ({
-    id: v.id || i + 1,
-    angle: v.angle || 'Variation ' + (i + 1),
-    headline: v.headline || '',
+    id:             v.id             || i + 1,
+    angle:          v.angle          || 'Variation ' + (i + 1),
+    headline:       v.headline       || '',
     supportingText: v.supportingText || '',
-    ctaText: v.ctaText || v.cta || '',
-    offerBadge: v.offerBadge || offer.toUpperCase(),
-    detailLine: v.detailLine || '',
-    trustLine: v.trustLine || 'Licensed & Insured • Free Estimates'
+    ctaText:        v.ctaText        || v.cta || '',
+    offerBadge:     v.offerBadge     || offer.toUpperCase(),
+    detailLine:     v.detailLine     || '',
+    trustLine:      v.trustLine      || 'Licensed & Insured • Free Estimates'
   }));
   return { ok: true, feature: 'variations', rawText: raw, variations: vars };
 }
