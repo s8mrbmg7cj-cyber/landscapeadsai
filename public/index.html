@@ -763,7 +763,11 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
       <div class="sdiv">⑤ Ad Text (AI-generated — editable)</div>
       <div class="fg"><label class="fl">Headline</label><input class="fi" id="bHeadline" placeholder="Click Generate to auto-fill..."></div>
       <div class="fg"><label class="fl">Supporting Text</label><textarea class="fi" id="bSubtext" placeholder="Click Generate to auto-fill..." rows="2"></textarea></div>
-      <div class="fg"><label class="fl">CTA Button Text</label><input class="fi" id="bCta" placeholder="e.g. Call Now for Free Estimate"></div>
+      <div class="fg"><label class="fl">CTA Button Text</label><input class="fi" id="bCta" placeholder="Click Generate to auto-fill..."></div>
+      <div id="ctaOptionsWrap" style="display:none;margin-top:-8px;margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">Quick-pick a CTA:</div>
+        <div id="ctaOptionsList" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+      </div>
       <div class="error-msg" id="buildError"></div>
 
       <button class="abtn" id="buildBtn" onclick="genAndRender()">✨ Generate Ad + Preview</button>
@@ -1128,6 +1132,25 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   </div>
 </div>
 
+<!-- ======= DEBUG PANEL ======= -->
+<div id="debugPanel" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;font-size:12px;background:#0a0a0a;border-top:2px solid #ff6b35;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#111;border-bottom:1px solid #333;cursor:pointer" onclick="dbToggleBody()">
+    <span style="color:#ff6b35;font-weight:bold">🐛 DEVELOPER DEBUG PANEL <span id="dbBadge" style="background:#ff6b35;color:#000;padding:1px 7px;border-radius:3px;font-size:11px;margin-left:8px">0 events</span></span>
+    <span style="display:flex;gap:10px;align-items:center">
+      <button onclick="event.stopPropagation();dbClear()" style="background:#333;border:none;color:#ccc;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px">Clear</button>
+      <button onclick="event.stopPropagation();dbCopyAll()" style="background:#333;border:none;color:#ccc;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px">Copy All</button>
+      <button onclick="event.stopPropagation();dbClose()" style="background:#333;border:none;color:#ff6b35;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px">✕ Close</button>
+    </span>
+  </div>
+  <div id="dbBody" style="max-height:340px;overflow-y:auto;padding:0">
+    <div id="dbEmpty" style="padding:14px 18px;color:#555">No debug events yet. Click a button like Generate Ad or Generate Variations to see logs here.</div>
+    <div id="dbLog"></div>
+  </div>
+</div>
+
+<!-- DEBUG TRIGGER BUTTON (always visible in corner) -->
+<button id="dbTrigger" onclick="dbOpen()" title="Open Debug Panel" style="position:fixed;bottom:14px;left:14px;z-index:8999;background:#111;border:1px solid #ff6b35;color:#ff6b35;font-family:monospace;font-size:11px;font-weight:bold;padding:5px 10px;border-radius:5px;cursor:pointer;opacity:.7">🐛 DEBUG</button>
+
 <div class="toast" id="toastEl"></div>
 
 <script>
@@ -1137,6 +1160,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 // ═══════════════════════════════════════════════════════════
 
 const API = '/api/generate';
+const DEBUG = false; // Set to true to show the developer debug panel
 let isPro = false;
 let usage = 0, chatHistory = [];
 let curTmpl = 'beforeafter', curLayout = 'square';
@@ -1295,32 +1319,75 @@ function showAdScore() {
   document.getElementById('scoreBox').classList.add('show');
 }
 
+// ── FALLBACK CTA LIST (used if AI doesn't return ctaOptions) ──
+const FALLBACK_CTAS = [
+  'Get Your Free Estimate',
+  'Book Your First Cut Today',
+  'Claim 20% Off Today',
+  'Secure Your Spot Today',
+  'Book Before Spots Fill',
+  'DM "CUT" For A Free Estimate',
+  'Message "LAWN" For A Fast Quote'
+];
+
+function renderCtaOptions(options) {
+  const wrap = document.getElementById('ctaOptionsWrap');
+  const list = document.getElementById('ctaOptionsList');
+  if (!wrap || !list) return;
+  const opts = (Array.isArray(options) && options.length > 0) ? options : FALLBACK_CTAS.slice(0, 3);
+  list.innerHTML = '';
+  opts.forEach(opt => {
+    const pill = document.createElement('button');
+    pill.textContent = opt;
+    pill.style.cssText = 'background:var(--bg3);border:1px solid var(--border);color:var(--t2);font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;';
+    pill.onmouseover = () => { pill.style.borderColor='var(--g)'; pill.style.color='var(--g2)'; };
+    pill.onmouseout  = () => { pill.style.borderColor='var(--border)'; pill.style.color='var(--t2)'; };
+    pill.onclick = () => {
+      document.getElementById('bCta').value = opt;
+      // Update curAd and re-render canvas immediately
+      curAd = { ...curAd, cta: opt };
+      renderCanvas();
+    };
+    list.appendChild(pill);
+  });
+  wrap.style.display = 'block';
+}
+
 // ── GENERATE AD + RENDER ──────────────────────────────────
 async function genAndRender() {
-  const biz = document.getElementById('bBiz').value.trim();
-  const city = document.getElementById('bCity').value.trim();
+  const biz     = document.getElementById('bBiz').value.trim();
+  const city    = document.getElementById('bCity').value.trim();
   const service = document.getElementById('bService').value;
-  const offer = document.getElementById('bOffer').value.trim() || 'Free Estimate';
-  const phone = document.getElementById('bPhone').value.trim() || 'Call for a free estimate';
+  const offer   = document.getElementById('bOffer').value.trim() || 'Free Estimate';
+  const phone   = document.getElementById('bPhone').value.trim() || 'Call for a free estimate';
   if (!biz || !city || !service) { showErr('buildError', 'Please fill in Business Name, City, and Service before generating.'); return; }
   hideErr('buildError');
   setBtn('buildBtn', true, 'Generating...');
+
+  // Read current field values — user may have already typed something
+  const existingHeadline = document.getElementById('bHeadline').value.trim();
+  const existingSubtext  = document.getElementById('bSubtext').value.trim();
+  const existingCta      = document.getElementById('bCta').value.trim();
+
   try {
     const d = await apiCall({ type:'visual', biz, city, service, offer, phone, template: curTmpl, _button: 'Generate Ad + Preview' });
-    // ctaText is the canonical field; cta is the legacy fallback
-    const headline      = d.headline       || `Professional ${service}`;
-    const supportingText= d.supportingText || 'Licensed & Insured • Free Estimates';
-    const ctaText       = d.ctaText        || d.cta || phone;
-    // Write AI results into the editable fields on the left panel
+
+    // Auto-fill: only overwrite fields the user left blank
+    const headline       = existingHeadline || d.headline       || `Professional ${service}`;
+    const supportingText = existingSubtext  || d.supportingText || 'Licensed & Insured • Free Estimates';
+    const ctaText        = existingCta      || d.ctaText        || d.cta || FALLBACK_CTAS[0];
+
     document.getElementById('bHeadline').value = headline;
     document.getElementById('bSubtext').value  = supportingText;
     document.getElementById('bCta').value      = ctaText;
-    // Store full ad data for canvas render
+
+    // Show CTA quick-pick options
+    renderCtaOptions(d.ctaOptions || FALLBACK_CTAS.slice(0, 3));
+
     curAd = {
       biz, city, service, offer, phone,
-      headline,
-      supportingText,
-      cta: ctaText,
+      headline, supportingText,
+      cta:         ctaText,
       offerBadge:  d.offerBadge  || offer.toUpperCase(),
       trustLine:   d.trustLine   || 'Licensed & Insured • Free Estimates • Locally Trusted',
       detailLine1: d.detailLine1 || 'Same-Week Service Available',
@@ -1330,22 +1397,23 @@ async function genAndRender() {
     };
   } catch(e) {
     showErr('buildError', 'Generation failed: ' + e.message + '. You can type your own text and click Re-render.');
-    // Populate fallback values so canvas can still render
-    const fallbackHeadline = document.getElementById('bHeadline').value || `Professional ${service}`;
-    const fallbackSubtext  = document.getElementById('bSubtext').value  || 'Licensed & Insured • Free Estimates';
-    const fallbackCta      = document.getElementById('bCta').value      || phone;
+    // Fallback: fill only empty fields, render anyway
+    const fallbackHeadline = existingHeadline || `Professional ${service}`;
+    const fallbackSubtext  = existingSubtext  || 'Licensed & Insured • Free Estimates';
+    const fallbackCta      = existingCta      || FALLBACK_CTAS[0];
     document.getElementById('bHeadline').value = fallbackHeadline;
     document.getElementById('bSubtext').value  = fallbackSubtext;
     document.getElementById('bCta').value      = fallbackCta;
+    renderCtaOptions(FALLBACK_CTAS.slice(0, 3));
     curAd = {
       biz, city, service, offer, phone,
       headline: fallbackHeadline, supportingText: fallbackSubtext, cta: fallbackCta,
-      offerBadge: offer.toUpperCase(),
-      trustLine: 'Licensed & Insured • Free Estimates',
+      offerBadge:  offer.toUpperCase(),
+      trustLine:   'Licensed & Insured • Free Estimates',
       detailLine1: 'Same-Week Service Available',
       detailLine2: 'Satisfaction Guaranteed',
       urgencyLine: 'Limited spots available',
-      cityLine: city.toUpperCase()
+      cityLine:    city.toUpperCase()
     };
   }
   setBtn('buildBtn', false, '✨ Generate Ad + Preview');
@@ -1903,6 +1971,15 @@ function useSugg(btn){document.getElementById('coachIn').value=btn.textContent;s
 // ═══════════════════════════════════════════════════════════
 
 let debugOpen = false;
+// Hide the debug panel entirely when DEBUG=false
+(function initDebugVisibility() {
+  if (!DEBUG) {
+    const wrap = document.getElementById('debugPanelWrap');
+    const spacer = document.getElementById('debugSpacer');
+    if (wrap) wrap.style.display = 'none';
+    if (spacer) spacer.style.height = '0';
+  }
+})();
 const debugEntries = [];
 
 function toggleDebug() {
@@ -1918,16 +1995,18 @@ function clearDebug() {
 }
 
 function dbLog(entry) {
+  if (!DEBUG) return; // no-op in production
   debugEntries.unshift(entry); // newest first
   const status = document.getElementById('debugStatus');
   const ok = entry.responseOk && entry.parsed?.ok !== false;
-  status.textContent = (ok ? '✅' : '❌') + ' Last: ' + entry.button + ' @ ' + entry.ts;
-  status.style.color = ok ? '#34d399' : '#f87171';
+  if (status) { status.textContent = (ok ? '✅' : '❌') + ' Last: ' + entry.button + ' @ ' + entry.ts; status.style.color = ok ? '#34d399' : '#f87171'; }
   renderDebugLog();
 }
 
 function renderDebugLog() {
+  if (!DEBUG) return;
   const log = document.getElementById('debugLog');
+  if (!log) return;
   log.innerHTML = debugEntries.map((e, i) => {
     const ok = e.responseOk && e.parsed?.ok !== false;
     const bg = i === 0 ? '#1a1a2e' : '#111118';
