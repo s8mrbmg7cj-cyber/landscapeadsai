@@ -1312,30 +1312,39 @@ async function genAndRender() {
   setBtn('buildBtn', true, 'Generating...');
   try {
     const d = await apiCall({ type:'visual', biz, city, service, offer, phone, template: curTmpl });
-    // Write AI results into editable fields
-    document.getElementById('bHeadline').value = d.headline || '';
-    document.getElementById('bSubtext').value = d.supportingText || '';
-    document.getElementById('bCta').value = d.cta || phone;
+    // ctaText is the canonical field; cta is the legacy fallback
+    const headline      = d.headline       || `Professional ${service}`;
+    const supportingText= d.supportingText || 'Licensed & Insured • Free Estimates';
+    const ctaText       = d.ctaText        || d.cta || phone;
+    // Write AI results into the editable fields on the left panel
+    document.getElementById('bHeadline').value = headline;
+    document.getElementById('bSubtext').value  = supportingText;
+    document.getElementById('bCta').value      = ctaText;
+    // Store full ad data for canvas render
     curAd = {
       biz, city, service, offer, phone,
-      headline: d.headline || '',
-      supportingText: d.supportingText || '',
-      cta: d.cta || phone,
-      offerBadge: d.offerBadge || offer.toUpperCase(),
-      trustLine: d.trustLine || 'Licensed & Insured • Free Estimates • Locally Trusted',
+      headline,
+      supportingText,
+      cta: ctaText,
+      offerBadge:  d.offerBadge  || offer.toUpperCase(),
+      trustLine:   d.trustLine   || 'Licensed & Insured • Free Estimates • Locally Trusted',
       detailLine1: d.detailLine1 || 'Same-Week Service Available',
       detailLine2: d.detailLine2 || 'Satisfaction Guaranteed',
       urgencyLine: d.urgencyLine || 'Limited spots available this week',
-      cityLine: d.cityLine || city.toUpperCase()
+      cityLine:    d.cityLine    || city.toUpperCase()
     };
   } catch(e) {
-    showErr('buildError', 'Generation failed: ' + e.message + '. You can type your own text and still render.');
-    // Set fallback values so render still works
+    showErr('buildError', 'Generation failed: ' + e.message + '. You can type your own text and click Re-render.');
+    // Populate fallback values so canvas can still render
+    const fallbackHeadline = document.getElementById('bHeadline').value || `Professional ${service}`;
+    const fallbackSubtext  = document.getElementById('bSubtext').value  || 'Licensed & Insured • Free Estimates';
+    const fallbackCta      = document.getElementById('bCta').value      || phone;
+    document.getElementById('bHeadline').value = fallbackHeadline;
+    document.getElementById('bSubtext').value  = fallbackSubtext;
+    document.getElementById('bCta').value      = fallbackCta;
     curAd = {
       biz, city, service, offer, phone,
-      headline: document.getElementById('bHeadline').value || service,
-      supportingText: document.getElementById('bSubtext').value || 'Licensed & Insured • Locally Trusted',
-      cta: document.getElementById('bCta').value || phone,
+      headline: fallbackHeadline, supportingText: fallbackSubtext, cta: fallbackCta,
       offerBadge: offer.toUpperCase(),
       trustLine: 'Licensed & Insured • Free Estimates',
       detailLine1: 'Same-Week Service Available',
@@ -1375,24 +1384,44 @@ function renderVarPanel(vars) {
   grid.innerHTML = '';
   vars.forEach((v, i) => {
     const card = document.createElement('div'); card.className = 'var-card' + (i === 0 ? ' av' : '');
-    card.innerHTML = `<div class="var-top"><span class="var-angle">${v.angle || 'Variation '+(i+1)}</span><span class="var-num">Variation ${v.id || i+1}</span></div><div class="var-headline">${esc(v.headline||'')}</div><div class="var-offer">🏷 ${esc(v.offerBadge||'')}</div><div class="var-sub">${esc(v.supportingText||'')} ${v.detailLine ? '· '+esc(v.detailLine) : ''}</div>`;
+    // ctaText is canonical; cta is legacy fallback
+    const ctaVal = v.ctaText || v.cta || '';
+    card.innerHTML = `<div class="var-top"><span class="var-angle">${esc(v.angle || 'Variation '+(i+1))}</span><span class="var-num">Variation ${v.id || i+1}</span></div><div class="var-headline">${esc(v.headline||'')}</div><div class="var-offer">🏷 ${esc(v.offerBadge||'')}</div><div class="var-sub">${esc(v.supportingText||'')}${v.detailLine ? ' · '+esc(v.detailLine) : ''}</div>`;
     card.onclick = () => {
       document.querySelectorAll('.var-card').forEach(c => c.classList.remove('av')); card.classList.add('av');
       document.getElementById('bHeadline').value = v.headline || '';
-      document.getElementById('bSubtext').value = v.supportingText || '';
-      document.getElementById('bCta').value = v.cta || '';
-      curAd = { ...curAd, headline:v.headline, supportingText:v.supportingText, cta:v.cta, offerBadge:v.offerBadge||curAd.offerBadge, detailLine1:v.detailLine||curAd.detailLine1 };
-      renderCanvas(); toast('Variation ' + (v.id||i+1) + ' — ' + (v.angle||'') + ' applied!');
+      document.getElementById('bSubtext').value  = v.supportingText || '';
+      document.getElementById('bCta').value      = ctaVal;
+      curAd = {
+        ...curAd,
+        headline:     v.headline,
+        supportingText:v.supportingText,
+        cta:          ctaVal,
+        offerBadge:   v.offerBadge || curAd.offerBadge,
+        trustLine:    v.trustLine  || curAd.trustLine,
+        detailLine1:  v.detailLine || curAd.detailLine1
+      };
+      renderCanvas();
+      toast('Variation ' + (v.id||i+1) + ' — ' + esc(v.angle||'') + ' applied!');
     };
     grid.appendChild(card);
   });
   panel.classList.add('show');
   // Auto-apply first variation
   if (vars[0]) {
-    document.getElementById('bHeadline').value = vars[0].headline || '';
-    document.getElementById('bSubtext').value = vars[0].supportingText || '';
-    document.getElementById('bCta').value = vars[0].cta || '';
-    curAd = { ...curAd, headline:vars[0].headline, supportingText:vars[0].supportingText, cta:vars[0].cta, offerBadge:vars[0].offerBadge||curAd.offerBadge };
+    const v0 = vars[0];
+    const ctaVal0 = v0.ctaText || v0.cta || '';
+    document.getElementById('bHeadline').value = v0.headline || '';
+    document.getElementById('bSubtext').value  = v0.supportingText || '';
+    document.getElementById('bCta').value      = ctaVal0;
+    curAd = {
+      ...curAd,
+      headline:      v0.headline,
+      supportingText:v0.supportingText,
+      cta:           ctaVal0,
+      offerBadge:    v0.offerBadge || curAd.offerBadge,
+      trustLine:     v0.trustLine  || curAd.trustLine
+    };
     renderCanvas();
   }
 }
@@ -1408,14 +1437,20 @@ async function genCaption() {
   setBtn('captBtn', true, 'Writing captions...');
   try {
     const d = await apiCall({ type:'caption', biz, city, service, offer, phone });
-    document.getElementById('capFbText').textContent = d.facebook || '';
-    document.getElementById('capIgText').textContent = d.instagram || '';
-    document.getElementById('capTtText').textContent = d.tiktok || '';
+    // API returns either { captions: { facebook, instagram, tiktok } } or flat { facebook, instagram, tiktok }
+    const caps = d.captions || d;
+    const fb = caps.facebook || d.facebook || '';
+    const ig = caps.instagram || d.instagram || '';
+    const tt = caps.tiktok || d.tiktok || '';
+    if (!fb && !ig && !tt) throw new Error('No caption content returned.');
+    document.getElementById('capFbText').textContent = fb;
+    document.getElementById('capIgText').textContent = ig;
+    document.getElementById('capTtText').textContent = tt;
     document.getElementById('captionPanel').classList.add('show');
-    // Show FB tab by default
+    // Reset to Facebook tab
     document.querySelectorAll('.cap-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.cap-content').forEach(c => c.classList.remove('show'));
-    document.querySelector('.cap-tab').classList.add('active');
+    document.querySelectorAll('.cap-tab')[0].classList.add('active');
     document.getElementById('capFb').classList.add('show');
   } catch(e) { showErr('captError', 'Caption failed: ' + e.message); }
   setBtn('captBtn', false, '📝 Generate Social Caption');
@@ -1439,13 +1474,28 @@ async function genContent30() {
   setBtn('c30Btn', true, 'Generating 30-day plan...');
   try {
     const d = await apiCall({ type:'content30', biz, city, service, offer });
-    const body = document.getElementById('contentBody'); body.innerHTML = '';
-    (d.weeks || []).forEach(week => {
+    const weeks = d.weeks || [];
+    if (weeks.length === 0) throw new Error('No content weeks returned. Please try again.');
+    const body = document.getElementById('contentBody');
+    body.innerHTML = '';
+    weeks.forEach(week => {
       const wDiv = document.createElement('div'); wDiv.className = 'c30-week';
-      wDiv.innerHTML = `<div class="c30-week-title">Week ${week.week} — ${week.theme || ''}</div>`;
+      wDiv.innerHTML = `<div class="c30-week-title">Week ${week.week}${week.theme ? ' — ' + esc(week.theme) : ''}</div>`;
       (week.posts || []).forEach(post => {
         const pDiv = document.createElement('div'); pDiv.className = 'c30-post';
-        pDiv.innerHTML = `<div class="c30-meta"><span class="c30-badge c30-plat">${post.platform||''}</span><span class="c30-badge c30-type">${post.type||''}</span><span class="c30-badge c30-goal">${post.goal||''}</span></div><div class="c30-concept">Day ${post.day||''}: ${post.concept||''}</div><div class="c30-cta">CTA: ${post.cta||''}</div>`;
+        // Support both new field names (postType, idea, captionIdea) and legacy (type, concept, cta)
+        const postType    = post.postType    || post.type    || 'Post';
+        const idea        = post.idea        || post.concept || '';
+        const captionIdea = post.captionIdea || post.cta     || '';
+        const goal        = post.goal        || '';
+        pDiv.innerHTML = `
+          <div class="c30-meta">
+            <span class="c30-badge c30-plat">${esc(post.platform||'')}</span>
+            <span class="c30-badge c30-type">${esc(postType)}</span>
+            <span class="c30-badge c30-goal">${esc(goal)}</span>
+          </div>
+          <div class="c30-concept"><strong>Day ${post.day||''}:</strong> ${esc(idea)}</div>
+          <div class="c30-cta">${esc(captionIdea)}</div>`;
         wDiv.appendChild(pDiv);
       });
       body.appendChild(wDiv);
