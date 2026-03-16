@@ -517,6 +517,51 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
     <div class="stat-item"><div class="stat-num">30</div><div class="stat-lbl">Days of content, one click</div></div>
   </div>
 
+  <!-- EXAMPLE AD RESULT -->
+  <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 48px;">
+    <div style="max-width:900px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:36px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--g2);margin-bottom:10px;">Example Output</div>
+        <div style="font-size:clamp(22px,3.5vw,34px);font-weight:900;letter-spacing:-1px;margin-bottom:10px;line-height:1.1;">Example Ad Created With LandscapeAdsAI</div>
+        <p style="font-size:15px;color:var(--t2);max-width:480px;margin:0 auto;">Turn one lawn photo into a high-converting Facebook or Instagram ad in seconds.</p>
+      </div>
+      <!-- Example ad mockup -->
+      <div style="max-width:420px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid var(--border);">
+        <!-- Ad image area -->
+        <div style="position:relative;background:linear-gradient(160deg,#0a1a0a 0%,#1a3a1a 50%,#0d2010 100%);height:260px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <!-- Simulated photo overlay -->
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.52) 100%);"></div>
+          <!-- Offer badge -->
+          <div style="position:absolute;top:16px;left:16px;background:var(--gold);color:#1a1a1a;font-size:12px;font-weight:800;padding:5px 14px;border-radius:6px;letter-spacing:.5px;z-index:1;">🌱 SPRING SPECIAL</div>
+          <div style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);color:white;font-size:11px;font-weight:700;padding:4px 11px;border-radius:6px;z-index:1;">20% OFF FIRST CUT</div>
+          <!-- Lawn visual hint -->
+          <div style="position:relative;z-index:1;text-align:center;padding:0 24px;">
+            <div style="font-size:48px;margin-bottom:8px;opacity:.6;">🌿</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:500;">Photo of your work goes here</div>
+          </div>
+          <!-- Headline overlay -->
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px 14px;background:linear-gradient(0deg,rgba(0,0,0,.82) 0%,transparent 100%);z-index:1;">
+            <div style="font-family:'Oswald',sans-serif;font-size:26px;font-weight:800;color:white;line-height:1.1;margin-bottom:4px;">PERFECT LAWN WITHOUT THE WORK</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.7);">Licensed & Insured • Same-Week Service • Free Estimates</div>
+          </div>
+        </div>
+        <!-- Ad bottom bar -->
+        <div style="background:#2ea043;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:white;letter-spacing:.2px;">Green Valley Landscaping</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.7);">Austin, Texas</div>
+          </div>
+          <div style="background:white;color:#1a3a1a;font-size:12px;font-weight:800;padding:7px 16px;border-radius:7px;white-space:nowrap;">Get Your Free Estimate</div>
+        </div>
+        <!-- Watermark hint -->
+        <div style="background:var(--bg3);padding:6px 14px;text-align:right;">
+          <span style="font-size:10px;color:var(--t3);">landscapeadsai.com — free plan watermark (removed on Pro)</span>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:13px;color:var(--t3);margin-top:20px;">↑ This is an example. Your real ad uses your actual lawn photo and business details.</p>
+    </div>
+  </div>
+
   <!-- WHY NOT CHATGPT -->
   <div class="section">
     <div class="sec-label">Why Not Just Use ChatGPT?</div>
@@ -1239,13 +1284,19 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 // ── WATERMARK ─────────────────────────────────────────────
 function drawWM(ctx, W, H) {
   if (isPro) return;
-  const bh = 44, by = H - bh;
-  ctx.fillStyle = 'rgba(0,0,0,.65)'; ctx.fillRect(0, by, W, bh);
-  ctx.fillStyle = 'rgba(46,160,67,.9)'; ctx.fillRect(0, by, 4, bh);
-  ctx.font = '500 22px Inter,sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,.82)';
-  ctx.fillText('🌿 Generated with LandscapeAdsAI', 32, by + bh/2 + 7);
-  ctx.font = '400 19px Inter,sans-serif'; ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(255,255,255,.4)';
-  ctx.fillText('landscapeadsai.com', W - 24, by + bh/2 + 7);
+  // Subtle corner watermark — does not block ad content
+  const text = 'landscapeadsai.com';
+  const fontSize = Math.round(W * 0.018); // ~19px at 1080px
+  ctx.font = `400 ${fontSize}px Inter,sans-serif`;
+  ctx.textAlign = 'right';
+  const pad = Math.round(W * 0.018);
+  // Soft shadow for legibility on any background
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 6;
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText(text, W - pad, H - pad);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 }
 
 // ── TEMPLATE / LAYOUT ─────────────────────────────────────
@@ -1866,7 +1917,100 @@ const IDEAS=[
   {cat:'Strategy',tag:'ts',title:'Google Business Tips',desc:'More calls without paying for ads.'},
   {cat:'TikTok',tag:'tt',title:'Equipment Showcase',desc:'Show your gear — builds credibility instantly.'}
 ];
-function initIdeas(){const g=document.getElementById('ideasGrid');if(g.children.length)return;IDEAS.forEach(idea=>{const d=document.createElement('div');d.className='idea-card';d.innerHTML=`<span class="itag ${idea.tag}">${idea.cat}</span><h3>${idea.title}</h3><p>${idea.desc}</p>`;d.onclick=()=>genIdea(idea);g.appendChild(d);});}
+// Visual preview HTML per idea title — static, no API
+const IDEA_PREVIEWS = {
+  'Before & After Post': `<div style="display:grid;grid-template-columns:1fr 1fr;height:56px;border-radius:7px;overflow:hidden;margin-bottom:10px;gap:2px;">
+    <div style="background:linear-gradient(135deg,#1a2e1a,#0d1a0d);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;">
+      <span style="background:#ef4444;color:white;font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;">BEFORE</span>
+    </div>
+    <div style="background:linear-gradient(135deg,#1a4020,#2d7a35);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;">
+      <span style="background:#2ea043;color:white;font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;">AFTER</span>
+    </div>
+  </div>`,
+  'Seasonal Promo': `<div style="background:linear-gradient(135deg,#0d1f0a,#1a3d10);border-radius:7px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#facc15;color:#1a1a1a;font-size:8px;font-weight:800;padding:2px 7px;border-radius:4px;">🌱 SPRING DEAL</div>
+    <div style="font-size:10px;font-weight:700;color:white;">20% OFF</div>
+  </div>`,
+  'Time-lapse Mow': `<div style="background:#0a0a14;border-radius:7px;height:54px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0d1a0a,#1a3010);opacity:.8;"></div>
+    <div style="position:relative;z-index:1;width:20px;height:20px;background:rgba(255,255,255,.15);border-radius:50%;border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;">
+      <div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid white;margin-left:2px;"></div>
+    </div>
+    <div style="position:relative;z-index:1;font-size:10px;color:rgba(255,255,255,.6);font-weight:600;">:15 time-lapse</div>
+  </div>`,
+  'Referral Program Script': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
+    <div style="font-size:9px;color:var(--t3);margin-bottom:4px;">MESSAGE SCRIPT</div>
+    <div style="font-size:10px;color:var(--t2);line-height:1.5;">"Hey [Name], know anyone who needs lawn care? Send them our way and get $25 off!"</div>
+  </div>`,
+  'Local Search Ad': `<div style="background:#fff;border-radius:7px;padding:7px 10px;margin-bottom:10px;">
+    <div style="font-size:9px;color:#1a73e8;font-weight:600;margin-bottom:1px;">🔗 Green Valley Landscaping · Austin, TX</div>
+    <div style="font-size:10px;color:#1a0dab;font-weight:600;margin-bottom:1px;">Lawn Care Austin TX — Free Estimates</div>
+    <div style="font-size:9px;color:#4d5156;line-height:1.3;">Licensed & insured. Same-week service available. Call today!</div>
+  </div>`,
+  'Customer Review Post': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
+    <div style="font-size:11px;color:#facc15;margin-bottom:3px;">★★★★★</div>
+    <div style="font-size:10px;color:var(--t2);font-style:italic;line-height:1.4;">"Best lawn service in the area. Fast and professional!"</div>
+    <div style="font-size:9px;color:var(--t3);margin-top:3px;">— Sarah M., Happy Customer</div>
+  </div>`,
+  'Meet the Crew': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+    <div style="display:flex;gap:-4px;">
+      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--g),#1a3a1a);border:2px solid var(--bg2);"></div>
+      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#2d7a35,var(--g));border:2px solid var(--bg2);margin-left:-8px;"></div>
+      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1a4020,var(--g2));border:2px solid var(--bg2);margin-left:-8px;"></div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:var(--t);">Meet The Team</div>
+      <div style="font-size:9px;color:var(--t3);">Local, trusted, professional</div>
+    </div>
+  </div>`,
+  'Slow Season Plan': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
+    <div style="font-size:9px;color:var(--t3);margin-bottom:5px;font-weight:700;letter-spacing:.5px;">WINTER CONTENT PLAN</div>
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <div style="font-size:10px;color:var(--t2);display:flex;gap:5px;"><span style="color:var(--g2);">✓</span>Leaf cleanup promo</div>
+      <div style="font-size:10px;color:var(--t2);display:flex;gap:5px;"><span style="color:var(--g2);">✓</span>Holiday yard cleanup</div>
+    </div>
+  </div>`,
+  'HOA Community Ad': `<div style="background:linear-gradient(135deg,#0a1020,#111828);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
+    <div style="font-size:9px;color:#93c5fd;font-weight:700;margin-bottom:3px;">🏘 HOA COMMUNITY AD</div>
+    <div style="font-size:10px;font-weight:700;color:white;margin-bottom:2px;">Serving Ridgemont Heights</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.5);">Trusted by 40+ homeowners nearby</div>
+  </div>`,
+  'Services & Pricing': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
+    <div style="font-size:9px;color:var(--t3);margin-bottom:4px;font-weight:700;">SERVICES</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;">
+      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;">Mowing</span>
+      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;">Edging</span>
+      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;">Cleanup</span>
+    </div>
+  </div>`,
+  'Google Business Tips': `<div style="background:#fff;border-radius:7px;padding:7px 10px;margin-bottom:10px;display:flex;gap:6px;align-items:flex-start;">
+    <div style="width:20px;height:20px;background:linear-gradient(135deg,#4285f4,#34a853);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:white;">G</div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#1a0dab;">Green Valley Landscaping</div>
+      <div style="font-size:9px;color:#f59e0b;">★★★★★</div>
+    </div>
+  </div>`,
+  'Equipment Showcase': `<div style="background:linear-gradient(135deg,#0d1a0a,#1a3010);border-radius:7px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+    <div style="font-size:22px;">🚜</div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:white;">Pro Equipment</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.5);">Commercial-grade tools</div>
+    </div>
+  </div>`
+};
+
+function initIdeas(){
+  const g=document.getElementById('ideasGrid');
+  if(g.children.length) return;
+  IDEAS.forEach(idea=>{
+    const d=document.createElement('div');
+    d.className='idea-card';
+    const preview = IDEA_PREVIEWS[idea.title] || '';
+    d.innerHTML=`${preview}<span class="itag ${idea.tag}">${idea.cat}</span><h3>${idea.title}</h3><p>${idea.desc}</p>`;
+    d.onclick=()=>genIdea(idea);
+    g.appendChild(d);
+  });
+}
 async function genIdea(idea){
   const box=document.getElementById('ideaBox'),title=document.getElementById('ideaTitle'),content=document.getElementById('ideaContent'),tips=document.getElementById('ideaTips');
   title.textContent='Generating: '+idea.title+'...';content.textContent='';tips.innerHTML='';box.classList.add('show');box.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -2129,7 +2273,7 @@ async function apiCall(payload) {
 </script>
 
 <!-- ======= DEBUG PANEL ======= -->
-<div id="debugPanelWrap" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;">
+<div id="debugPanelWrap" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;display:none;">
   <div id="debugToggle" onclick="toggleDebug()" style="background:#1a1a2e;border-top:2px solid #f59e0b;padding:6px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;">
     <span style="color:#f59e0b;font-weight:700;font-size:12px;">🐛 Developer Debug Panel</span>
     <span style="display:flex;gap:12px;align-items:center;">
