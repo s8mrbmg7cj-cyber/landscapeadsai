@@ -1202,12 +1202,7 @@ function setBtn(id, loading, label) { const el = document.getElementById(id); if
 function copyEl(id) { const el = document.getElementById(id); if (el) navigator.clipboard.writeText(el.textContent || el.innerText).then(() => toast('Copied!')); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
 
-async function apiCall(payload) {
-  const r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const d = await r.json();
-  if (!r.ok || d.ok === false) throw new Error(d.error || 'Request failed');
-  return d;
-}
+// apiCall defined below in debug section — do not add another here
 
 // ── WATERMARK ─────────────────────────────────────────────
 function drawWM(ctx, W, H) {
@@ -1311,7 +1306,7 @@ async function genAndRender() {
   hideErr('buildError');
   setBtn('buildBtn', true, 'Generating...');
   try {
-    const d = await apiCall({ type:'visual', biz, city, service, offer, phone, template: curTmpl });
+    const d = await apiCall({ type:'visual', biz, city, service, offer, phone, template: curTmpl, _button: 'Generate Ad + Preview' });
     // ctaText is the canonical field; cta is the legacy fallback
     const headline      = d.headline       || `Professional ${service}`;
     const supportingText= d.supportingText || 'Licensed & Insured • Free Estimates';
@@ -1371,7 +1366,7 @@ async function genVariations() {
   hideErr('varError');
   setBtn('varBtn', true, 'Generating 5 variations...');
   try {
-    const d = await apiCall({ type:'variations', biz, city, service, offer, phone });
+    const d = await apiCall({ type:'variations', biz, city, service, offer, phone, _button: 'Generate 5 Ad Variations' });
     if (!d.variations || d.variations.length === 0) throw new Error('No variations returned. Please try again.');
     renderVarPanel(d.variations);
   } catch(e) {
@@ -1436,7 +1431,7 @@ async function genCaption() {
   hideErr('captError');
   setBtn('captBtn', true, 'Writing captions...');
   try {
-    const d = await apiCall({ type:'caption', biz, city, service, offer, phone });
+    const d = await apiCall({ type:'caption', biz, city, service, offer, phone, _button: 'Generate Social Caption' });
     // API returns either { captions: { facebook, instagram, tiktok } } or flat { facebook, instagram, tiktok }
     const caps = d.captions || d;
     const fb = caps.facebook || d.facebook || '';
@@ -1473,7 +1468,7 @@ async function genContent30() {
   hideErr('c30Error');
   setBtn('c30Btn', true, 'Generating 30-day plan...');
   try {
-    const d = await apiCall({ type:'content30', biz, city, service, offer });
+    const d = await apiCall({ type:'content30', biz, city, service, offer, _button: 'Generate 30-Day Content Plan' });
     const weeks = d.weeks || [];
     if (weeks.length === 0) throw new Error('No content weeks returned. Please try again.');
     const body = document.getElementById('contentBody');
@@ -1764,7 +1759,7 @@ async function runGenerate(){
   document.getElementById('tabRow').style.display='none';
   ['fb','ig','gg','tt'].forEach(t=>{const p=document.getElementById('tab-'+t);p.innerHTML='';p.style.display='none';p.classList.remove('active');});
   try{
-    const d=await apiCall({type:'generate',biz,city,service,offer,target,tone,platforms});
+    const d=await apiCall({type:'generate',biz,city,service,offer,target,tone,platforms,_button:'Copy Generator'});
     const pm={facebook:{id:'fb',icon:'📘',label:'Facebook Ad',badge:'Facebook'},instagram:{id:'ig',icon:'📸',label:'Instagram Caption',badge:'Instagram'},google:{id:'gg',icon:'🔍',label:'Google Ad',badge:'Google'},tiktok:{id:'tt',icon:'🎵',label:'TikTok Script',badge:'TikTok'}};
     let first=null;
     platforms.forEach(p=>{
@@ -1902,6 +1897,168 @@ async function genLeadMagnets() {
 }
 
 function useSugg(btn){document.getElementById('coachIn').value=btn.textContent;sendCoach();}
+
+// ═══════════════════════════════════════════════════════════
+// DEBUG PANEL — temporary developer visibility tool
+// ═══════════════════════════════════════════════════════════
+
+let debugOpen = false;
+const debugEntries = [];
+
+function toggleDebug() {
+  debugOpen = !debugOpen;
+  document.getElementById('debugPanel').style.display = debugOpen ? 'block' : 'none';
+  document.getElementById('debugArrow').textContent = debugOpen ? '▼' : '▲';
+  document.getElementById('debugSpacer').style.height = debugOpen ? '420px' : '36px';
+}
+function clearDebug() {
+  debugEntries.length = 0;
+  document.getElementById('debugLog').innerHTML = '';
+  document.getElementById('debugStatus').textContent = 'Cleared';
+}
+
+function dbLog(entry) {
+  debugEntries.unshift(entry); // newest first
+  const status = document.getElementById('debugStatus');
+  const ok = entry.responseOk && entry.parsed?.ok !== false;
+  status.textContent = (ok ? '✅' : '❌') + ' Last: ' + entry.button + ' @ ' + entry.ts;
+  status.style.color = ok ? '#34d399' : '#f87171';
+  renderDebugLog();
+}
+
+function renderDebugLog() {
+  const log = document.getElementById('debugLog');
+  log.innerHTML = debugEntries.map((e, i) => {
+    const ok = e.responseOk && e.parsed?.ok !== false;
+    const bg = i === 0 ? '#1a1a2e' : '#111118';
+    const border = ok ? '#065f46' : '#7f1d1d';
+    const headerColor = ok ? '#34d399' : '#f87171';
+
+    // Safely stringify for display
+    const payloadStr = safeStringify(e.payload);
+    const parsedStr  = e.parsed  ? safeStringify(e.parsed)  : '(not parsed)';
+    const rawTrunc   = e.rawText ? (e.rawText.length > 2000 ? e.rawText.slice(0, 2000) + '\n… (truncated)' : e.rawText) : '(empty)';
+
+    return `<div style="border-left:3px solid ${border};background:${bg};padding:10px 14px;margin-bottom:1px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <span style="color:${headerColor};font-weight:700;font-size:13px;">${ok ? '✅' : '❌'} ${escD(e.button)}</span>
+    <span style="color:#6b7280;font-size:11px;">${escD(e.ts)}</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
+    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Type sent</span><br><span style="color:#e5e7eb;">${escD(e.type)}</span></div>
+    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">HTTP status</span><br><span style="color:${e.httpStatus===200?'#34d399':'#f87171'};">${e.httpStatus || '—'}</span></div>
+    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Response ok</span><br><span style="color:${e.responseOk?'#34d399':'#f87171'};">${e.responseOk ? 'true' : 'false'}</span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
+    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">parsed.ok</span><br><span style="color:${e.parsed?.ok?'#34d399':'#f87171'};">${e.parsed ? String(e.parsed.ok) : 'N/A'}</span></div>
+    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Parse result</span><br><span style="color:${e.parseOk?'#34d399':'#f87171'};">${e.parseOk ? 'OK' : 'FAILED'}</span></div>
+    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Error</span><br><span style="color:#f87171;word-break:break-all;">${escD(e.error || e.parsed?.error || '—')}</span></div>
+  </div>
+  ${e.parsed?.rawText ? `<details style="margin-bottom:6px;"><summary style="color:#fbbf24;cursor:pointer;font-size:11px;">⚠️ Backend rawText (what OpenAI returned before parse)</summary><pre style="background:#0a0a14;color:#d1d5db;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(e.parsed.rawText)}</pre></details>` : ''}
+  <details><summary style="color:#60a5fa;cursor:pointer;font-size:11px;">📤 Request payload</summary><pre style="background:#0a0a14;color:#d1d5db;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(payloadStr)}</pre></details>
+  <details><summary style="color:#a78bfa;cursor:pointer;font-size:11px;">📥 Parsed response object</summary><pre style="background:#0a0a14;color:#d1d5db;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(parsedStr)}</pre></details>
+  <details><summary style="color:#6b7280;cursor:pointer;font-size:11px;">📄 Raw response text</summary><pre style="background:#0a0a14;color:#9ca3af;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(rawTrunc)}</pre></details>
+</div>`;
+  }).join('');
+}
+
+function safeStringify(obj) {
+  try { return JSON.stringify(obj, null, 2); }
+  catch(e) { return String(obj); }
+}
+function escD(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── DEBUG-AWARE apiCall ────────────────────────────────────
+// Replaces the original apiCall — same interface, adds full debug logging
+async function apiCall(payload) {
+  const ts = new Date().toLocaleTimeString();
+  const entry = {
+    button: payload._button || payload.type || 'unknown',
+    type: payload.type,
+    ts,
+    payload: { ...payload, _button: undefined }, // strip internal _button key
+    httpStatus: null,
+    responseOk: false,
+    rawText: '',
+    parsed: null,
+    parseOk: false,
+    error: null
+  };
+
+  // Strip the internal _button key before sending
+  const sendPayload = { ...payload };
+  delete sendPayload._button;
+
+  let resp;
+  try {
+    resp = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sendPayload)
+    });
+    entry.httpStatus = resp.status;
+  } catch(fetchErr) {
+    entry.error = 'Fetch failed: ' + fetchErr.message;
+    dbLog(entry);
+    throw fetchErr;
+  }
+
+  // Read raw text first — never assume JSON
+  let rawText = '';
+  try { rawText = await resp.text(); }
+  catch(e) { rawText = '(could not read response body)'; }
+  entry.rawText = rawText;
+
+  // Try to parse as JSON
+  let parsed = null;
+  let parseOk = false;
+  try {
+    parsed = JSON.parse(rawText);
+    parseOk = true;
+  } catch(e) {
+    entry.parseOk = false;
+    entry.error = 'Response was not valid JSON. Raw: ' + rawText.slice(0, 300);
+    dbLog(entry);
+    throw new Error('Response was not valid JSON: ' + rawText.slice(0, 200));
+  }
+
+  entry.parsed = parsed;
+  entry.parseOk = parseOk;
+  entry.responseOk = resp.ok;
+
+  if (!resp.ok || parsed?.ok === false) {
+    entry.error = parsed?.error || `HTTP ${resp.status}`;
+    dbLog(entry);
+    throw new Error(parsed?.error || `HTTP ${resp.status}`);
+  }
+
+  dbLog(entry);
+  return parsed;
+}
+
 </script>
+
+<!-- ======= DEBUG PANEL ======= -->
+<div id="debugPanelWrap" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;">
+  <div id="debugToggle" onclick="toggleDebug()" style="background:#1a1a2e;border-top:2px solid #f59e0b;padding:6px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+    <span style="color:#f59e0b;font-weight:700;font-size:12px;">🐛 Developer Debug Panel</span>
+    <span style="display:flex;gap:12px;align-items:center;">
+      <span id="debugStatus" style="color:#6b7280;font-size:11px;font-family:monospace;">No requests yet — click any AI button</span>
+      <button onclick="event.stopPropagation();clearDebug()" style="background:#374151;border:1px solid #4b5563;color:#9ca3af;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:monospace;font-size:11px;">Clear</button>
+      <span id="debugArrow" style="color:#f59e0b;font-size:12px;">▲</span>
+    </span>
+  </div>
+  <div id="debugPanel" style="display:none;background:#0f0f1a;border-top:1px solid #374151;max-height:400px;overflow-y:auto;">
+    <div style="padding:8px 14px;background:#111118;border-bottom:1px solid #1f2937;font-size:11px;color:#6b7280;">
+      Logs every AI request/response. Newest entry on top. Expand sections to see full data.
+    </div>
+    <div id="debugLog"></div>
+  </div>
+</div>
+<div id="debugSpacer" style="height:36px;"></div>
+
 </body>
 </html>
