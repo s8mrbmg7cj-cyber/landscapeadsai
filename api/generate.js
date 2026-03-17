@@ -1,13 +1,14 @@
 // ============================================================
-// LandscapeAdsAI — API v8b
-// All endpoints return strict { ok: true, ...data } JSON.
+// LandscapeAdsAI — api/generate.js (Stable MVP)
+// Single route: POST /api/generate
+// ALL responses: { ok: true, ...data } or { ok: false, error: "..." }
+// NEVER returns plain text, NEVER crashes, NEVER returns undefined
 // ============================================================
-// Required environment variables:
-//   OPENAI_API_KEY         — your OpenAI API key
-//   STRIPE_SECRET_KEY      — Stripe secret key
-//   STRIPE_PUBLISHABLE_KEY — Stripe publishable key
-//   STRIPE_PRICE_ID        — Stripe Price ID for $19/mo plan
-//   STRIPE_WEBHOOK_SECRET  — webhook signing secret
+// Required env vars (set in Vercel > Settings > Environment Variables):
+//   OPENAI_API_KEY
+//   STRIPE_SECRET_KEY
+//   STRIPE_PUBLISHABLE_KEY
+//   STRIPE_PRICE_ID
 // ============================================================
 
 export default async function handler(req, res) {
@@ -15,9 +16,11 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  }
 
-  // ── STRIPE: config ───────────────────────────────────────
+  // Stripe: config
   if (req.url?.includes('/api/stripe-config')) {
     return res.status(200).json({
       ok: true,
@@ -26,842 +29,229 @@ export default async function handler(req, res) {
     });
   }
 
-  // ── STRIPE: checkout session ─────────────────────────────
+  // Stripe: checkout
   if (req.url?.includes('/api/create-checkout')) {
     const sk = process.env.STRIPE_SECRET_KEY;
     const priceId = process.env.STRIPE_PRICE_ID;
     if (!sk || !priceId) {
-      return res.status(200).json({
-        ok: false, configured: false,
-        error: 'Add STRIPE_SECRET_KEY and STRIPE_PRICE_ID to Vercel environment variables.'
-      });
+      return res.status(200).json({ ok: false, configured: false, error: 'Stripe not configured.' });
     }
     try {
       const { successUrl, cancelUrl } = req.body || {};
       const origin = req.headers.origin || 'https://landscapeadsai.vercel.app';
       const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sk}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: { Authorization: 'Bearer ' + sk, 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
           'payment_method_types[]': 'card',
           'line_items[0][price]': priceId,
           'line_items[0][quantity]': '1',
           mode: 'subscription',
-          success_url: successUrl || `${origin}?upgraded=true&session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: cancelUrl || `${origin}?cancelled=true`
+          success_url: successUrl || (origin + '?upgraded=true'),
+          cancel_url:  cancelUrl  || (origin + '?cancelled=true')
         })
       });
       const session = await r.json();
       if (!r.ok) return res.status(400).json({ ok: false, error: session.error?.message || 'Stripe error' });
       return res.status(200).json({ ok: true, url: session.url });
     } catch(e) {
-      return res.status(500).json({ ok: false, error: e.message });
+      return res.status(500).json({ ok: false, error: e.message || 'Stripe error' });
     }
   }
 
-  // ── MAIN AI HANDLER ──────────────────────────────────────
+  // Main AI handler
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return res.status(500).json({ ok: false, error: 'OPENAI_API_KEY is not set in Vercel Environment Variables.' });
+  if (!apiKey) {
+    return res.status(500).json({ ok: false, error: 'OPENAI_API_KEY not set. Add it in Vercel > Settings > Environment Variables.' });
+  }
 
   const body = req.body || {};
-  const { type } = body;
+  const type = String(body.type || '');
 
-  // DEBUG: map of handler functions — each returns { ok, ...data } and must NEVER throw
-  const handlers = {
-    visual:      () => genVisual(apiKey, body),
-    variations:  () => genVariations(apiKey, body),
-    caption:     () => genCaption(apiKey, body),
-    content30:   () => genContent30(apiKey, body),
-    generate:    () => genPlatformCopy(apiKey, body),
-    regen:       () => regenOne(apiKey, body),
-    idea:        () => genIdea(apiKey, body),
-    coach:       () => runCoach(apiKey, body),
-    offers:      () => genOffers(apiKey, body),
-    hashtags:    () => genHashtags(apiKey, body),
-    beforeafter: () => genBeforeAfterCaption(apiKey, body),
-    seasonal:    () => genSeasonal(apiKey, body),
-    reviewad:    () => genReviewAd(apiKey, body),
-    leadmagnet:  () => genLeadMagnet(apiKey, body),
-    competitor:  () => genCompetitorIdeas(apiKey, body),
+  const HANDLERS = {
+    visual:     () => genVisual(apiKey, body),
+    variations: () => genVariations(apiKey, body),
+    caption:    () => genCaption(apiKey, body),
+    content30:  () => genContent30(apiKey, body),
+    coach:      () => runCoach(apiKey, body),
   };
 
-  if (!handlers[type]) {
-    return res.status(400).json({ ok: false, feature: type || 'unknown', error: `Unknown type: "${type}"`, debug: { type, receivedBody: body } });
+  if (!HANDLERS[type]) {
+    return res.status(400).json({ ok: false, error: 'Unknown type: "' + type + '". Valid: ' + Object.keys(HANDLERS).join(', ') });
   }
 
   try {
-    const result = await handlers[type]();
-    // Always attach debug envelope so frontend can log it
-    return res.status(200).json({
-      ...result,
-      debug: { type, feature: type, requestedAt: new Date().toISOString() }
-    });
+    const result = await HANDLERS[type]();
+    const safe = (result && typeof result === 'object') ? result : { ok: false, error: 'Handler returned invalid data' };
+    return res.status(200).json(safe);
   } catch(e) {
-    console.error('API handler error:', type, e.message, e.stack);
-    return res.status(500).json({
-      ok: false,
-      feature: type,
-      error: e.message || 'Server error',
-      rawText: e.rawText || null,
-      stack: e.stack || null,
-      debug: { type, feature: type, requestedAt: new Date().toISOString() }
-    });
+    console.error('[generate.js] type=' + type, e.message);
+    return res.status(500).json({ ok: false, error: e.message || 'Server error. Please try again.' });
   }
 }
 
-// ── HELPERS ──────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────
 
-async function callOpenAI(apiKey, messages, { maxTokens = 800, jsonMode = false } = {}) {
+async function callAI(apiKey, messages, maxTokens) {
   const r = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
     body: JSON.stringify({
       model: 'gpt-4o',
-      max_tokens: maxTokens,
+      max_tokens: maxTokens || 800,
       messages,
-      ...(jsonMode ? { response_format: { type: 'json_object' } } : {})
+      response_format: { type: 'json_object' }
     })
   });
   const data = await r.json();
-  if (!r.ok) {
-    const err = new Error(data.error?.message || `OpenAI HTTP ${r.status}`);
-    err.rawText = JSON.stringify(data);
-    throw err;
-  }
-  const content = data.choices?.[0]?.message?.content || '';
-  return content;
+  if (!r.ok) throw new Error(data?.error?.message || 'OpenAI HTTP ' + r.status);
+  return data.choices?.[0]?.message?.content || '';
 }
 
-// Returns { parsed, parseOk, parseError } — never throws
-function safeParseJSON(raw, fallback) {
-  if (!raw || typeof raw !== 'string') return { parsed: fallback, parseOk: false, parseError: 'raw was empty or not a string', raw };
-  try {
-    const parsed = JSON.parse(raw);
-    return { parsed, parseOk: true, parseError: null, raw };
-  } catch(e1) {
-    // Try extracting JSON object
-    const objMatch = raw.match(/\{[\s\S]*\}/);
-    if (objMatch) {
-      try {
-        const parsed = JSON.parse(objMatch[0]);
-        return { parsed, parseOk: true, parseError: `Direct parse failed (${e1.message}); extracted JSON object`, raw };
-      } catch(e2) {}
-    }
-    // Try extracting JSON array
-    const arrMatch = raw.match(/\[[\s\S]*\]/);
-    if (arrMatch) {
-      try {
-        const parsed = JSON.parse(arrMatch[0]);
-        return { parsed, parseOk: true, parseError: `Direct parse failed (${e1.message}); extracted JSON array`, raw };
-      } catch(e3) {}
-    }
-    return { parsed: fallback, parseOk: false, parseError: e1.message, raw };
-  }
+function safeJSON(raw) {
+  if (!raw) return { d: null, ok: false, err: 'Empty AI response' };
+  try { return { d: JSON.parse(raw), ok: true, err: null }; } catch(e1) {}
+  const m = raw.match(/\{[\s\S]*\}/);
+  if (m) { try { return { d: JSON.parse(m[0]), ok: true, err: null }; } catch(e2) {} }
+  return { d: null, ok: false, err: 'JSON parse failed. AI returned: ' + raw.slice(0, 100) };
 }
 
 function ctx(b) {
-  return `Business: ${b.biz || 'Green Valley Landscaping'}
-City: ${b.city || 'local area'}
-Service: ${b.service || 'lawn care'}
-Offer: ${b.offer || 'Free Estimate'}
-Phone/CTA: ${b.phone || 'Call for a free estimate'}`;
+  return 'Business: ' + (b.biz || 'the business') +
+    '\nCity: ' + (b.city || 'local area') +
+    '\nService: ' + (b.service || 'lawn care') +
+    '\nOffer: ' + (b.offer || 'Free Estimate') +
+    '\nPhone/CTA: ' + (b.phone || 'Call for a free estimate');
 }
 
-// ── 1. VISUAL AD TEXT ────────────────────────────────────
+// ── 1. VISUAL AD ─────────────────────────────────────────────
+
 async function genVisual(apiKey, b) {
-  const offerUpper = (b.offer || 'Free Estimate').toUpperCase();
-  const cityUpper  = (b.city  || '').toUpperCase();
-  const city       = b.city   || 'your area';
-  const service    = b.service|| 'lawn care';
-  const biz        = b.biz    || 'the business';
-  const offer      = b.offer  || 'Free Estimate';
-  const tmpl       = b.template || 'promotional';
+  const offerUp  = (b.offer || 'Free Estimate').toUpperCase();
+  const cityUp   = (b.city  || '').toUpperCase();
+  const service  = b.service || 'lawn care';
+  const city     = b.city    || 'local area';
 
-  // Headline style guide injected into prompt so output quality is consistent
-  const headlineGuide = `Headline style: 4-8 words, punchy, feels like a real ad. Examples by angle:
-- General:    "A Better Lawn Starts Here" / "Clean Cuts. Great Results." / "Lawn Care Done Right"
-- Local:      "${city}'s Trusted Lawn Experts" / "Local Lawn Care You Can Trust"
-- Urgency:    "Limited Lawn Spots This Week" / "Book Before Spots Fill"
-- Transform:  "From Overgrown To Beautiful" / "The Lawn Your Neighbors Notice"
-- Trust:      "Reliable Lawn Care. Guaranteed." / "Local Experts. Proven Results."
-- Convenience:"No Hassle. Just Great Lawns." / "Lawn Care Without The Stress"`;
+  const raw = await callAI(apiKey, [
+    { role: 'system', content: 'Landscaping ad copywriter. Always respond with valid JSON only. Never leave any field empty.' },
+    { role: 'user', content: 'Write visual ad copy for a ' + (b.template || 'promotional') + ' landscaping ad.\n' + ctx(b) + '\n\nHeadline style: 4-8 words, punchy (e.g. "Perfect Lawn Without The Work" / "' + city + ' Lawn Care Done Right")\nCTA style: specific and strong (e.g. "Get Your Free Estimate" / "DM \\"CUT\\" For A Free Quote")\nSupporting text: 1-2 lines with trust signals\n\nReturn ONLY this JSON:\n{\n  "headline": "4-8 word punchy headline",\n  "supportingText": "1-2 lines with trust signals",\n  "ctaText": "strong specific CTA",\n  "ctaOptions": ["option1", "option2", "option3"],\n  "offerBadge": "' + offerUp + '",\n  "trustLine": "Licensed & Insured • Free Estimates • Locally Trusted",\n  "detailLine1": "service detail e.g. Same-Week Service Available",\n  "detailLine2": "another detail e.g. Satisfaction Guaranteed",\n  "urgencyLine": "urgency e.g. Limited spots this week",\n  "cityLine": "' + cityUp + '"\n}' }
+  ], 700);
 
-  const supportGuide = `Supporting text style: 1-2 short lines, premium feel, include trust + value signals.
-Good examples: "Licensed & Insured • Free Estimates" / "Same-Week Service • Satisfaction Guaranteed" / "Locally Trusted • Fast Response • Quality Work"
-Bad examples: "We provide great service" (too vague)
+  const { d, ok, err } = safeJSON(raw);
+  if (!ok || !d) return { ok: false, error: err || 'Visual ad generation failed' };
 
-Detail lines — generate 2 specific value lines relevant to ${service} in ${city}. Examples:
-- "Same-Week Service Available"
-- "Mowing • Trimming • Cleanups"
-- "Edging & Cleanup Included"
-- "Reliable Weekly Maintenance"
-- "Locally Trusted Lawn Care"
-- "Fast Response To New Clients"
-- "Serving Homeowners In ${city}"
-- "Limited Spots Available This Week"
-- "Satisfaction Guaranteed"
-Pick the 2 most relevant for the specific service and template type.`;
+  const fallback = ['Get Your Free Estimate', 'Book Before Spots Fill', 'Claim ' + offerUp + ' Today'];
+  const opts = Array.isArray(d.ctaOptions) && d.ctaOptions.length > 0 ? d.ctaOptions.slice(0, 3) : fallback;
 
-  const ctaGuide = `CTA style guide — return exactly 3 strong options as a JSON array.
-Mix styles — ideally one free-estimate, one DM/message, and one urgency or discount.
-
-FREE ESTIMATE CTAs:
-  "Get Your Free Estimate" / "Book Your Free Lawn Estimate" / "Schedule Your Free Quote"
-
-DISCOUNT CTAs (use when offer includes a discount):
-  "Claim ${offerUpper} Today" / "Save ${offerUpper} on Your First Cut" / "Unlock Your Lawn Discount"
-
-URGENCY CTAs:
-  "Book Before Spots Fill" / "Limited Spots This Week" / "Reserve Your Lawn Service Now"
-
-DM / MESSAGE CTAs (always include at least one of these — they convert very well):
-  'DM "CUT" for a Free Estimate' / 'Message Us "CUT" for Pricing' / 'Text "CUT" to Get Your Quote' / 'Send "CUT" to Claim Your Discount'
-
-PHONE CTAs (only use occasionally, not as the primary):
-  "Call Now for Same-Week Service" / "Call Today Before Spots Fill"
-
-Pick the 3 best options for this specific business, service, and offer. Always include at least one DM/message CTA.`;
-
-  const raw = await callOpenAI(apiKey, [
-    { role: 'system', content: 'You are a premium landscaping ad copywriter. Always respond with valid JSON only. Never use weak CTAs like "Call Now" or "Contact Us".' },
-    {
-      role: 'user',
-      content: `Write visual ad copy for a ${tmpl} landscaping ad.
-Business: ${biz} | City: ${city} | Service: ${service} | Offer: ${offer} | Phone: ${b.phone || 'Call for a free estimate'}
-
-${headlineGuide}
-
-${supportGuide}
-
-${ctaGuide}
-
-Respond with this exact JSON (fill every field, no empty strings):
-{
-  "headline": "strong 4-8 word headline",
-  "supportingText": "1-2 short premium lines with trust signals",
-  "ctaText": "best single CTA for the canvas button",
-  "ctaOptions": ["option 1", "option 2", "option 3"],
-  "offerBadge": "${offerUpper}",
-  "trustLine": "Licensed & Insured • Free Estimates • Locally Trusted",
-  "detailLine1": "Same-Week Service Available",
-  "detailLine2": "Satisfaction Guaranteed",
-  "urgencyLine": "Limited spots this week",
-  "cityLine": "${cityUpper}"
-}`
-    }
-  ], { maxTokens: 700, jsonMode: true });
-
-  const { parsed: d, parseOk, parseError } = safeParseJSON(raw, {});
-  if (!parseOk) {
-    return { ok: false, feature: 'visual', error: 'JSON parse failed: ' + parseError, rawText: raw };
-  }
-  // Ensure ctaOptions is always an array of 3
-  const fallbackCtas = [
-    'Get Your Free Estimate',
-    'DM "CUT" for a Free Estimate',
-    'Book Before Spots Fill'
-  ];
-  const ctaOptions = Array.isArray(d.ctaOptions) && d.ctaOptions.length > 0
-    ? d.ctaOptions.slice(0, 3)
-    : fallbackCtas;
   return {
     ok:             true,
-    feature:        'visual',
-    rawText:        raw,
-    headline:       d.headline       || `${city}'s Trusted ${service}`,
+    headline:       d.headline       || 'Professional ' + service,
     supportingText: d.supportingText || 'Licensed & Insured • Free Estimates',
-    ctaText:        d.ctaText        || d.cta || ctaOptions[0],
-    ctaOptions,
-    offerBadge:     d.offerBadge     || offerUpper,
+    ctaText:        d.ctaText        || d.cta || opts[0],
+    ctaOptions:     opts,
+    offerBadge:     d.offerBadge     || offerUp,
     trustLine:      d.trustLine      || 'Licensed & Insured • Free Estimates • Locally Trusted',
     detailLine1:    d.detailLine1    || 'Same-Week Service Available',
     detailLine2:    d.detailLine2    || 'Satisfaction Guaranteed',
     urgencyLine:    d.urgencyLine    || 'Limited spots available this week',
-    cityLine:       d.cityLine       || cityUpper
+    cityLine:       d.cityLine       || cityUp
   };
 }
 
-// ── 2. 5 VARIATIONS ─────────────────────────────────────
+// ── 2. VARIATIONS ────────────────────────────────────────────
+
 async function genVariations(apiKey, b) {
-  const offer  = b.offer  || 'Free Estimate';
-  const city   = b.city   || 'your area';
-  const service= b.service|| 'lawn care';
-  const biz    = b.biz    || 'the business';
+  const offer  = b.offer   || 'Free Estimate';
+  const offerUp = offer.toUpperCase();
 
-  const raw = await callOpenAI(apiKey, [
-    { role: 'system', content: 'You are a landscaping ad copywriter. Always respond with valid JSON only. Never leave any field empty.' },
-    {
-      role: 'user',
-      content: `Generate exactly 5 ad variations for a landscaping business. Use these exact 5 angles in order.
+  const raw = await callAI(apiKey, [
+    { role: 'system', content: 'Landscaping ad copywriter. Always respond with valid JSON only. Never leave any field empty.' },
+    { role: 'user', content: 'Generate exactly 5 ad variations for a landscaping business.\n' + ctx(b) + '\n\n5 angles in order:\n1. Urgency — scarcity, limited spots, act now\n2. Limited Offer — lead with the discount\n3. Premium Quality — craftsmanship, results\n4. Convenience — no hassle, easy process\n5. Neighborhood Trust — local, community, trusted nearby\n\nRules:\n- offerBadge MUST be "' + offerUp + '" for all 5\n- Headline: 4-8 words, punchy real-ad style\n- ctaText: strong and specific, never just "Call Now"\n- All fields required for all 5\n\nReturn ONLY this JSON:\n{\n  "variations": [\n    {"id":1,"angle":"Urgency","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":2,"angle":"Limited Offer","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":3,"angle":"Premium Quality","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Satisfaction Guaranteed"},\n    {"id":4,"angle":"Convenience","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":5,"angle":"Neighborhood Trust","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Locally Trusted • Free Estimates"}\n  ]\n}' }
+  ], 1600);
 
-Business: ${biz} | City: ${city} | Service: ${service} | Offer: ${offer}
+  const { d, ok, err } = safeJSON(raw);
+  if (!ok || !d) return { ok: false, error: err || 'Variations generation failed' };
 
-ANGLE 1 — Urgency: create scarcity, limited spots, time pressure
-ANGLE 2 — Limited Offer: lead with the deal, savings front and center  
-ANGLE 3 — Premium Quality: craftsmanship, results, professional standards
-ANGLE 4 — Convenience: no hassle, easy process, we handle everything
-ANGLE 5 — Neighborhood Trust: local reputation, community presence, trusted by neighbors
-
-Rules:
-- offerBadge must be "${offer.toUpperCase()}" for every variation
-- headline: 4-8 words, punchy, real-ad feel — no generic filler
-- supportingText: 1-2 lines with trust/value signals
-- ctaText: strong specific CTA, never just "Call Now" or "Contact Us"
-- detailLine: one short supporting service detail
-
-Return ONLY this JSON (variations array required at root level):
-{
-  "variations": [
-    {"id":1,"angle":"Urgency","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},
-    {"id":2,"angle":"Limited Offer","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},
-    {"id":3,"angle":"Premium Quality","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"Licensed & Insured • Satisfaction Guaranteed"},
-    {"id":4,"angle":"Convenience","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},
-    {"id":5,"angle":"Neighborhood Trust","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"${offer.toUpperCase()}","detailLine":"...","trustLine":"Locally Trusted • Free Estimates"}
-  ]
-}`
-    }
-  ], { maxTokens: 1600, jsonMode: true });
-
-  const { parsed: d, parseOk, parseError } = safeParseJSON(raw, {});
-  if (!parseOk) {
-    return { ok: false, feature: 'variations', error: 'JSON parse failed: ' + parseError, rawText: raw, variations: [] };
-  }
   let vars = [];
   if (Array.isArray(d)) vars = d;
   else if (Array.isArray(d.variations)) vars = d.variations;
-  else {
-    for (const key of Object.keys(d)) {
-      if (Array.isArray(d[key]) && d[key].length > 0) { vars = d[key]; break; }
-    }
-  }
-  if (vars.length === 0) {
-    return { ok: false, feature: 'variations', error: 'Parsed OK but no variations array found.', rawText: raw, parsedObject: d, variations: [] };
-  }
+  else { for (const k of Object.keys(d)) { if (Array.isArray(d[k]) && d[k].length > 0) { vars = d[k]; break; } } }
+
+  if (vars.length === 0) return { ok: false, error: 'No variations returned. Please try again.' };
+
   vars = vars.map((v, i) => ({
     id:             v.id             || i + 1,
     angle:          v.angle          || 'Variation ' + (i + 1),
     headline:       v.headline       || '',
     supportingText: v.supportingText || '',
-    ctaText:        v.ctaText        || v.cta || '',
-    offerBadge:     v.offerBadge     || offer.toUpperCase(),
+    ctaText:        v.ctaText        || v.cta || 'Get Your Free Estimate',
+    offerBadge:     v.offerBadge     || offerUp,
     detailLine:     v.detailLine     || '',
     trustLine:      v.trustLine      || 'Licensed & Insured • Free Estimates'
   }));
-  return { ok: true, feature: 'variations', rawText: raw, variations: vars };
+
+  return { ok: true, variations: vars };
 }
 
-// ── 3. SOCIAL CAPTION ───────────────────────────────────
+// ── 3. CAPTION ───────────────────────────────────────────────
+
 async function genCaption(apiKey, b) {
-  const biz    = b.biz    || 'the business';
-  const city   = b.city   || 'local area';
-  const service= b.service|| 'lawn care';
-  const offer  = b.offer  || 'Free Estimate';
-  const phone  = b.phone  || 'Call us today';
+  const raw = await callAI(apiKey, [
+    { role: 'system', content: 'Social media copywriter for landscaping businesses. Always respond with valid JSON only.' },
+    { role: 'user', content: 'Write 3 social media captions for a landscaping business.\n' + ctx(b) + '\n\nFacebook: 3-4 short paragraphs, professional, checkmarks ✔, include offer, end with CTA.\nInstagram: hook line, 2-3 punchy sentences with emojis, offer, CTA, then 10-12 hashtags.\nShort: 1-2 sentences only, include offer and CTA, works anywhere.\n\nReturn ONLY this JSON:\n{\n  "captions": {\n    "facebook": "full caption here",\n    "instagram": "full caption with hashtags here",\n    "shortCaption": "short version here"\n  }\n}' }
+  ], 900);
 
-  const raw = await callOpenAI(apiKey, [
-    { role: 'system', content: 'You are a social media copywriter for landscaping businesses. Always respond with valid JSON only.' },
-    {
-      role: 'user',
-      content: `Write 3 social media captions for a landscaping business.
-Business: ${biz} | City: ${city} | Service: ${service} | Offer: ${offer} | CTA: ${phone}
+  const { d, ok, err } = safeJSON(raw);
+  if (!ok || !d) return { ok: false, error: err || 'Caption generation failed' };
 
-Facebook caption: 3-4 short paragraphs. Friendly and professional. Include the offer. Use 3-4 checkmarks ✔ for benefits. End with a strong CTA.
-Instagram caption: Hook line first. 2-3 punchy sentences with emojis. Include the offer and CTA. Then 10-12 relevant hashtags on a new line.
-Short caption: 1-2 sentences only. Include the offer. Include the CTA. Works for any platform.
-
-Return ONLY this JSON:
-{
-  "captions": {
-    "facebook": "full facebook caption here",
-    "instagram": "full instagram caption here",
-    "shortCaption": "short 1-2 sentence version here"
-  }
-}`
-    }
-  ], { maxTokens: 900, jsonMode: true });
-
-  const { parsed: d, parseOk, parseError } = safeParseJSON(raw, {});
-  if (!parseOk) {
-    return { ok: false, feature: 'caption', error: 'JSON parse failed: ' + parseError, rawText: raw };
-  }
-  const caps = d.captions || d;
+  const caps  = d.captions || d;
   const fb    = caps.facebook     || d.facebook     || '';
   const ig    = caps.instagram    || d.instagram    || '';
-  const short = caps.shortCaption || caps.tiktok    || d.tiktok || d.shortCaption || '';
-  if (!fb && !ig && !short) {
-    return { ok: false, feature: 'caption', error: 'Parsed OK but no caption content found.', rawText: raw, parsedObject: d };
-  }
-  return {
-    ok: true, feature: 'caption', rawText: raw,
-    captions: { facebook: fb, instagram: ig, shortCaption: short },
-    facebook: fb, instagram: ig, tiktok: short // tiktok alias so frontend still works
-  };
+  const short = caps.shortCaption || caps.tiktok    || d.tiktok || '';
+
+  if (!fb && !ig && !short) return { ok: false, error: 'AI returned empty captions. Please try again.' };
+  return { ok: true, captions: { facebook: fb, instagram: ig, shortCaption: short }, facebook: fb, instagram: ig, tiktok: short };
 }
 
-// ── 4. 30-DAY CONTENT PLAN ──────────────────────────────
+// ── 4. 30-DAY CONTENT PLAN ───────────────────────────────────
+
 async function genContent30(apiKey, b) {
-  const biz    = b.biz    || 'the business';
-  const city   = b.city   || 'local area';
-  const service= b.service|| 'lawn care';
-  const offer  = b.offer  || 'Free Estimate';
+  const service = b.service || 'lawn care';
+  const city    = b.city    || 'local area';
+  const offer   = b.offer   || 'Free Estimate';
 
-  const raw = await callOpenAI(apiKey, [
-    { role: 'system', content: 'You are a social media strategist for landscaping businesses. Always respond with valid JSON only.' },
-    {
-      role: 'user',
-      content: `Create a 30-day social media content plan for a landscaping business.
-Business: ${biz} | City: ${city} | Service: ${service} | Offer: ${offer}
+  const raw = await callAI(apiKey, [
+    { role: 'system', content: 'Social media strategist for landscaping businesses. Always respond with valid JSON only.' },
+    { role: 'user', content: '30-day social media content plan for a landscaping business.\n' + ctx(b) + '\n\n4 weeks, 4 posts each (16 total). Mix platforms: Instagram, Facebook, TikTok. Mix types: Before/After, Promo, Tip, Testimonial, Behind-Scenes, Seasonal. Include "' + offer + '" in at least 2 posts. Specific to "' + service + '" in "' + city + '".\n\nReturn ONLY this JSON:\n{\n  "weeks": [\n    {\n      "week": 1, "theme": "Build Awareness",\n      "posts": [\n        {"day":1,"platform":"Instagram","postType":"Before/After","idea":"specific real idea for ' + service + '","captionIdea":"caption concept","goal":"Engagement"},\n        {"day":2,"platform":"Facebook","postType":"Promo","idea":"specific real idea","captionIdea":"caption concept","goal":"Leads"},\n        {"day":4,"platform":"TikTok","postType":"Behind-Scenes","idea":"specific real idea","captionIdea":"caption concept","goal":"Reach"},\n        {"day":6,"platform":"Instagram","postType":"Tip","idea":"lawn care tip","captionIdea":"caption concept","goal":"Trust"}\n      ]\n    },\n    {\n      "week": 2, "theme": "Promote Your Offer",\n      "posts": [\n        {"day":8,"platform":"Facebook","postType":"Promo","idea":"specific offer post for ' + offer + '","captionIdea":"caption concept","goal":"Leads"},\n        {"day":9,"platform":"Instagram","postType":"Before/After","idea":"specific real idea","captionIdea":"caption concept","goal":"Engagement"},\n        {"day":11,"platform":"TikTok","postType":"Testimonial","idea":"specific real idea","captionIdea":"caption concept","goal":"Trust"},\n        {"day":13,"platform":"Instagram","postType":"Seasonal","idea":"seasonal post idea","captionIdea":"caption concept","goal":"Reach"}\n      ]\n    },\n    {\n      "week": 3, "theme": "Build Trust",\n      "posts": [\n        {"day":15,"platform":"Instagram","postType":"Testimonial","idea":"specific real idea","captionIdea":"caption concept","goal":"Trust"},\n        {"day":16,"platform":"Facebook","postType":"Tip","idea":"lawn care tip","captionIdea":"caption concept","goal":"Engagement"},\n        {"day":18,"platform":"TikTok","postType":"Behind-Scenes","idea":"specific real idea","captionIdea":"caption concept","goal":"Reach"},\n        {"day":20,"platform":"Instagram","postType":"Promo","idea":"specific offer post for ' + offer + '","captionIdea":"caption concept","goal":"Leads"}\n      ]\n    },\n    {\n      "week": 4, "theme": "Drive Bookings",\n      "posts": [\n        {"day":22,"platform":"Facebook","postType":"Promo","idea":"urgency post — limited spots","captionIdea":"caption concept","goal":"Leads"},\n        {"day":23,"platform":"Instagram","postType":"Before/After","idea":"transformation post","captionIdea":"caption concept","goal":"Engagement"},\n        {"day":25,"platform":"TikTok","postType":"Seasonal","idea":"seasonal post idea","captionIdea":"caption concept","goal":"Reach"},\n        {"day":27,"platform":"Instagram","postType":"Testimonial","idea":"specific real idea","captionIdea":"caption concept","goal":"Trust"}\n      ]\n    }\n  ]\n}\nReplace every placeholder with real content for ' + service + ' in ' + city + '.' }
+  ], 2200);
 
-Return exactly 4 weeks with exactly 4 posts each (16 posts total).
-Mix platforms: Instagram, Facebook, TikTok
-Mix postTypes: Before/After, Promo, Tip, Testimonial, Behind-Scenes, Seasonal
-Include the offer "${offer}" in at least 2 posts.
-Goals: Engagement, Leads, Reach, Trust, or Awareness.
+  const { d, ok, err } = safeJSON(raw);
+  if (!ok || !d) return { ok: false, error: err || 'Content plan generation failed' };
 
-Return ONLY this JSON:
-{
-  "weeks": [
-    {
-      "week": 1,
-      "theme": "Build Awareness",
-      "posts": [
-        {"day": 1, "platform": "Instagram", "postType": "Before/After", "idea": "specific post idea for ${service}", "captionIdea": "short caption concept", "goal": "Engagement"},
-        {"day": 2, "platform": "Facebook", "postType": "Promo", "idea": "specific post idea", "captionIdea": "short caption concept", "goal": "Leads"},
-        {"day": 4, "platform": "TikTok", "postType": "Behind-Scenes", "idea": "specific post idea", "captionIdea": "short caption concept", "goal": "Reach"},
-        {"day": 6, "platform": "Instagram", "postType": "Tip", "idea": "specific lawn tip", "captionIdea": "short caption concept", "goal": "Trust"}
-      ]
-    },
-    {
-      "week": 2,
-      "theme": "Promote Your Offer",
-      "posts": [
-        {"day": 8, "platform": "Facebook", "postType": "Promo", "idea": "specific post idea featuring ${offer}", "captionIdea": "short caption concept", "goal": "Leads"},
-        {"day": 9, "platform": "Instagram", "postType": "Before/After", "idea": "specific post idea", "captionIdea": "short caption concept", "goal": "Engagement"},
-        {"day": 11, "platform": "TikTok", "postType": "Testimonial", "idea": "specific post idea", "captionIdea": "short caption concept", "goal": "Trust"},
-        {"day": 13, "platform": "Instagram", "postType": "Seasonal", "idea": "specific seasonal post idea", "captionIdea": "short caption concept", "goal": "Reach"}
-      ]
-    },
-    {
-      "week": 3,
-      "theme": "Build Trust",
-      "posts": [
-        {"day": 15, "platform": "Instagram", "postType": "Testimonial", "idea": "specific post idea", "captionIdea": "short caption concept", "goal": "Trust"},
-        {"day": 16, "platform": "Facebook", "postType": "Tip", "idea": "specific lawn tip", "captionIdea": "short caption concept", "goal": "Engagement"},
-        {"day": 18, "platform": "TikTok", "postType": "Behind-Scenes", "idea": "specific post idea", "captionIdea": "short caption concept", "goal": "Reach"},
-        {"day": 20, "platform": "Instagram", "postType": "Promo", "idea": "specific post idea featuring ${offer}", "captionIdea": "short caption concept", "goal": "Leads"}
-      ]
-    },
-    {
-      "week": 4,
-      "theme": "Drive Bookings",
-      "posts": [
-        {"day": 22, "platform": "Facebook", "postType": "Promo", "idea": "urgency post — limited spots", "captionIdea": "short caption concept", "goal": "Leads"},
-        {"day": 23, "platform": "Instagram", "postType": "Before/After", "idea": "specific transformation post", "captionIdea": "short caption concept", "goal": "Engagement"},
-        {"day": 25, "platform": "TikTok", "postType": "Seasonal", "idea": "specific seasonal post idea", "captionIdea": "short caption concept", "goal": "Reach"},
-        {"day": 27, "platform": "Instagram", "postType": "Testimonial", "idea": "specific post idea", "captionIdea": "short caption concept", "goal": "Trust"}
-      ]
-    }
-  ]
-}
-
-Replace every placeholder with real, specific content for ${service} in ${city}. Do not leave template text.`
-    }
-  ], { maxTokens: 2200, jsonMode: true });
-
-  const { parsed: d, parseOk, parseError } = safeParseJSON(raw, {});
-  if (!parseOk) {
-    return { ok: false, feature: 'content30', error: 'JSON parse failed: ' + parseError, rawText: raw };
-  }
   const weeks = Array.isArray(d.weeks) ? d.weeks : [];
-  if (weeks.length === 0) {
-    return { ok: false, feature: 'content30', error: 'Parsed OK but no weeks array found.', rawText: raw, parsedObject: d };
-  }
-  return { ok: true, feature: 'content30', rawText: raw, weeks };
+  if (weeks.length === 0) return { ok: false, error: 'No content weeks returned. Please try again.' };
+  return { ok: true, weeks };
 }
 
-// ── 5. PLATFORM COPY ────────────────────────────────────
-async function genPlatformCopy(apiKey, b) {
-  const platforms = b.platforms || ['facebook'];
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Expert ad copywriter for local landscaping businesses.
-${ctx(b)}
-Target: ${b.target || 'homeowners'} | Tone: ${b.tone || 'Professional & Trustworthy'}
+// ── 5. COACH ─────────────────────────────────────────────────
 
-Return ONLY valid JSON with only the requested platforms:
-{
-  ${platforms.includes('facebook') ? `"facebook": "3-5 sentences. Local pain point opener. Include offer. Trust signals. Strong CTA. 2-3 emojis.",` : ''}
-  ${platforms.includes('instagram') ? `"instagram": "2-3 punchy sentences + emojis. Include offer. 12-15 hashtags on new line starting with #",` : ''}
-  ${platforms.includes('google') ? `"google": "H1: [max 30 chars]\\nH2: [max 30 chars]\\nH3: [max 30 chars]\\nD1: [max 90 chars - include offer]\\nD2: [max 90 chars - include city and CTA]",` : ''}
-  ${platforms.includes('tiktok') ? `"tiktok": "HOOK: [3-sec attention grabber]\\nMAIN: [show the work or transformation]\\nCTA: [direct ask]\\nON-SCREEN: [suggested text overlays in brackets]"` : ''}
-}`
-  }], { maxTokens: 1200, jsonMode: true });
-  const { parsed: d, parseOk, parseError } = safeParseJSON(raw, {});
-  const result = { ok: true, feature: 'generate', rawText: raw };
-  if (!parseOk) result.parseWarning = 'JSON parse failed: ' + parseError;
-  if (platforms.includes('facebook')) result.facebook = d.facebook || (parseOk ? 'Empty field returned.' : 'Parse failed — see rawText.');
-  if (platforms.includes('instagram')) result.instagram = d.instagram || (parseOk ? 'Empty field returned.' : 'Parse failed — see rawText.');
-  if (platforms.includes('google')) result.google = d.google || (parseOk ? 'Empty field returned.' : 'Parse failed — see rawText.');
-  if (platforms.includes('tiktok')) result.tiktok = d.tiktok || (parseOk ? 'Empty field returned.' : 'Parse failed — see rawText.');
-  return result;
-}
-
-// ── 6. REGEN ONE ─────────────────────────────────────────
-async function regenOne(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Write a completely different ${b.platform} ad for a landscaping business.
-${ctx(b)}
-Use a different angle. Make it local, specific, conversion-focused.
-Return ONLY valid JSON: {"text": "..."}`
-  }], { maxTokens: 500, jsonMode: true });
-  const d = safeParseJSON(raw, {});
-  return { ok: true, text: d.text || 'Generation failed.' };
-}
-
-// ── 7. CONTENT IDEAS ────────────────────────────────────
-async function genIdea(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Marketing expert for landscaping businesses. Generate ready-to-use "${b.ideaTitle}" content for ${b.ideaCat}.
-Goal: ${b.ideaDesc}
-Return ONLY valid JSON:
-{
-  "content": "Full post/caption/script ready to use immediately",
-  "tips": ["actionable tip 1", "tip 2", "tip 3"]
-}`
-  }], { maxTokens: 700, jsonMode: true });
-  const d = safeParseJSON(raw, {});
-  return { ok: true, content: d.content || 'Generation failed.', tips: d.tips || [] };
-}
-
-// ── 8. GROWTH COACH ─────────────────────────────────────
 async function runCoach(apiKey, b) {
   const messages = [
-    { role: 'system', content: `You are a landscaping business growth coach and local marketing expert.
-Give short, direct, actionable advice in 3-5 sentences max.
-You understand: seasonal challenges, local competition, pricing pressure, getting reviews, social media for trades, running ads on small budgets.
-Sound like a successful business owner who has been there, not a corporate consultant.` },
-    ...(b.messages || [])
+    {
+      role: 'system',
+      content: 'You are a landscaping business growth coach. Give short, direct, actionable advice in 3-5 sentences. Sound like a successful business owner, not a corporate consultant.'
+    },
+    ...(Array.isArray(b.messages) ? b.messages : [])
   ];
-  const raw = await callOpenAI(apiKey, messages, { maxTokens: 450 });
-  return { ok: true, text: raw || 'Try asking again.' };
-}
 
-// ── 9. OFFER GENERATOR ───────────────────────────────────
-async function genOffers(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Generate 6 high-converting offers for a landscaping business.
-${ctx(b)}
-Make them specific, believable, and easy to act on. Mix dollar amounts and percentages.
-Return ONLY valid JSON:
-{
-  "offers": [
-    {"offer": "...", "type": "Discount", "why": "why this converts well"},
-    {"offer": "...", "type": "Bundle", "why": "..."},
-    {"offer": "...", "type": "Free Add-on", "why": "..."},
-    {"offer": "...", "type": "Referral", "why": "..."},
-    {"offer": "...", "type": "Seasonal", "why": "..."},
-    {"offer": "...", "type": "New Customer", "why": "..."}
-  ]
-}`
-  }], { maxTokens: 700, jsonMode: true });
-  const d = safeParseJSON(raw, { offers: [] });
-  return { ok: true, offers: d.offers || [] };
-}
-
-// ── 10. HASHTAGS ─────────────────────────────────────────
-async function genHashtags(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Generate hashtags for a landscaping business social media post.
-${ctx(b)}
-Return ONLY valid JSON:
-{
-  "instagram": ["#tag1", "#tag2"],
-  "tiktok": ["#tag1", "#tag2"],
-  "tips": "brief strategy tip"
-}
-Instagram: 15 hashtags mixing niche, local, and broad.
-TikTok: 8-10 hashtags focused on trending and niche.
-Include city-specific hashtags.`
-  }], { maxTokens: 500, jsonMode: true });
-  const d = safeParseJSON(raw, { instagram: [], tiktok: [], tips: '' });
-  return { ok: true, instagram: d.instagram || [], tiktok: d.tiktok || [], tips: d.tips || '' };
-}
-
-// ── 11. BEFORE/AFTER CAPTION ─────────────────────────────
-async function genBeforeAfterCaption(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Write a before/after social media caption for a landscaping business.
-${ctx(b)}
-Return ONLY valid JSON:
-{
-  "caption": "full caption ready to post",
-  "hashtags": "#tag1 #tag2 ..."
-}
-Caption format:
-- Hook line (ALL CAPS + emoji)
-- "Before: [description]" line
-- "After: [description]" line
-- 1-2 sentences about the service
-- Offer mention
-- CTA
-- 8-10 hashtags on a new line`
-  }], { maxTokens: 500, jsonMode: true });
-  const d = safeParseJSON(raw, {});
-  return { ok: true, caption: d.caption || 'Generation failed.', hashtags: d.hashtags || '' };
-}
-
-// ── 12. SEASONAL IDEAS ───────────────────────────────────
-async function genSeasonal(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Generate seasonal marketing ideas for a landscaping business.
-${ctx(b)}
-Return ONLY valid JSON:
-{
-  "spring": [{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."}],
-  "summer": [{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."}],
-  "fall":   [{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."}],
-  "winter": [{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."},{"title":"...","idea":"...","offer":"..."}]
-}`
-  }], { maxTokens: 900, jsonMode: true });
-  const d = safeParseJSON(raw, {});
-  return { ok: true, spring: d.spring || [], summer: d.summer || [], fall: d.fall || [], winter: d.winter || [] };
-}
-
-// ── 13. REVIEW/TESTIMONIAL AD ────────────────────────────
-async function genReviewAd(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Generate a testimonial-style ad for a landscaping business.
-${ctx(b)}
-Customer review: ${b.reviewText || 'Great service, very professional and on time!'}
-Customer name: ${b.reviewerName || 'A Happy Customer'}
-Return ONLY valid JSON:
-{
-  "quote": "cleaned-up review max 2 sentences",
-  "headline": "trust-angle headline",
-  "supportingText": "1-2 lines supporting the testimonial",
-  "cta": "CTA button text",
-  "trustLine": "trust signals"
-}`
-  }], { maxTokens: 500, jsonMode: true });
-  const d = safeParseJSON(raw, {});
-  return {
-    ok: true,
-    quote: d.quote || b.reviewText || 'Great service, very professional!',
-    headline: d.headline || 'Trusted by Local Homeowners',
-    supportingText: d.supportingText || `See why customers recommend ${b.biz || 'us'}.`,
-    cta: d.cta || b.phone || 'Call for Free Estimate',
-    trustLine: d.trustLine || 'Licensed & Insured • 5-Star Rated'
-  };
-}
-
-// ── 14. LEAD MAGNET GENERATOR ────────────────────────────
-async function genLeadMagnet(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Create 5 lead magnet ideas for a landscaping business that convert ad clicks into leads.
-${ctx(b)}
-Each lead magnet should be specific, low-friction, and immediately valuable to a homeowner.
-Return ONLY valid JSON:
-{
-  "magnets": [
-    {
-      "name": "Free Lawn Health Check",
-      "headline": "Is Your Lawn Ready for Summer?",
-      "description": "We'll inspect your lawn and give you a personalized care plan — completely free.",
-      "cta": "Claim Your Free Lawn Check",
-      "format": "In-person visit"
-    }
-  ]
-}
-Generate 5 magnets. Mix formats: in-person visit, PDF guide, video, checklist, consultation.`
-  }], { maxTokens: 900, jsonMode: true });
-  const d = safeParseJSON(raw, { magnets: [] });
-  return { ok: true, magnets: d.magnets || [] };
-}
-
-// ── 15. COMPETITOR AD IDEAS ──────────────────────────────
-async function genCompetitorIdeas(apiKey, b) {
-  const raw = await callOpenAI(apiKey, [{
-    role: 'user',
-    content: `Generate 4 competitor-style ad ideas that a landscaping business could use to stand out.
-${ctx(b)}
-These are not real competitors — they are strategic angles the business could use to differentiate.
-Return ONLY valid JSON:
-{
-  "ideas": [
-    {
-      "angle": "Spring Cleanup Special",
-      "headline": "Prepare Your Yard for Spring",
-      "offer": "$50 off first cleanup service",
-      "differentiator": "Why this angle works and how to out-compete it"
-    }
-  ]
-}
-Generate 4 ideas. Make them specific to the service and city.`
-  }], { maxTokens: 800, jsonMode: true });
-  const d = safeParseJSON(raw, { ideas: [] });
-  return { ok: true, ideas: d.ideas || [] };
-}
-// ----------------------------
-// EXTRA API ROUTES
-// ----------------------------
-
-// Generate 5 Ad Variations
-async function getAdVariations() {
-  return {
-    ok: true,
-    variations: [
-      {
-        angle: "Urgency",
-        headline: "GET A PERFECT LAWN THIS WEEK",
-        supportingText: "Reliable mowing • Clean edges • Free estimate",
-        ctaText: "Book Your First Cut Today"
-      },
-      {
-        angle: "Trust",
-        headline: "PROFESSIONAL LAWN CARE YOU CAN TRUST",
-        supportingText: "Licensed • Local • Same-week service",
-        ctaText: "Get Your Free Quote"
-      },
-      {
-        angle: "Offer",
-        headline: "YOUR LAWN — DONE RIGHT",
-        supportingText: "Fast scheduling • Affordable service",
-        ctaText: "Claim 20% Off First Cut"
-      },
-      {
-        angle: "Convenience",
-        headline: "STOP WASTING WEEKENDS MOWING",
-        supportingText: "Let the pros handle it • Free estimates",
-        ctaText: "Schedule Your Service"
-      },
-      {
-        angle: "Local Authority",
-        headline: "CLEAN LAWNS START HERE",
-        supportingText: "Expert mowing • Reliable service",
-        ctaText: "Get Started Today"
-      }
-    ]
-  };
-}
-
-
-// Generate Social Captions
-async function getSocialCaptions() {
-  return {
-    ok: true,
-    captions: {
-      facebook:
-        "Tired of mowing every weekend? Let the pros handle it. ✔ Professional lawn mowing ✔ Clean edges every visit ✔ Free estimates ✔ Locally trusted. Message us today to get your lawn looking perfect.",
-      instagram:
-        "Tired of mowing every weekend? 🌱 Let the pros handle it. Professional lawn mowing, clean edges, free estimates, locally trusted. Message us today. #lawncare #landscaping #localbusiness",
-      tiktok:
-        "Need a better lawn without the work? Professional mowing, clean edges, and free estimates. Message us today."
-    }
-  };
-}
-
-
-// Generate 30-Day Content Plan
-async function getContentPlan() {
-  return {
-    ok: true,
-    weeks: [
-      {
-        title: "Week 1",
-        posts: [
-          "Before/After lawn transformation",
-          "First-cut discount post",
-          "Explain why edging makes lawns look cleaner"
-        ]
-      },
-      {
-        title: "Week 2",
-        posts: [
-          "Customer testimonial",
-          "Lawn care tip homeowners should know",
-          "Behind-the-scenes mowing video"
-        ]
-      },
-      {
-        title: "Week 3",
-        posts: [
-          "Local neighborhood lawn transformation",
-          "Limited-spot offer post",
-          "FAQ: how often should you mow?"
-        ]
-      },
-      {
-        title: "Week 4",
-        posts: [
-          "Another before/after transformation",
-          "Explain why hiring pros saves time",
-          "Strong call-to-action post to book service"
-        ]
-      }
-    ]
-    // — COPY GENERATOR —
-if (
-  req.url.includes('/api/copy') ||
-  req.url.includes('/api/copy-generator')
-) {
-  try {
-    const body = req.body || {};
-
-    const businessName =
-      body.businessName || body.business || 'Your Landscaping Business';
-    const city =
-      body.city || body.location || 'your area';
-    const service =
-      body.service || body.serviceType || 'lawn mowing';
-    const offer =
-      body.offer || body.specialOffer || 'free estimate';
-    const tone =
-      body.tone || 'professional';
-    const targetCustomer =
-      body.targetCustomer || 'homeowners';
-
-    const facebook = `${businessName} is helping ${targetCustomer} in ${city} get cleaner, healthier lawns with professional ${service}. ${offer ? `Current offer: ${offer}. ` : ''}Message us today to get your free estimate and book your service.`;
-
-    const instagram = `Need better curb appeal in ${city}? 🌱 ${businessName} offers professional ${service} for busy homeowners who want a clean, healthy lawn without the hassle. ${offer ? `${offer}. ` : ''}DM us today for a free estimate. #lawncare #landscaping #${String(city).replace(/\s+/g, '')}`;
-
-    const google = `${businessName} provides professional ${service} in ${city}. ${offer ? `${offer}. ` : ''}Get a free estimate today and book reliable service.`;
-
-    const tiktok = `Need a better lawn in ${city}? ${businessName} does professional ${service}. ${offer ? `${offer}. ` : ''}DM for a free estimate.`;
-
-    return res.status(200).json({
-      ok: true,
-      copy: {
-        facebook,
-        instagram,
-        google,
-        tiktok
-      },
-      facebook,
-      instagram,
-      google,
-      tiktok,
-      result: {
-        facebook,
-        instagram,
-        google,
-        tiktok
-      }
-    });
-  } catch (err) {
-    console.error('Copy generator failed:', err);
-    return res.status(500).json({
-      ok: false,
-      error: 'Copy generator failed.'
-    });
-  }
-}
-  };
+  // Coach uses plain-text mode (no json_object)
+  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+    body: JSON.stringify({ model: 'gpt-4o', max_tokens: 450, messages })
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data?.error?.message || 'OpenAI error');
+  const text = data.choices?.[0]?.message?.content || '';
+  return { ok: true, text: text || 'Try asking again.' };
 }
