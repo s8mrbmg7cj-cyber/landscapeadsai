@@ -807,5 +807,61 @@ async function getContentPlan() {
         ]
       }
     ]
+    // — COPY GENERATOR —
+if (
+  req.url.includes('/api/copy') ||
+  req.url.includes('/api/copy-generator')
+) {
+  try {
+    const body = req.body || {};
+
+    const businessName =
+      body.businessName || body.business || 'Your Landscaping Business';
+    const city =
+      body.city || body.location || 'your area';
+    const service =
+      body.service || body.serviceType || 'lawn mowing';
+    const offer =
+      body.offer || body.specialOffer || 'free estimate';
+    const tone =
+      body.tone || 'professional';
+    const targetCustomer =
+      body.targetCustomer || 'homeowners';
+
+    const facebook = `${businessName} is helping ${targetCustomer} in ${city} get cleaner, healthier lawns with professional ${service}. ${offer ? `Current offer: ${offer}. ` : ''}Message us today to get your free estimate and book your service.`;
+
+    const instagram = `Need better curb appeal in ${city}? 🌱 ${businessName} offers professional ${service} for busy homeowners who want a clean, healthy lawn without the hassle. ${offer ? `${offer}. ` : ''}DM us today for a free estimate. #lawncare #landscaping #${String(city).replace(/\s+/g, '')}`;
+
+    const google = `${businessName} provides professional ${service} in ${city}. ${offer ? `${offer}. ` : ''}Get a free estimate today and book reliable service.`;
+
+    const tiktok = `Need a better lawn in ${city}? ${businessName} does professional ${service}. ${offer ? `${offer}. ` : ''}DM for a free estimate.`;
+
+    return res.status(200).json({
+      ok: true,
+      copy: {
+        facebook,
+        instagram,
+        google,
+        tiktok
+      },
+      facebook,
+      instagram,
+      google,
+      tiktok,
+      result: {
+        facebook,
+        instagram,
+        google,
+        tiktok
+      }
+    });
+  } catch (err) {
+    console.error('Copy generator failed:', err);
+    return res.status(500).json({
+      ok: false,
+      error: 'Copy generator failed.'
+    });
+  }
+}
   };
 }
