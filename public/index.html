@@ -473,8 +473,6 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   </div>
   <div class="nav-links">
     <button class="nav-btn" id="nav-builder" onclick="show('builder')">🎨 Ad Creator</button>
-    <button class="nav-btn" id="nav-textads" onclick="show('textads')">✍️ Copy Generator</button>
-    <button class="nav-btn" id="nav-tools" onclick="show('tools')">🛠 Tools</button>
     <button class="nav-btn" id="nav-ideas" onclick="show('ideas')">💡 Ideas</button>
     <button class="nav-btn" id="nav-coach" onclick="show('coach')">📈 Growth Coach</button>
     <button class="nav-btn" onclick="show('landing');setTimeout(()=>document.getElementById('pricing').scrollIntoView({behavior:'smooth'}),50)">Pricing</button>
@@ -897,7 +895,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
     <p>Upload a lawn photo right now. Your first 3 ads are free — no credit card, no setup.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative">
       <button class="btn-hero" onclick="show('builder')" style="font-size:17px;padding:17px 42px">Turn Photos Into Ads →</button>
-      <button class="btn-ghost" onclick="show('tools')" style="font-size:15px;padding:17px 28px">Explore All Tools</button>
+      <button class="btn-ghost" onclick="show('ideas')" style="font-size:15px;padding:17px 28px">See Content Ideas</button>
     </div>
     <p class="cta-trust-row"><span>No credit card</span>·<span>3 free generations</span>·<span>Cancel anytime</span></p>
   </div>
@@ -1073,247 +1071,6 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   </div>
 </div>
 
-<!-- ======= TOOLS PAGE ======= -->
-<div class="page" id="page-tools">
-  <div style="max-width:960px;margin:0 auto;padding:36px">
-    <h2 style="font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px">🛠 Marketing Tools</h2>
-    <p style="font-size:14px;color:var(--t2);margin-bottom:28px;line-height:1.5">Specialized tools that help you get more leads from your landscaping business.</p>
-
-    <!-- BUSINESS INFO for tools -->
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:22px">
-      <div style="font-size:12px;font-weight:700;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Your Business Info (used by all tools below)</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-        <div><label class="fl">Business Name</label><input class="fi" id="tBiz" placeholder="e.g. Green Valley Landscaping"></div>
-        <div><label class="fl">City</label><input class="fi" id="tCity" placeholder="e.g. Austin, Texas"></div>
-        <div><label class="fl">Service</label>
-          <select class="fi" id="tService">
-            <option value="">Select...</option>
-            <option>Lawn Mowing</option><option>Landscaping Design</option><option>Yard Cleanup</option>
-            <option>Tree Trimming</option><option>Leaf Removal</option><option>Sod Installation</option>
-            <option>Mulching</option><option>Snow Removal</option><option>Full Property Maintenance</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- TOOLS GRID -->
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
-
-      <!-- OFFER GENERATOR -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">💰 High-Converting Offer Generator</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Get 6 proven offer ideas for your specific service — discounts, bundles, referrals, and seasonal deals.</div>
-        <button class="abtn" id="offersBtn" onclick="genOffers()">Generate Offers</button>
-        <div class="error-msg" id="offersError"></div>
-        <div class="offers-grid" id="offersGrid" style="margin-top:12px"></div>
-      </div>
-
-      <!-- HASHTAG GENERATOR -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">📲 Hashtag Generator</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Generate targeted hashtags for Instagram and TikTok — mixing niche, local, and trending tags.</div>
-        <button class="abtn" id="hashBtn" onclick="genHashtags()">Generate Hashtags</button>
-        <div class="error-msg" id="hashError"></div>
-        <div id="hashResult" style="margin-top:12px;display:none">
-          <div class="hashtag-section-title">Instagram</div>
-          <div class="hashtag-cloud" id="igHashtags"></div>
-          <div class="hashtag-section-title" style="margin-top:10px">TikTok</div>
-          <div class="hashtag-cloud" id="ttHashtags"></div>
-          <div style="font-size:12px;color:var(--t2);margin-top:10px;line-height:1.5" id="hashTips"></div>
-          <div class="sp-actions" style="margin-top:10px">
-            <button class="sp-btn copy" onclick="copyHashtags()">📋 Copy Instagram Tags</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- BEFORE/AFTER CAPTION -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">🔀 Before/After Caption Generator</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Generate the perfect caption for your before/after transformation posts.</div>
-        <div class="fg"><label class="fl">Offer to highlight</label><input class="fi" id="baOffer" placeholder="e.g. 20% off first cut"></div>
-        <button class="abtn" id="baBtn" onclick="genBeforeAfter()">Generate Caption</button>
-        <div class="error-msg" id="baError"></div>
-        <div id="baResult" style="display:none;margin-top:12px">
-          <div style="font-size:13px;color:var(--t);line-height:1.75;white-space:pre-wrap;background:var(--bg3);border-radius:8px;padding:12px" id="baCaption"></div>
-          <div style="font-size:12px;color:var(--g3);margin-top:6px;line-height:1.6" id="baHashtags"></div>
-          <div class="sp-actions" style="margin-top:8px">
-            <button class="sp-btn copy" onclick="copyEl('baCaption')">📋 Copy Caption</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- SEASONAL IDEAS -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">🌿 Seasonal Marketing Ideas</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Get specific marketing ideas for each season of the landscaping year.</div>
-        <button class="abtn" id="seasonBtn" onclick="genSeasonal()">Generate Seasonal Ideas</button>
-        <div class="error-msg" id="seasonError"></div>
-        <div id="seasonResult" style="display:none;margin-top:12px">
-          <div class="season-tabs">
-            <button class="season-tab active" onclick="showSeason(this,'sp')">🌱 Spring</button>
-            <button class="season-tab" onclick="showSeason(this,'su')">☀️ Summer</button>
-            <button class="season-tab" onclick="showSeason(this,'fa')">🍂 Fall</button>
-            <button class="season-tab" onclick="showSeason(this,'wi')">❄️ Winter</button>
-          </div>
-          <div class="season-content show" id="sp"></div>
-          <div class="season-content" id="su"></div>
-          <div class="season-content" id="fa"></div>
-          <div class="season-content" id="wi"></div>
-        </div>
-      </div>
-
-      <!-- LEAD CALCULATOR -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">🧮 Lead Estimate Calculator</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Enter your ad budget and see estimated reach, leads, jobs, and potential revenue.</div>
-        <div class="calc-wrap">
-          <div class="calc-row">
-            <span class="calc-label">Daily budget</span>
-            <input type="number" class="calc-input" id="calcBudget" value="5" min="1" max="500" oninput="calcLeads()">
-            <span style="font-size:13px;color:var(--t2)">/day</span>
-          </div>
-          <div class="calc-row">
-            <span class="calc-label">Run for</span>
-            <input type="number" class="calc-input" id="calcDays" value="7" min="1" max="30" oninput="calcLeads()">
-            <span style="font-size:13px;color:var(--t2)">days</span>
-          </div>
-          <div class="calc-row">
-            <span class="calc-label">Avg job value</span>
-            <span style="font-size:13px;color:var(--t2)">$</span>
-            <input type="number" class="calc-input" id="calcJobValue" value="150" min="1" oninput="calcLeads()">
-          </div>
-          <div class="calc-results" id="calcResults">
-            <div class="calc-result-item"><div class="calc-result-num" id="calcSpend">$35</div><div class="calc-result-lbl">Total Spend</div></div>
-            <div class="calc-result-item"><div class="calc-result-num" id="calcReach">5,250</div><div class="calc-result-lbl">Est. Reach</div></div>
-            <div class="calc-result-item"><div class="calc-result-num" id="calcLeadsNum">5–14</div><div class="calc-result-lbl">Est. Leads</div></div>
-            <div class="calc-result-item"><div class="calc-result-num" id="calcRevenue">$375–750</div><div class="calc-result-lbl">Est. Revenue</div></div>
-          </div>
-          <div style="font-size:11px;color:var(--t3);margin-top:10px;line-height:1.5">Estimates based on typical local landscaping ad performance. Results vary by market, ad quality, and offer strength.</div>
-        </div>
-      </div>
-
-      <!-- REVIEW AD GENERATOR -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">⭐ Review / Testimonial Ad</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Turn a customer review into a professional testimonial ad with headline, copy, and CTA.</div>
-        <div class="fg"><label class="fl">Customer Review Text</label><textarea class="fi" id="reviewText" placeholder="e.g. Best lawn service we've used. Very professional and on time!" rows="2"></textarea></div>
-        <div class="fg"><label class="fl">Customer Name (optional)</label><input class="fi" id="reviewerName" placeholder="e.g. Sarah M."></div>
-        <button class="abtn" id="reviewBtn" onclick="genReviewAd()">Generate Testimonial Ad</button>
-        <div class="error-msg" id="reviewError"></div>
-        <div id="reviewResult" style="display:none;margin-top:12px;background:var(--bg3);border-radius:9px;padding:14px">
-          <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:4px">★★★★★ Quote</div>
-          <div style="font-size:13px;color:var(--t);font-style:italic;margin-bottom:10px" id="rQuote"></div>
-          <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:3px">HEADLINE</div>
-          <div style="font-size:14px;font-weight:700;color:var(--t);margin-bottom:8px" id="rHeadline"></div>
-          <div style="font-size:12px;color:var(--t2);margin-bottom:8px" id="rSupporting"></div>
-          <div style="font-size:12px;font-weight:600;color:var(--g2);margin-bottom:10px" id="rTrust"></div>
-          <div class="sp-actions">
-            <button class="sp-btn copy" onclick="copyReviewAd()">📋 Copy Ad</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3 more tools: Checklist, Competitor Ideas, Lead Magnet -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px">
-
-        <!-- MARKETING CHECKLIST -->
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-          <div style="font-size:16px;font-weight:700;margin-bottom:4px">✅ Marketing Checklist</div>
-          <div style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.5">Track the basics that consistently grow landscaping businesses. Check off as you go.</div>
-          <div style="display:flex;flex-direction:column;gap:9px" id="checklistItems"></div>
-          <div style="margin-top:12px;padding:9px 12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--t2);line-height:1.6" id="checklistProgress"></div>
-        </div>
-
-        <!-- COMPETITOR AD IDEAS -->
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-          <div style="font-size:16px;font-weight:700;margin-bottom:4px">🥊 Competitor Ad Ideas</div>
-          <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">See 4 strategic ad angles you can use to stand out in your local market — based on your service and city.</div>
-          <button class="abtn" id="compBtn" onclick="genCompetitor()">Generate Competitor Ideas</button>
-          <div class="error-msg" id="compError"></div>
-          <div id="compResult" style="margin-top:12px;display:none;flex-direction:column;gap:9px"></div>
-        </div>
-
-        <!-- LEAD MAGNET GENERATOR -->
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px">
-          <div style="font-size:16px;font-weight:700;margin-bottom:4px">🧲 Lead Magnet Generator</div>
-          <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Get 5 free-offer ideas that turn ad clicks into real leads — visits, guides, consultations, and more.</div>
-          <button class="abtn" id="lmBtn" onclick="genLeadMagnets()">Generate Lead Magnets</button>
-          <div class="error-msg" id="lmError"></div>
-          <div id="lmResult" style="margin-top:12px;display:none;flex-direction:column;gap:9px"></div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ======= COPY GENERATOR ======= -->
-<div class="page" id="page-textads">
-  <div class="textads-wrap">
-    <div class="textads-form">
-      <h2>✍️ Copy Generator</h2>
-      <p>Platform-specific ad copy for Facebook, Instagram, Google & TikTok.</p>
-      <div class="fg"><label class="fl">Business Name</label><input class="fi" id="gBiz" placeholder="e.g. Green Valley Landscaping"></div>
-      <div class="fg"><label class="fl">City / Location</label><input class="fi" id="gCity" placeholder="e.g. Austin, Texas"></div>
-      <div class="fg"><label class="fl">Service Type</label>
-        <select class="fi" id="gService">
-          <option value="">Select a service...</option>
-          <option>Lawn Mowing</option><option>Landscaping Design</option><option>Yard Cleanup</option>
-          <option>Tree Trimming</option><option>Leaf Removal</option><option>Irrigation / Sprinklers</option>
-          <option>Sod Installation</option><option>Mulching</option><option>Snow Removal</option><option>Full Property Maintenance</option>
-        </select>
-      </div>
-      <div class="fg"><label class="fl">Special Offer <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--t3)">(optional)</span></label><input class="fi" id="gOffer" placeholder="e.g. 20% off first mow"></div>
-      <div class="fg"><label class="fl">Target Customer</label>
-        <select class="fi" id="gTarget">
-          <option value="">Select...</option><option>Homeowners</option><option>Commercial Properties</option>
-          <option>HOA Communities</option><option>Rental Property Managers</option><option>New Homeowners</option>
-        </select>
-      </div>
-      <div class="fg"><label class="fl">Tone</label>
-        <select class="fi" id="gTone">
-          <option>Professional & Trustworthy</option><option>Friendly & Local</option>
-          <option>Bold & Direct</option><option>Affordable & Value-Focused</option>
-        </select>
-      </div>
-      <div class="fg"><label class="fl">Platforms</label>
-        <div class="plat-row">
-          <div class="plat-pill on" data-p="facebook" onclick="this.classList.toggle('on')">📘 Facebook</div>
-          <div class="plat-pill on" data-p="instagram" onclick="this.classList.toggle('on')">📸 Instagram</div>
-          <div class="plat-pill on" data-p="google" onclick="this.classList.toggle('on')">🔍 Google</div>
-          <div class="plat-pill on" data-p="tiktok" onclick="this.classList.toggle('on')">🎵 TikTok</div>
-        </div>
-      </div>
-      <div class="usage-bar">
-        <span class="usage-text">📊 Free: <strong id="usageCt">0</strong> of 3 used</span>
-        <button class="upg-link" onclick="openModal()">Upgrade →</button>
-      </div>
-      <button class="abtn" id="genBtn" onclick="runGenerate()">✨ Generate Ad Copy</button>
-      <div class="error-msg" id="genError"></div>
-      <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--t3);line-height:1.5">
-        💡 <strong style="color:var(--t2)">Want visual ads too?</strong> Use the <span onclick="show('builder')" style="color:var(--g2);cursor:pointer;font-weight:600">🎨 Ad Creator</span> to place this copy on a real image.
-      </div>
-    </div>
-    <div class="textads-output">
-      <div class="out-header">
-        <h2>Generated Copy</h2>
-        <div class="tabs" id="tabRow" style="display:none">
-          <button class="tab-btn active" onclick="switchTab(this,'fb')">Facebook</button>
-          <button class="tab-btn" onclick="switchTab(this,'ig')">Instagram</button>
-          <button class="tab-btn" onclick="switchTab(this,'gg')">Google</button>
-          <button class="tab-btn" onclick="switchTab(this,'tt')">TikTok</button>
-        </div>
-      </div>
-      <div id="emptyState" class="empty-out"><div style="font-size:34px;margin-bottom:10px;opacity:.35">📋</div><p style="font-size:14px;font-weight:600;color:var(--t2);margin-bottom:5px">Your ad copy will appear here</p><p style="font-size:13px">Fill in details and click Generate.</p></div>
-      <div id="loadState" style="display:none" class="loading-state"><div class="spin"><div class="sp"></div><div class="sp"></div><div class="sp"></div></div><p>Writing your copy...</p></div>
-      <div id="tab-fb" class="tab-content active" style="display:none"></div>
-      <div id="tab-ig" class="tab-content" style="display:none"></div>
-      <div id="tab-gg" class="tab-content" style="display:none"></div>
-      <div id="tab-tt" class="tab-content" style="display:none"></div>
-    </div>
-  </div>
-</div>
-
 <!-- ======= IDEAS ======= -->
 <div class="page" id="page-ideas">
   <div class="ideas-wrap">
@@ -1355,24 +1112,6 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   </div>
 </div>
 
-<!-- DEBUG PANELS — hidden in production (DEBUG=false) -->
-<div id="debugPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;font-size:12px;background:#0a0a0a;border-top:2px solid #ff6b35;">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#111;border-bottom:1px solid #333;cursor:pointer" onclick="dbToggleBody()">
-    <span style="color:#ff6b35;font-weight:bold">🐛 DEVELOPER DEBUG PANEL <span id="dbBadge" style="background:#ff6b35;color:#000;padding:1px 7px;border-radius:3px;font-size:11px;margin-left:8px">0 events</span></span>
-    <span style="display:flex;gap:10px;align-items:center">
-      <button onclick="event.stopPropagation();dbClear()" style="background:#333;border:none;color:#ccc;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px">Clear</button>
-      <button onclick="event.stopPropagation();dbCopyAll()" style="background:#333;border:none;color:#ccc;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px">Copy All</button>
-      <button onclick="event.stopPropagation();dbClose()" style="background:#333;border:none;color:#ff6b35;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px">✕ Close</button>
-    </span>
-  </div>
-  <div id="dbBody" style="max-height:340px;overflow-y:auto;padding:0">
-    <div id="dbEmpty" style="padding:14px 18px;color:#555">No debug events yet.</div>
-    <div id="dbLog"></div>
-  </div>
-</div>
-
-<!-- debug trigger hidden in production -->
-<button id="dbTrigger" onclick="dbOpen()" title="Open Debug Panel" style="display:none;position:fixed;bottom:14px;left:14px;z-index:8999;background:#111;border:1px solid #ff6b35;color:#ff6b35;font-family:monospace;font-size:11px;font-weight:bold;padding:5px 10px;border-radius:5px;cursor:pointer;opacity:.7">🐛 DEBUG</button>
 
 <div class="toast" id="toastEl"></div>
 
@@ -1449,7 +1188,7 @@ function setBtn(id, loading, label) { const el = document.getElementById(id); if
 function copyEl(id) { const el = document.getElementById(id); if (el) navigator.clipboard.writeText(el.textContent || el.innerText).then(() => toast('Copied!')); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
 
-// apiCall defined below in debug section — do not add another here
+// apiCall — defined below
 
 // ── WATERMARK ─────────────────────────────────────────────
 function drawWM(ctx, W, H) {
@@ -1981,392 +1720,6 @@ function dlAd(){
 }
 
 // ── TOOLS PAGE ────────────────────────────────────────────
-function toolsCtx() {
-  return {
-    biz: document.getElementById('tBiz').value.trim() || 'Green Valley Landscaping',
-    city: document.getElementById('tCity').value.trim() || 'local area',
-    service: document.getElementById('tService').value || 'lawn care',
-    offer: 'Free Estimate'
-  };
-}
-
-async function genOffers() {
-  hideErr('offersError'); setBtn('offersBtn', true, 'Generating...');
-  try {
-    const d = await apiCall({ type:'offers', ...toolsCtx() });
-    const grid = document.getElementById('offersGrid'); grid.innerHTML = '';
-    (d.offers||[]).forEach(o => {
-      const el = document.createElement('div'); el.className = 'offer-item';
-      el.innerHTML = `<div class="offer-text">${esc(o.offer||'')}</div><div class="offer-type">${esc(o.type||'')}</div><div class="offer-why">${esc(o.why||'')}</div>`;
-      el.onclick = () => { navigator.clipboard.writeText(o.offer||'').then(()=>toast('Offer copied!')); };
-      grid.appendChild(el);
-    });
-  } catch(e) { showErr('offersError', 'Failed: ' + e.message); }
-  setBtn('offersBtn', false, 'Generate Offers');
-}
-
-async function genHashtags() {
-  hideErr('hashError'); setBtn('hashBtn', true, 'Generating...');
-  try {
-    const d = await apiCall({ type:'hashtags', ...toolsCtx() });
-    const igEl = document.getElementById('igHashtags'), ttEl = document.getElementById('ttHashtags');
-    igEl.innerHTML = ''; ttEl.innerHTML = '';
-    (d.instagram||[]).forEach(h => { const el=document.createElement('span');el.className='hashtag';el.textContent=h;el.onclick=()=>{navigator.clipboard.writeText(h).then(()=>toast('Copied: '+h));};igEl.appendChild(el); });
-    (d.tiktok||[]).forEach(h => { const el=document.createElement('span');el.className='hashtag';el.textContent=h;el.onclick=()=>{navigator.clipboard.writeText(h).then(()=>toast('Copied: '+h));};ttEl.appendChild(el); });
-    document.getElementById('hashTips').textContent = d.tips || '';
-    document.getElementById('hashResult').style.display = 'block';
-  } catch(e) { showErr('hashError', 'Failed: ' + e.message); }
-  setBtn('hashBtn', false, 'Generate Hashtags');
-}
-function copyHashtags() {
-  const tags = [...document.querySelectorAll('#igHashtags .hashtag')].map(el=>el.textContent).join(' ');
-  navigator.clipboard.writeText(tags).then(()=>toast('Instagram hashtags copied!'));
-}
-
-async function genBeforeAfter() {
-  hideErr('baError'); setBtn('baBtn', true, 'Generating...');
-  try {
-    const ctx = toolsCtx();
-    const d = await apiCall({ type:'beforeafter', ...ctx, offer: document.getElementById('baOffer').value.trim() || 'Free Estimate' });
-    document.getElementById('baCaption').textContent = d.caption || '';
-    document.getElementById('baHashtags').textContent = d.hashtags || '';
-    document.getElementById('baResult').style.display = 'block';
-  } catch(e) { showErr('baError', 'Failed: ' + e.message); }
-  setBtn('baBtn', false, 'Generate Caption');
-}
-
-async function genSeasonal() {
-  hideErr('seasonError'); setBtn('seasonBtn', true, 'Generating...');
-  try {
-    const d = await apiCall({ type:'seasonal', ...toolsCtx() });
-    ['spring','summer','fall','winter'].forEach((season, idx) => {
-      const key = ['sp','su','fa','wi'][idx];
-      const container = document.getElementById(key); container.innerHTML = '';
-      const data = d[season] || [];
-      data.forEach(item => {
-        const el = document.createElement('div'); el.className = 'season-idea';
-        el.innerHTML = `<div class="season-idea-title">${esc(item.title||'')}</div><div class="season-idea-desc">${esc(item.idea||'')}</div><div class="season-idea-offer">💰 ${esc(item.offer||'')}</div>`;
-        container.appendChild(el);
-      });
-    });
-    document.getElementById('seasonResult').style.display = 'block';
-  } catch(e) { showErr('seasonError', 'Failed: ' + e.message); }
-  setBtn('seasonBtn', false, 'Generate Seasonal Ideas');
-}
-function showSeason(btn, id) {
-  document.querySelectorAll('.season-tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active');
-  document.querySelectorAll('.season-content').forEach(c=>c.classList.remove('show')); document.getElementById(id).classList.add('show');
-}
-
-function calcLeads() {
-  const budget = parseFloat(document.getElementById('calcBudget').value) || 5;
-  const days = parseFloat(document.getElementById('calcDays').value) || 7;
-  const jobValue = parseFloat(document.getElementById('calcJobValue').value) || 150;
-  const totalSpend = budget * days;
-  const reach = Math.round(totalSpend * 150);
-  const leadsLow = Math.max(1, Math.round(totalSpend * 0.14));
-  const leadsHigh = Math.round(totalSpend * 0.4);
-  const jobsLow = Math.max(1, Math.round(leadsLow * 0.25));
-  const jobsHigh = Math.round(leadsHigh * 0.35);
-  const revLow = jobsLow * jobValue;
-  const revHigh = jobsHigh * jobValue;
-  document.getElementById('calcSpend').textContent = '$' + totalSpend.toFixed(0);
-  document.getElementById('calcReach').textContent = reach.toLocaleString();
-  document.getElementById('calcLeadsNum').textContent = leadsLow + '–' + leadsHigh;
-  document.getElementById('calcRevenue').textContent = '$' + revLow.toFixed(0) + '–' + revHigh.toFixed(0);
-}
-calcLeads(); // Init on page load
-
-async function genReviewAd() {
-  hideErr('reviewError'); setBtn('reviewBtn', true, 'Generating...');
-  try {
-    const ctx = toolsCtx();
-    const d = await apiCall({ type:'reviewad', ...ctx, reviewText: document.getElementById('reviewText').value.trim(), reviewerName: document.getElementById('reviewerName').value.trim() });
-    document.getElementById('rQuote').textContent = d.quote || '';
-    document.getElementById('rHeadline').textContent = d.headline || '';
-    document.getElementById('rSupporting').textContent = d.supportingText || '';
-    document.getElementById('rTrust').textContent = d.trustLine || '';
-    document.getElementById('reviewResult').style.display = 'block';
-  } catch(e) { showErr('reviewError', 'Failed: ' + e.message); }
-  setBtn('reviewBtn', false, 'Generate Testimonial Ad');
-}
-function copyReviewAd() {
-  const text = [document.getElementById('rQuote').textContent, document.getElementById('rHeadline').textContent, document.getElementById('rSupporting').textContent, document.getElementById('rTrust').textContent].join('\n\n');
-  navigator.clipboard.writeText(text).then(() => toast('Testimonial ad copied!'));
-}
-
-// ── TEXT ADS ──────────────────────────────────────────────
-function scoreAd(text){let s=0;const t=text.toLowerCase();if(t.includes('?')||t.includes('tired')||t.includes('struggling'))s+=2;if(t.includes('%')||t.includes('off')||t.includes('free')||t.includes('save'))s+=2;if(t.includes('call')||t.includes('book')||t.includes('get')||t.includes('click'))s+=2;if(text.length>150)s+=2;if(t.includes('today')||t.includes('limited')||t.includes('now'))s+=1;if(t.includes('trusted')||t.includes('rated')||t.includes('insured')||t.includes('guaranteed'))s+=1;return Math.min(s,10);}
-function rScore(s){const dots=Array(10).fill(0).map((_,i)=>`<div class="as-dot${i<s?' on':''}"></div>`).join('');const lbl=s>=8?'Excellent':s>=6?'Good':s>=4?'Fair':'Needs Work';const col=s>=8?'var(--g2)':s>=6?'#fde047':s>=4?'#fb923c':'#f87171';return `<div class="as-row"><span class="as-lbl">Ad Score</span><div class="as-dots">${dots}</div><span class="as-val" style="color:${col}">${s}/10 — ${lbl}</span></div>`;}
-function makeTextCard(platform,icon,badge,content,biz,city,service){const s=scoreAd(content);const sid='ad-'+platform.replace(/[^a-z]/gi,'');return `<div class="ad-card"><div class="ad-card-head"><div>${icon} ${platform}</div><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(46,160,67,.12);color:var(--g3)">${badge}</span></div><div class="ad-card-body"><div class="ad-text" id="${sid}">${esc(content)}</div>${rScore(s)}<div class="ad-actions"><button class="ad-btn copy" onclick="copyEl('${sid}')">📋 Copy</button><button class="ad-btn" onclick="regenOne(this,'${platform}','${esc(biz)}','${esc(city)}','${esc(service)}','${sid}')">🔄 Regen</button><button class="ad-btn" onclick="dlTxt('${platform}','${sid}')">⬇ .txt</button></div></div></div>`;}
-function dlTxt(platform,id){const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(document.getElementById(id).textContent);a.download=platform.replace(/\s/g,'_')+'_ad.txt';a.click();toast('Downloaded!');}
-async function regenOne(btn,platform,biz,city,service,sid){btn.textContent='...';btn.disabled=true;const el=document.getElementById(sid);el.style.opacity='.3';try{const d=await apiCall({type:'regen',platform,biz,city,service});if(d.text){el.textContent=d.text;const sb=el.closest('.ad-card-body').querySelector('.as-row');if(sb)sb.outerHTML=rScore(scoreAd(d.text));}}catch(e){toast('Regen failed: '+e.message);}el.style.opacity='1';btn.textContent='🔄 Regen';btn.disabled=false;}
-function switchTab(btn,id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.tab-content').forEach(c=>{c.classList.remove('active');c.style.display='none';});const p=document.getElementById('tab-'+id);if(p&&p.innerHTML){p.classList.add('active');p.style.display='block';}}
-async function runGenerate(){
-  const biz=document.getElementById('gBiz').value.trim(),city=document.getElementById('gCity').value.trim();
-  const service=document.getElementById('gService').value,offer=document.getElementById('gOffer').value.trim()||'No offer';
-  const target=document.getElementById('gTarget').value||'homeowners',tone=document.getElementById('gTone').value;
-  const platforms=[...document.querySelectorAll('.plat-pill.on')].map(p=>p.dataset.p);
-  if(!biz||!city||!service){showErr('genError','Fill in business name, city & service.');return;}
-  if(!platforms.length){showErr('genError','Select at least one platform.');return;}
-  hideErr('genError');
-  setBtn('genBtn',true,'Generating...');
-  document.getElementById('emptyState').style.display='none';document.getElementById('loadState').style.display='block';
-  document.getElementById('tabRow').style.display='none';
-  ['fb','ig','gg','tt'].forEach(t=>{const p=document.getElementById('tab-'+t);p.innerHTML='';p.style.display='none';p.classList.remove('active');});
-  try{
-    const d=await apiCall({type:'generate',biz,city,service,offer,target,tone,platforms,_button:'Copy Generator'});
-    const pm={facebook:{id:'fb',icon:'📘',label:'Facebook Ad',badge:'Facebook'},instagram:{id:'ig',icon:'📸',label:'Instagram Caption',badge:'Instagram'},google:{id:'gg',icon:'🔍',label:'Google Ad',badge:'Google'},tiktok:{id:'tt',icon:'🎵',label:'TikTok Script',badge:'TikTok'}};
-    let first=null;
-    platforms.forEach(p=>{
-      const cfg=pm[p]; if(!cfg)return;
-      const content=d[p]; if(!content)return;
-      document.getElementById('tab-'+cfg.id).innerHTML=makeTextCard(cfg.label,cfg.icon,cfg.badge,content,biz,city,service);
-      if(!first)first=cfg.id;
-    });
-    if(first){document.getElementById('tabRow').style.display='flex';document.getElementById('tab-'+first).style.display='block';document.getElementById('tab-'+first).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));const ab=document.querySelector(`.tab-btn[onclick*="'${first}'"]`);if(ab)ab.classList.add('active');}
-    usage++;document.getElementById('usageCt').textContent=usage;
-  }catch(e){showErr('genError','Generation failed: '+e.message);}
-  document.getElementById('loadState').style.display='none';document.getElementById('emptyState').style.display=document.querySelector('.tab-content.active[style*="block"]')?'none':'block';
-  setBtn('genBtn',false,'✨ Generate Ad Copy');
-}
-
-// ── IDEAS ─────────────────────────────────────────────────
-const IDEAS=[
-  {cat:'Instagram',tag:'ti',title:'Before & After Post',desc:'Transformations get 4x more engagement.'},
-  {cat:'Social',tag:'tf',title:'Seasonal Promo',desc:'Spring cleanup or fall leaf removal campaign.'},
-  {cat:'TikTok',tag:'tt',title:'Time-lapse Mow',desc:"15-second time-lapse — top-performing format."},
-  {cat:'Strategy',tag:'ts',title:'Referral Program Script',desc:'Turn customers into your best salespeople.'},
-  {cat:'Google',tag:'tg',title:'Local Search Ad',desc:'Dominate "lawn care near me" searches.'},
-  {cat:'Instagram',tag:'ti',title:'Customer Review Post',desc:'Turn 5-star reviews into social content.'},
-  {cat:'TikTok',tag:'tt',title:'Meet the Crew',desc:'Humanize your business — builds trust.'},
-  {cat:'Strategy',tag:'ts',title:'Slow Season Plan',desc:'Keep revenue steady through winter.'},
-  {cat:'Social',tag:'tf',title:'HOA Community Ad',desc:'Reach entire HOA communities.'},
-  {cat:'Instagram',tag:'ti',title:'Services & Pricing',desc:'Clean graphic listing your services.'},
-  {cat:'Strategy',tag:'ts',title:'Google Business Tips',desc:'More calls without paying for ads.'},
-  {cat:'TikTok',tag:'tt',title:'Equipment Showcase',desc:'Show your gear — builds credibility instantly.'}
-];
-// Visual preview HTML per idea title — static, no API
-const IDEA_PREVIEWS = {
-  'Before & After Post': `<div style="display:grid;grid-template-columns:1fr 1fr;height:70px;border-radius:8px;overflow:hidden;margin-bottom:11px;gap:2px;">
-    <div style="background:linear-gradient(135deg,#1a2e1a,#0d1a0d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-right:2px solid rgba(255,255,255,.8);">
-      <span style="background:#ef4444;color:white;font-size:8px;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">BEFORE</span>
-      <span style="font-size:9px;color:rgba(255,255,255,.35);">overgrown</span>
-    </div>
-    <div style="background:linear-gradient(135deg,#1a4020,#2d7a35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
-      <span style="background:#2ea043;color:white;font-size:8px;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">AFTER</span>
-      <span style="font-size:9px;color:rgba(255,255,255,.45);">crisp &amp; clean</span>
-    </div>
-  </div>`,
-  'Seasonal Promo': `<div style="background:linear-gradient(135deg,#0d1f0a,#1a3d10);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <span style="background:#facc15;color:#1a1a1a;font-size:8px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:.4px;">🌱 SPRING DEAL</span>
-      <span style="font-size:11px;font-weight:800;color:#facc15;">20% OFF</span>
-    </div>
-    <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:white;line-height:1.2;">Spring Cleanup Season Is Here</div>
-    <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;">Limited seasonal spots available</div>
-  </div>`,
-  'Time-lapse Mow': `<div style="background:#0a0a14;border-radius:8px;height:68px;margin-bottom:11px;overflow:hidden;position:relative;">
-    <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0d1a0a,#1a3010);"></div>
-    <div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);border-radius:4px;padding:1px 6px;font-size:8px;color:rgba(255,255,255,.6);font-weight:700;">● REC  :15</div>
-    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;">
-      <div style="width:24px;height:24px;background:rgba(255,255,255,.15);border-radius:50%;border:2px solid rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:10px solid white;margin-left:2px;"></div>
-      </div>
-      <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:600;">15-sec time-lapse<br><span style="font-size:9px;opacity:.6;">Full mow in 15 seconds</span></div>
-    </div>
-  </div>`,
-  'Referral Program Script': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
-    <div style="font-size:9px;color:var(--t3);font-weight:700;letter-spacing:.5px;margin-bottom:5px;">💬 MESSAGE TEMPLATE</div>
-    <div style="font-size:10px;color:var(--t2);line-height:1.55;font-style:italic;">"Hey [Name], if you know anyone who needs their lawn done — send them my way. They get 10% off, you get $25 off your next cut."</div>
-    <div style="font-size:9px;color:var(--g2);margin-top:5px;font-weight:600;">→ Copy-ready referral script</div>
-  </div>`,
-  'Local Search Ad': `<div style="background:#fff;border-radius:8px;padding:8px 11px;margin-bottom:11px;">
-    <div style="font-size:8px;color:#1a73e8;font-weight:700;margin-bottom:1px;">🔗 yoursite.com · Austin, TX</div>
-    <div style="font-size:11px;color:#1a0dab;font-weight:700;line-height:1.3;margin-bottom:2px;">Lawn Care Austin TX — Free Estimates</div>
-    <div style="font-size:9px;color:#4d5156;line-height:1.4;">Licensed &amp; insured. Same-week service.<br>20% off first cut — call today!</div>
-    <div style="display:flex;gap:6px;margin-top:5px;">
-      <span style="font-size:8px;color:#1a73e8;font-weight:600;">📞 Call</span>
-      <span style="font-size:8px;color:#1a73e8;font-weight:600;">📍 Directions</span>
-    </div>
-  </div>`,
-  'Customer Review Post': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
-    <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
-      <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--g),#1a3a1a);border-radius:50%;flex-shrink:0;"></div>
-      <div><div style="font-size:10px;font-weight:700;color:var(--t);">Sarah M.</div><div style="font-size:10px;color:#facc15;">★★★★★</div></div>
-    </div>
-    <div style="font-size:10px;color:var(--t2);font-style:italic;line-height:1.5;">"Best lawn service we've used. Showed up on time and the yard looked incredible."</div>
-    <div style="font-size:9px;color:var(--g2);margin-top:4px;font-weight:600;">→ Turn reviews into social ads</div>
-  </div>`,
-  'Meet the Crew': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;display:flex;align-items:center;gap:10px;">
-    <div style="display:flex;">
-      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2d7a35,#1a4020);border:2px solid var(--bg2);"></div>
-      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1a4020,var(--g));border:2px solid var(--bg2);margin-left:-8px;"></div>
-      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--g),#2d7a35);border:2px solid var(--bg2);margin-left:-8px;"></div>
-    </div>
-    <div>
-      <div style="font-size:10px;font-weight:700;color:var(--t);margin-bottom:2px;">Meet The Team 👋</div>
-      <div style="font-size:9px;color:var(--t3);line-height:1.4;">Local crew. Licensed &amp; insured.<br>Trusted by 100+ homeowners.</div>
-    </div>
-  </div>`,
-  'Slow Season Plan': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
-    <div style="font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.5px;margin-bottom:6px;">❄️ WINTER CONTENT IDEAS</div>
-    <div style="display:flex;flex-direction:column;gap:4px;">
-      <div style="font-size:10px;color:var(--t2);display:flex;gap:6px;align-items:center;"><span style="color:var(--g2);font-size:11px;">✓</span>Leaf removal promo post</div>
-      <div style="font-size:10px;color:var(--t2);display:flex;gap:6px;align-items:center;"><span style="color:var(--g2);font-size:11px;">✓</span>Holiday yard cleanup deal</div>
-      <div style="font-size:10px;color:var(--t2);display:flex;gap:6px;align-items:center;"><span style="color:var(--g2);font-size:11px;">✓</span>Spring pre-book campaign</div>
-    </div>
-  </div>`,
-  'HOA Community Ad': `<div style="background:linear-gradient(135deg,#0a1020,#111828);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
-    <div style="font-size:8px;color:#93c5fd;font-weight:800;letter-spacing:.5px;margin-bottom:4px;">🏘 HOA NEIGHBORHOOD AD</div>
-    <div style="font-size:12px;font-weight:800;color:white;margin-bottom:3px;line-height:1.2;">Serving Ridgemont Heights</div>
-    <div style="font-size:9px;color:rgba(255,255,255,.45);margin-bottom:4px;">Trusted by 40+ homeowners nearby</div>
-    <div style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:3px 8px;display:inline-block;"><span style="font-size:9px;color:#93c5fd;font-weight:700;">Book Your Free Quote →</span></div>
-  </div>`,
-  'Services & Pricing': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
-    <div style="font-size:9px;color:var(--t3);font-weight:700;letter-spacing:.5px;margin-bottom:6px;">SERVICES &amp; PRICING GRAPHIC</div>
-    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">
-      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Mowing</span>
-      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Edging</span>
-      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Cleanup</span>
-      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Mulching</span>
-    </div>
-    <div style="font-size:9px;color:var(--t3);">Starting at $45/visit · Free estimate</div>
-  </div>`,
-  'Google Business Tips': `<div style="background:#fff;border-radius:8px;padding:8px 11px;margin-bottom:11px;display:flex;gap:9px;align-items:flex-start;">
-    <div style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#4285f4,#34a853);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:white;font-family:sans-serif;">G</div>
-    <div>
-      <div style="font-size:10px;font-weight:700;color:#1a0dab;margin-bottom:1px;">Green Valley Landscaping</div>
-      <div style="font-size:9px;color:#f59e0b;margin-bottom:1px;">★★★★★ <span style="color:#4d5156;">4.9 (38 reviews)</span></div>
-      <div style="font-size:9px;color:#137333;font-weight:600;">Open · Closes 7 PM</div>
-    </div>
-  </div>`,
-  'Equipment Showcase': `<div style="background:linear-gradient(135deg,#0d1a0a,#1a3010);border-radius:8px;padding:9px 11px;margin-bottom:11px;display:flex;align-items:center;gap:10px;">
-    <div style="font-size:28px;flex-shrink:0;">🚜</div>
-    <div>
-      <div style="font-size:11px;font-weight:800;color:white;margin-bottom:2px;">Commercial-Grade Equipment</div>
-      <div style="font-size:9px;color:rgba(255,255,255,.45);line-height:1.4;">Zero-turn mowers · Pro edgers<br>Commercial blowers &amp; trimmers</div>
-    </div>
-  </div>`
-};
-
-function initIdeas(){
-  const g=document.getElementById('ideasGrid');
-  if(g.children.length) return;
-  IDEAS.forEach(idea=>{
-    const d=document.createElement('div');
-    d.className='idea-card';
-    const preview = IDEA_PREVIEWS[idea.title] || '';
-    d.innerHTML=`${preview}<span class="itag ${idea.tag}">${idea.cat}</span><h3>${idea.title}</h3><p>${idea.desc}</p>`;
-    d.onclick=()=>genIdea(idea);
-    g.appendChild(d);
-  });
-}
-async function genIdea(idea){
-  const box=document.getElementById('ideaBox'),title=document.getElementById('ideaTitle'),content=document.getElementById('ideaContent'),tips=document.getElementById('ideaTips');
-  title.textContent='Generating: '+idea.title+'...';content.textContent='';tips.innerHTML='';box.classList.add('show');box.scrollIntoView({behavior:'smooth',block:'nearest'});
-  try{
-    const d=await apiCall({type:'idea',ideaTitle:idea.title,ideaCat:idea.cat,ideaDesc:idea.desc});
-    title.textContent=idea.title+' — '+idea.cat;
-    content.textContent=d.content||'Generation failed.';
-    tips.innerHTML=(d.tips||[]).map(t=>`<div class="ir-tip">${esc(t)}</div>`).join('');
-  }catch(e){content.textContent='Generation failed: '+e.message;}
-}
-
-// ── GROWTH COACH ──────────────────────────────────────────
-async function sendCoach(){
-  const input=document.getElementById('coachIn');const msg=input.value.trim();if(!msg)return;
-  input.value='';document.getElementById('coachSuggs').style.display='none';
-  addMsg('user',msg);chatHistory.push({role:'user',content:msg});
-  const el=addMsg('ai','...');
-  try{
-    const d=await apiCall({type:'coach',messages:chatHistory});
-    const reply=d.text||'Something went wrong.';chatHistory.push({role:'assistant',content:reply});
-    el.querySelector('.mb').textContent=reply;
-  }catch(e){el.querySelector('.mb').textContent='Connection failed. Please try again.';}
-}
-function addMsg(role,text){const wrap=document.getElementById('coachMsgs'),inner=wrap.querySelector('.coach-inner');const d=document.createElement('div');d.className='cmsg '+role;d.innerHTML=(role==='ai'?'<div class="mrole">📈 Growth Coach</div>':'')+`<div class="mb">${esc(text)}</div>`;inner.appendChild(d);wrap.scrollTop=wrap.scrollHeight;return d;}
-// ── MARKETING CHECKLIST (client-side, no API) ─────────────
-const CHECKLIST = [
-  'Get 5 Google Reviews from recent customers',
-  'Post before/after photos every week',
-  'Run at least one seasonal ad per month',
-  'Offer a first-service discount to new customers',
-  'Respond to messages and calls within 1 hour',
-  'Set up Google Business Profile with photos',
-  'Add services and pricing to your Google Business listing',
-  'Create or update your Facebook Business page',
-  'Post consistently at least 3x per week on social media',
-  'Ask every happy customer to leave a review'
-];
-const checkState = {};
-(function initChecklist() {
-  const container = document.getElementById('checklistItems');
-  if (!container) return;
-  CHECKLIST.forEach((item, i) => {
-    checkState[i] = false;
-    const el = document.createElement('div');
-    el.className = 'chk-item'; el.id = 'chk-' + i;
-    el.innerHTML = `<div class="chk-box" id="chkbox-${i}"></div><div class="chk-label">${item}</div>`;
-    el.onclick = () => toggleCheck(i);
-    container.appendChild(el);
-  });
-  updateChecklistProgress();
-})();
-function toggleCheck(i) {
-  checkState[i] = !checkState[i];
-  const el = document.getElementById('chk-' + i);
-  const box = document.getElementById('chkbox-' + i);
-  if (checkState[i]) { el.classList.add('done'); box.textContent = '✓'; }
-  else { el.classList.remove('done'); box.textContent = ''; }
-  updateChecklistProgress();
-}
-function updateChecklistProgress() {
-  const done = Object.values(checkState).filter(Boolean).length;
-  const total = CHECKLIST.length;
-  const pct = Math.round((done / total) * 100);
-  const el = document.getElementById('checklistProgress');
-  if (el) el.textContent = `${done} of ${total} completed (${pct}%) — ${done === total ? '🎉 All done! Great work.' : done >= 7 ? '💪 Strong foundation.' : done >= 4 ? '📈 Good progress.' : '🚀 Get started — these drive real results.'}`;
-}
-
-// ── COMPETITOR AD IDEAS ────────────────────────────────────
-async function genCompetitor() {
-  hideErr('compError'); setBtn('compBtn', true, 'Generating...');
-  try {
-    const d = await apiCall({ type:'competitor', ...toolsCtx() });
-    const container = document.getElementById('compResult');
-    container.innerHTML = '';
-    (d.ideas || []).forEach(idea => {
-      const el = document.createElement('div'); el.className = 'comp-card';
-      el.innerHTML = `<div class="comp-angle">${esc(idea.angle||'')}</div><div class="comp-headline">${esc(idea.headline||'')}</div><div class="comp-offer">💰 ${esc(idea.offer||'')}</div><div class="comp-diff">${esc(idea.differentiator||'')}</div>`;
-      container.appendChild(el);
-    });
-    container.style.display = 'flex';
-  } catch(e) { showErr('compError', 'Generation failed: ' + e.message); }
-  setBtn('compBtn', false, 'Generate Competitor Ideas');
-}
-
-// ── LEAD MAGNET GENERATOR ─────────────────────────────────
-async function genLeadMagnets() {
-  hideErr('lmError'); setBtn('lmBtn', true, 'Generating...');
-  try {
-    const d = await apiCall({ type:'leadmagnet', ...toolsCtx() });
-    const container = document.getElementById('lmResult');
-    container.innerHTML = '';
-    (d.magnets || []).forEach(m => {
-      const el = document.createElement('div'); el.className = 'lm-card';
-      el.innerHTML = `<div class="lm-name">🧲 ${esc(m.name||'')}</div><div class="lm-headline">${esc(m.headline||'')}</div><div class="lm-desc">${esc(m.description||'')}</div><div class="lm-cta">${esc(m.cta||'')}</div><div class="lm-format">Format: ${esc(m.format||'')}</div>`;
-      el.onclick = () => {
-        const text = `${m.name}\n${m.headline}\n${m.description}\nCTA: ${m.cta}`;
-        navigator.clipboard.writeText(text).then(() => toast('Lead magnet copied!'));
-      };
-      container.appendChild(el);
-    });
-    container.style.display = 'flex';
-  } catch(e) { showErr('lmError', 'Generation failed: ' + e.message); }
-  setBtn('lmBtn', false, 'Generate Lead Magnets');
-}
-
 // ── SAMPLE DEMO ───────────────────────────────────────────
 function runSampleDemo() {
   // Switch to builder page
@@ -2542,180 +1895,142 @@ function reloadRecent(entry) {
   } catch(e) {}
 })();
 
+// ── CONTENT IDEAS ─────────────────────────────────────────
+const IDEAS=[
+  {cat:'Instagram',tag:'ti',title:'Before & After Post',desc:'Transformations get 4x more engagement.'},
+  {cat:'Social',tag:'tf',title:'Seasonal Promo',desc:'Spring cleanup or fall leaf removal campaign.'},
+  {cat:'TikTok',tag:'tt',title:'Time-lapse Mow',desc:'15-second time-lapse — top-performing format.'},
+  {cat:'Strategy',tag:'ts',title:'Referral Program Script',desc:'Turn customers into your best salespeople.'},
+  {cat:'Google',tag:'tg',title:'Local Search Ad',desc:'Dominate "lawn care near me" searches.'},
+  {cat:'Instagram',tag:'ti',title:'Customer Review Post',desc:'Turn 5-star reviews into social content.'},
+  {cat:'TikTok',tag:'tt',title:'Meet the Crew',desc:'Humanize your business — builds trust.'},
+  {cat:'Strategy',tag:'ts',title:'Slow Season Plan',desc:'Keep revenue steady through winter.'},
+  {cat:'Social',tag:'tf',title:'HOA Community Ad',desc:'Reach entire HOA communities.'},
+  {cat:'Instagram',tag:'ti',title:'Services & Pricing',desc:'Clean graphic listing your services.'},
+  {cat:'Strategy',tag:'ts',title:'Google Business Tips',desc:'More calls without paying for ads.'},
+  {cat:'TikTok',tag:'tt',title:'Equipment Showcase',desc:'Show your gear — builds credibility instantly.'}
+];
+
+const IDEA_PREVIEWS={
+  'Before & After Post':`<div style="display:grid;grid-template-columns:1fr 1fr;height:64px;border-radius:8px;overflow:hidden;margin-bottom:10px;gap:2px;"><div style="background:linear-gradient(135deg,#1a2e1a,#0d1a0d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-right:2px solid rgba(255,255,255,.8);"><span style="background:#ef4444;color:white;font-size:8px;font-weight:800;padding:1px 7px;border-radius:3px;">BEFORE</span></div><div style="background:linear-gradient(135deg,#1a4020,#2d7a35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;"><span style="background:#2ea043;color:white;font-size:8px;font-weight:800;padding:1px 7px;border-radius:3px;">AFTER</span></div></div>`,
+  'Seasonal Promo':`<div style="background:linear-gradient(135deg,#0d1f0a,#1a3d10);border-radius:8px;padding:8px 11px;margin-bottom:10px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;"><span style="background:#facc15;color:#1a1a1a;font-size:8px;font-weight:800;padding:2px 7px;border-radius:4px;">🌱 SPRING DEAL</span><span style="font-size:11px;font-weight:800;color:#facc15;">20% OFF</span></div><div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:white;">Spring Cleanup Is Here</div></div>`,
+  'Time-lapse Mow':`<div style="background:#0a0a14;border-radius:8px;height:60px;margin-bottom:10px;overflow:hidden;position:relative;"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#0d1a0a,#1a3010);"></div><div style="position:absolute;top:7px;left:8px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);border-radius:4px;padding:1px 6px;font-size:8px;color:rgba(255,255,255,.6);font-weight:700;">● REC :15</div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:7px;"><div style="width:22px;height:22px;background:rgba(255,255,255,.15);border-radius:50%;border:2px solid rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;"><div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:9px solid white;margin-left:2px;"></div></div><div style="font-size:9px;color:rgba(255,255,255,.6);">15-sec time-lapse</div></div></div>`,
+  'Referral Program Script':`<div style="background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:10px;"><div style="font-size:9px;color:var(--t3);margin-bottom:4px;font-weight:700;">💬 SCRIPT</div><div style="font-size:10px;color:var(--t2);font-style:italic;">"Refer a friend, get $25 off your next cut."</div></div>`,
+  'Local Search Ad':`<div style="background:#fff;border-radius:8px;padding:7px 10px;margin-bottom:10px;"><div style="font-size:8px;color:#1a73e8;font-weight:700;">🔗 yoursite.com · Austin, TX</div><div style="font-size:10px;color:#1a0dab;font-weight:700;margin:1px 0;">Lawn Care Austin TX — Free Estimates</div><div style="font-size:9px;color:#4d5156;">Licensed &amp; insured. Same-week service.</div></div>`,
+  'Customer Review Post':`<div style="background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:10px;"><div style="font-size:10px;color:#facc15;margin-bottom:3px;">★★★★★</div><div style="font-size:10px;color:var(--t2);font-style:italic;">"Best lawn service we've used!"</div><div style="font-size:9px;color:var(--t3);margin-top:3px;">— Sarah M.</div></div>`,
+  'Meet the Crew':`<div style="background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px;"><div style="display:flex;"><div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#2d7a35,#1a4020);border:2px solid var(--bg2);"></div><div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--g),#2d7a35);border:2px solid var(--bg2);margin-left:-7px;"></div></div><div><div style="font-size:10px;font-weight:700;color:var(--t);">Meet The Team 👋</div><div style="font-size:9px;color:var(--t3);">Local &amp; licensed</div></div></div>`,
+  'Slow Season Plan':`<div style="background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:10px;"><div style="font-size:9px;font-weight:700;color:var(--t3);margin-bottom:5px;">❄️ WINTER IDEAS</div><div style="font-size:10px;color:var(--t2);display:flex;gap:5px;margin-bottom:3px;"><span style="color:var(--g2);">✓</span>Leaf removal promo</div><div style="font-size:10px;color:var(--t2);display:flex;gap:5px;"><span style="color:var(--g2);">✓</span>Holiday yard cleanup</div></div>`,
+  'HOA Community Ad':`<div style="background:linear-gradient(135deg,#0a1020,#111828);border-radius:8px;padding:8px 10px;margin-bottom:10px;"><div style="font-size:8px;color:#93c5fd;font-weight:800;margin-bottom:3px;">🏘 HOA AD</div><div style="font-size:11px;font-weight:800;color:white;">Serving Ridgemont Heights</div><div style="font-size:9px;color:rgba(255,255,255,.45);">Trusted by 40+ nearby homeowners</div></div>`,
+  'Services & Pricing':`<div style="background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:10px;"><div style="display:flex;flex-wrap:wrap;gap:4px;"><span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;">Mowing</span><span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;">Edging</span><span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;">Cleanup</span></div></div>`,
+  'Google Business Tips':`<div style="background:#fff;border-radius:8px;padding:7px 10px;margin-bottom:10px;display:flex;gap:7px;"><div style="width:26px;height:26px;border-radius:5px;background:linear-gradient(135deg,#4285f4,#34a853);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:white;">G</div><div><div style="font-size:10px;font-weight:700;color:#1a0dab;">Green Valley Landscaping</div><div style="font-size:9px;color:#f59e0b;">★★★★★ 4.9</div></div></div>`,
+  'Equipment Showcase':`<div style="background:linear-gradient(135deg,#0d1a0a,#1a3010);border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px;"><div style="font-size:24px;">🚜</div><div><div style="font-size:10px;font-weight:800;color:white;">Commercial-Grade Equipment</div><div style="font-size:9px;color:rgba(255,255,255,.45);">Zero-turn mowers · Pro edgers</div></div></div>`
+};
+
+function initIdeas(){
+  const g=document.getElementById('ideasGrid');
+  if(!g||g.children.length) return;
+  IDEAS.forEach(idea=>{
+    const d=document.createElement('div'); d.className='idea-card';
+    const preview=IDEA_PREVIEWS[idea.title]||'';
+    d.innerHTML=preview+`<span class="itag ${idea.tag}">${idea.cat}</span><h3>${idea.title}</h3><p>${idea.desc}</p>`;
+    d.onclick=()=>genIdea(idea);
+    g.appendChild(d);
+  });
+}
+
+async function genIdea(idea){
+  const box=document.getElementById('ideaBox');
+  const titleEl=document.getElementById('ideaTitle');
+  const contentEl=document.getElementById('ideaContent');
+  const tipsEl=document.getElementById('ideaTips');
+  titleEl.textContent='Generating: '+idea.title+'...';
+  contentEl.textContent='';
+  tipsEl.innerHTML='';
+  box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // Use coach endpoint — ask it for a specific content idea
+  try{
+    const d=await apiCall({
+      type:'coach',
+      messages:[{role:'user',content:'Give me a ready-to-use '+idea.title+' post or script for a landscaping business. Include the actual content, not just tips. Keep it short and practical.'}]
+    });
+    titleEl.textContent=idea.title+' — '+idea.cat;
+    contentEl.textContent=d.text||'Generation failed.';
+    tipsEl.innerHTML='<div class="ir-tip">💡 Edit this to match your business name and city.</div>';
+  }catch(e){
+    titleEl.textContent=idea.title;
+    contentEl.textContent='Could not generate content. Please try again.';
+  }
+}
+
+// ── GROWTH COACH ──────────────────────────────────────────
+async function sendCoach(){
+  const input=document.getElementById('coachIn');
+  const msg=input.value.trim(); if(!msg) return;
+  input.value='';
+  const suggs=document.getElementById('coachSuggs'); if(suggs) suggs.style.display='none';
+  addMsg('user',msg); chatHistory.push({role:'user',content:msg});
+  const el=addMsg('ai','...');
+  try{
+    const d=await apiCall({type:'coach',messages:chatHistory});
+    const reply=d.text||'Something went wrong. Try again.';
+    chatHistory.push({role:'assistant',content:reply});
+    el.querySelector('.mb').textContent=reply;
+  }catch(e){
+    el.querySelector('.mb').textContent='Connection failed. Please try again.';
+  }
+}
+function addMsg(role,text){
+  const wrap=document.getElementById('coachMsgs'),inner=wrap.querySelector('.coach-inner');
+  const d=document.createElement('div'); d.className='cmsg '+role;
+  d.innerHTML=(role==='ai'?'<div class="mrole">📈 Growth Coach</div>':'')+`<div class="mb">${esc(text)}</div>`;
+  inner.appendChild(d); wrap.scrollTop=wrap.scrollHeight; return d;
+}
+
 function useSugg(btn){document.getElementById('coachIn').value=btn.textContent;sendCoach();}
 
 // ═══════════════════════════════════════════════════════════
 // DEBUG PANEL — temporary developer visibility tool
 // ═══════════════════════════════════════════════════════════
-
-let debugOpen = false;
-// Hide the debug panel entirely when DEBUG=false
-(function initDebugVisibility() {
-  if (!DEBUG) {
-    const wrap = document.getElementById('debugPanelWrap');
-    const spacer = document.getElementById('debugSpacer');
-    if (wrap) wrap.style.display = 'none';
-    if (spacer) spacer.style.height = '0';
-  }
-})();
-const debugEntries = [];
-
-function toggleDebug() {
-  debugOpen = !debugOpen;
-  document.getElementById('debugPanel').style.display = debugOpen ? 'block' : 'none';
-  document.getElementById('debugArrow').textContent = debugOpen ? '▼' : '▲';
-  document.getElementById('debugSpacer').style.height = debugOpen ? '420px' : '36px';
-}
-function clearDebug() {
-  debugEntries.length = 0;
-  document.getElementById('debugLog').innerHTML = '';
-  document.getElementById('debugStatus').textContent = 'Cleared';
-}
-
-function dbLog(entry) {
-  if (!DEBUG) return; // no-op in production
-  debugEntries.unshift(entry); // newest first
-  const status = document.getElementById('debugStatus');
-  const ok = entry.responseOk && entry.parsed?.ok !== false;
-  if (status) { status.textContent = (ok ? '✅' : '❌') + ' Last: ' + entry.button + ' @ ' + entry.ts; status.style.color = ok ? '#34d399' : '#f87171'; }
-  renderDebugLog();
-}
-
-function renderDebugLog() {
-  if (!DEBUG) return;
-  const log = document.getElementById('debugLog');
-  if (!log) return;
-  log.innerHTML = debugEntries.map((e, i) => {
-    const ok = e.responseOk && e.parsed?.ok !== false;
-    const bg = i === 0 ? '#1a1a2e' : '#111118';
-    const border = ok ? '#065f46' : '#7f1d1d';
-    const headerColor = ok ? '#34d399' : '#f87171';
-
-    // Safely stringify for display
-    const payloadStr = safeStringify(e.payload);
-    const parsedStr  = e.parsed  ? safeStringify(e.parsed)  : '(not parsed)';
-    const rawTrunc   = e.rawText ? (e.rawText.length > 2000 ? e.rawText.slice(0, 2000) + '\n… (truncated)' : e.rawText) : '(empty)';
-
-    return `<div style="border-left:3px solid ${border};background:${bg};padding:10px 14px;margin-bottom:1px;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-    <span style="color:${headerColor};font-weight:700;font-size:13px;">${ok ? '✅' : '❌'} ${escD(e.button)}</span>
-    <span style="color:#6b7280;font-size:11px;">${escD(e.ts)}</span>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
-    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Type sent</span><br><span style="color:#e5e7eb;">${escD(e.type)}</span></div>
-    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">HTTP status</span><br><span style="color:${e.httpStatus===200?'#34d399':'#f87171'};">${e.httpStatus || '—'}</span></div>
-    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Response ok</span><br><span style="color:${e.responseOk?'#34d399':'#f87171'};">${e.responseOk ? 'true' : 'false'}</span></div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
-    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">parsed.ok</span><br><span style="color:${e.parsed?.ok?'#34d399':'#f87171'};">${e.parsed ? String(e.parsed.ok) : 'N/A'}</span></div>
-    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Parse result</span><br><span style="color:${e.parseOk?'#34d399':'#f87171'};">${e.parseOk ? 'OK' : 'FAILED'}</span></div>
-    <div><span style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Error</span><br><span style="color:#f87171;word-break:break-all;">${escD(e.error || e.parsed?.error || '—')}</span></div>
-  </div>
-  ${e.parsed?.rawText ? `<details style="margin-bottom:6px;"><summary style="color:#fbbf24;cursor:pointer;font-size:11px;">⚠️ Backend rawText (what OpenAI returned before parse)</summary><pre style="background:#0a0a14;color:#d1d5db;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(e.parsed.rawText)}</pre></details>` : ''}
-  <details><summary style="color:#60a5fa;cursor:pointer;font-size:11px;">📤 Request payload</summary><pre style="background:#0a0a14;color:#d1d5db;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(payloadStr)}</pre></details>
-  <details><summary style="color:#a78bfa;cursor:pointer;font-size:11px;">📥 Parsed response object</summary><pre style="background:#0a0a14;color:#d1d5db;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(parsedStr)}</pre></details>
-  <details><summary style="color:#6b7280;cursor:pointer;font-size:11px;">📄 Raw response text</summary><pre style="background:#0a0a14;color:#9ca3af;padding:8px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;font-size:11px;margin-top:4px;">${escD(rawTrunc)}</pre></details>
-</div>`;
-  }).join('');
-}
-
-function safeStringify(obj) {
-  try { return JSON.stringify(obj, null, 2); }
-  catch(e) { return String(obj); }
-}
-function escD(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── DEBUG-AWARE apiCall ────────────────────────────────────
-// Replaces the original apiCall — same interface, adds full debug logging
+// ── API CALL ──────────────────────────────────────────────
 async function apiCall(payload) {
-  const ts = new Date().toLocaleTimeString();
-  const entry = {
-    button: payload._button || payload.type || 'unknown',
-    type: payload.type,
-    ts,
-    payload: { ...payload, _button: undefined }, // strip internal _button key
-    httpStatus: null,
-    responseOk: false,
-    rawText: '',
-    parsed: null,
-    parseOk: false,
-    error: null
-  };
-
-  // Strip the internal _button key before sending
-  const sendPayload = { ...payload };
-  delete sendPayload._button;
+  // Strip internal _button key — never sent to server
+  const send = { ...payload };
+  delete send._button;
 
   let resp;
   try {
     resp = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sendPayload)
+      body: JSON.stringify(send)
     });
-    entry.httpStatus = resp.status;
-  } catch(fetchErr) {
-    entry.error = 'Fetch failed: ' + fetchErr.message;
-    dbLog(entry);
-    throw fetchErr;
+  } catch(netErr) {
+    throw new Error('Network error — check your connection and try again.');
   }
 
-  // Read raw text first — never assume JSON
+  // Always read as text first — never assume JSON
   let rawText = '';
-  try { rawText = await resp.text(); }
-  catch(e) { rawText = '(could not read response body)'; }
-  entry.rawText = rawText;
+  try { rawText = await resp.text(); } catch(e) { rawText = ''; }
 
-  // Try to parse as JSON
-  let parsed = null;
-  let parseOk = false;
+  // Parse JSON
+  let parsed;
   try {
     parsed = JSON.parse(rawText);
-    parseOk = true;
   } catch(e) {
-    entry.parseOk = false;
-    entry.error = 'Response was not valid JSON. Raw: ' + rawText.slice(0, 300);
-    dbLog(entry);
-    throw new Error('Response was not valid JSON: ' + rawText.slice(0, 200));
+    throw new Error('Server returned an invalid response. Please try again.');
   }
-
-  entry.parsed = parsed;
-  entry.parseOk = parseOk;
-  entry.responseOk = resp.ok;
 
   if (!resp.ok || parsed?.ok === false) {
-    entry.error = parsed?.error || `HTTP ${resp.status}`;
-    dbLog(entry);
-    throw new Error(parsed?.error || `HTTP ${resp.status}`);
+    throw new Error(parsed?.error || 'Request failed (HTTP ' + resp.status + '). Please try again.');
   }
 
-  dbLog(entry);
   return parsed;
 }
 
+
 </script>
 
-<!-- ======= DEBUG PANEL ======= -->
-<div id="debugPanelWrap" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;display:none;">
-  <div id="debugToggle" onclick="toggleDebug()" style="background:#1a1a2e;border-top:2px solid #f59e0b;padding:6px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;">
-    <span style="color:#f59e0b;font-weight:700;font-size:12px;">🐛 Developer Debug Panel</span>
-    <span style="display:flex;gap:12px;align-items:center;">
-      <span id="debugStatus" style="color:#6b7280;font-size:11px;font-family:monospace;">No requests yet — click any AI button</span>
-      <button onclick="event.stopPropagation();clearDebug()" style="background:#374151;border:1px solid #4b5563;color:#9ca3af;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:monospace;font-size:11px;">Clear</button>
-      <span id="debugArrow" style="color:#f59e0b;font-size:12px;">▲</span>
-    </span>
-  </div>
-  <div id="debugPanel" style="display:none;background:#0f0f1a;border-top:1px solid #374151;max-height:400px;overflow-y:auto;">
-    <div style="padding:8px 14px;background:#111118;border-bottom:1px solid #1f2937;font-size:11px;color:#6b7280;">
-      Logs every AI request/response. Newest entry on top. Expand sections to see full data.
-    </div>
-    <div id="debugLog"></div>
-  </div>
-</div>
-<div id="debugSpacer" style="height:36px;"></div>
 
 </body>
 </html>
