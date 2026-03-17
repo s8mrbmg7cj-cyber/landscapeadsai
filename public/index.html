@@ -411,6 +411,27 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 /* ERROR STATE */
 .error-msg{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:#fca5a5;margin-top:8px;display:none}
 .error-msg.show{display:block}
+/* BUSINESS PROFILE */
+.biz-profile-bar{background:rgba(46,160,67,.06);border:1px solid rgba(46,160,67,.18);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:all .15s}
+.biz-profile-bar:hover{border-color:rgba(46,160,67,.35)}
+.biz-profile-name{font-size:13px;font-weight:700;color:var(--g2)}
+.biz-profile-meta{font-size:11px;color:var(--t3)}
+.biz-profile-btn{font-size:11px;font-weight:600;color:var(--t2);background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.biz-profile-btn:hover{border-color:var(--g);color:var(--g2)}
+/* RECENT ADS */
+.recent-ads-panel{width:100%;max-width:640px;display:none;margin-top:12px}
+.recent-ads-panel.show{display:block}
+.recent-ads-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.recent-ads-header h3{font-size:13px;font-weight:700;color:var(--t2)}
+.recent-ads-grid{display:flex;flex-direction:column;gap:7px}
+.recent-ad-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.recent-ad-item:hover{border-color:rgba(46,160,67,.3)}
+.recent-ad-thumb{width:36px;height:36px;border-radius:7px;background:linear-gradient(135deg,#1a3a1a,#0d2010);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
+.recent-ad-info{flex:1;min-width:0}
+.recent-ad-title{font-size:13px;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.recent-ad-meta{font-size:11px;color:var(--t3)}
+.recent-ad-btn{font-size:11px;font-weight:600;color:var(--t2);background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s;flex-shrink:0}
+.recent-ad-btn:hover{border-color:var(--g2);color:var(--g2)}
 /* CHECKLIST */
 .chk-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid transparent}
 .chk-item:hover{border-color:rgba(46,160,67,.2)}
@@ -505,74 +526,164 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
     <p class="hero-proof">No marketing experience. No agency. No monthly contract.</p>
     <div class="hero-btns">
       <button class="btn-hero" onclick="show('builder')">Start With 3 Free Generations →</button>
-      <button class="btn-ghost" onclick="show('tools')">Explore Tools</button>
+      <button class="btn-ghost" onclick="runSampleDemo()">▶ See A Sample Ad</button>
     </div>
     <p class="hero-trust"><span>No credit card</span>·<span>3 free ad generations</span>·<span>Up to 5 angle variations each</span></p>
   </div>
 
+  <!-- SOCIAL PROOF / RESULTS STRIP -->
+  <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div style="max-width:1100px;margin:0 auto;padding:22px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">⚡</span>
+        <div><div style="font-size:13px;font-weight:800;color:var(--t);">60-Second Ad Generation</div><div style="font-size:11px;color:var(--t3);">Photo to finished ad in under a minute</div></div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);flex-shrink:0;"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">🔀</span>
+        <div><div style="font-size:13px;font-weight:800;color:var(--t);">5 Angle Variations</div><div style="font-size:11px;color:var(--t3);">Per generation — urgency, offer, trust &amp; more</div></div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);flex-shrink:0;"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">📝</span>
+        <div><div style="font-size:13px;font-weight:800;color:var(--t);">Captions Included</div><div style="font-size:11px;color:var(--t3);">Facebook, Instagram &amp; short version</div></div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);flex-shrink:0;"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">🎯</span>
+        <div><div style="font-size:13px;font-weight:800;color:var(--t);">Campaign Setup Guidance</div><div style="font-size:11px;color:var(--t3);">Targeting, timing &amp; launch tips</div></div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);flex-shrink:0;"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">🌿</span>
+        <div><div style="font-size:13px;font-weight:800;color:var(--t);">Built For Local Service Businesses</div><div style="font-size:11px;color:var(--t3);">Tuned for landscapers, not generic use</div></div>
+      </div>
+    </div>
+  </div>
+
   <div class="stats-row">
     <div class="stat-item"><div class="stat-num">60s</div><div class="stat-lbl">Photo to finished ad</div></div>
-    <div class="stat-item"><div class="stat-num">5</div><div class="stat-lbl">Ad variations per session</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-lbl">Ad variations per generation</div></div>
     <div class="stat-item"><div class="stat-num">5</div><div class="stat-lbl">Ad templates included</div></div>
     <div class="stat-item"><div class="stat-num">30</div><div class="stat-lbl">Days of content, one click</div></div>
   </div>
 
   <!-- EXAMPLE AD RESULT -->
   <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 48px;">
-    <div style="max-width:900px;margin:0 auto;">
-      <div style="text-align:center;margin-bottom:36px;">
+    <div style="max-width:960px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:40px;">
         <div style="font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--g2);margin-bottom:10px;">Example Output</div>
         <div style="font-size:clamp(22px,3.5vw,34px);font-weight:900;letter-spacing:-1px;margin-bottom:10px;line-height:1.1;">Example Ad Created With LandscapeAdsAI</div>
-        <p style="font-size:15px;color:var(--t2);max-width:480px;margin:0 auto;">Turn one lawn photo into a high-converting Facebook or Instagram ad in seconds.</p>
+        <p style="font-size:15px;color:var(--t2);max-width:500px;margin:0 auto;">Fill in your business details, upload a photo, and this is the kind of ad you get — ready to post in seconds.</p>
       </div>
-      <!-- Example ad mockup -->
-      <div style="max-width:420px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid var(--border);">
-        <!-- Ad image area -->
-        <div style="position:relative;background:linear-gradient(160deg,#0a1a0a 0%,#1a3a1a 50%,#0d2010 100%);height:260px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-          <!-- Simulated photo overlay -->
-          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.52) 100%);"></div>
-          <!-- Offer badge -->
-          <div style="position:absolute;top:16px;left:16px;background:var(--gold);color:#1a1a1a;font-size:12px;font-weight:800;padding:5px 14px;border-radius:6px;letter-spacing:.5px;z-index:1;">🌱 SPRING SPECIAL</div>
-          <div style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);color:white;font-size:11px;font-weight:700;padding:4px 11px;border-radius:6px;z-index:1;">20% OFF FIRST CUT</div>
-          <!-- Lawn visual hint -->
-          <div style="position:relative;z-index:1;text-align:center;padding:0 24px;">
-            <div style="font-size:48px;margin-bottom:8px;opacity:.6;">🌿</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:500;">Photo of your work goes here</div>
+      <!-- Two example ads side by side -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:780px;margin:0 auto;">
+
+        <!-- Example 1: Spring Offer Template -->
+        <div style="border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.5);border:1px solid rgba(46,160,67,.25);">
+          <div style="position:relative;background:linear-gradient(160deg,#071a07 0%,#0f2e0f 40%,#1a4a1a 100%);height:240px;overflow:hidden;">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.65) 100%);"></div>
+            <!-- Top badges -->
+            <div style="position:absolute;top:14px;left:14px;background:#facc15;color:#1a1a1a;font-size:11px;font-weight:800;padding:4px 12px;border-radius:5px;z-index:1;letter-spacing:.4px;">🌱 SPRING SPECIAL</div>
+            <div style="position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.25);color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;z-index:1;">Green Valley Landscaping</div>
+            <!-- Headline area -->
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px 14px;z-index:1;">
+              <div style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:800;color:white;line-height:1.1;margin-bottom:5px;text-shadow:0 2px 8px rgba(0,0,0,.6);">PERFECT LAWN WITHOUT THE WORK</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:3px;">Licensed & Insured • Same-Week Service • Free Estimates</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.5);">Satisfaction Guaranteed • Austin, Texas</div>
+            </div>
           </div>
-          <!-- Headline overlay -->
-          <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px 14px;background:linear-gradient(0deg,rgba(0,0,0,.82) 0%,transparent 100%);z-index:1;">
-            <div style="font-family:'Oswald',sans-serif;font-size:26px;font-weight:800;color:white;line-height:1.1;margin-bottom:4px;">PERFECT LAWN WITHOUT THE WORK</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.7);">Licensed & Insured • Same-Week Service • Free Estimates</div>
+          <!-- Offer badge row -->
+          <div style="background:#1a1a1a;padding:8px 14px;display:flex;align-items:center;justify-content:center;">
+            <div style="background:#facc15;color:#1a1a1a;font-size:12px;font-weight:800;padding:4px 18px;border-radius:5px;letter-spacing:.5px;">20% OFF YOUR FIRST CUT</div>
           </div>
-        </div>
-        <!-- Ad bottom bar -->
-        <div style="background:#2ea043;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div style="font-size:13px;font-weight:800;color:white;letter-spacing:.2px;">Green Valley Landscaping</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.7);">Austin, Texas</div>
+          <!-- CTA bar -->
+          <div style="background:#2ea043;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:11px;color:rgba(255,255,255,.8);font-weight:600;">Limited spots this week</div>
+            <div style="background:white;color:#1a3a1a;font-size:11px;font-weight:800;padding:6px 14px;border-radius:6px;white-space:nowrap;">Get Your Free Estimate</div>
           </div>
-          <div style="background:white;color:#1a3a1a;font-size:12px;font-weight:800;padding:7px 16px;border-radius:7px;white-space:nowrap;">Get Your Free Estimate</div>
+          <div style="background:var(--bg3);padding:4px 12px;text-align:right;"><span style="font-size:9px;color:var(--t3);">landscapeadsai.com</span></div>
         </div>
-        <!-- Watermark hint -->
-        <div style="background:var(--bg3);padding:6px 14px;text-align:right;">
-          <span style="font-size:10px;color:var(--t3);">landscapeadsai.com — free plan watermark (removed on Pro)</span>
+
+        <!-- Example 2: Before/After Template -->
+        <div style="border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.5);border:1px solid rgba(46,160,67,.25);">
+          <!-- Split before/after -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;height:160px;position:relative;">
+            <div style="background:linear-gradient(135deg,#1a2a12,#0d1a0a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-right:3px solid white;">
+              <div style="background:#ef4444;color:white;font-size:10px;font-weight:800;padding:2px 10px;border-radius:4px;letter-spacing:.5px;">BEFORE</div>
+              <div style="font-size:9px;color:rgba(255,255,255,.4);">Overgrown lawn</div>
+            </div>
+            <div style="background:linear-gradient(135deg,#1a4020,#2d6a35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
+              <div style="background:#2ea043;color:white;font-size:10px;font-weight:800;padding:2px 10px;border-radius:4px;letter-spacing:.5px;">AFTER</div>
+              <div style="font-size:9px;color:rgba(255,255,255,.5);">Clean & crisp</div>
+            </div>
+          </div>
+          <!-- Bottom content -->
+          <div style="background:#0d1117;padding:12px 14px 8px;">
+            <div style="background:#facc15;border-radius:6px;text-align:center;padding:5px 12px;margin-bottom:9px;">
+              <div style="font-size:11px;font-weight:800;color:#1a1a1a;letter-spacing:.4px;">FREE ESTIMATE INCLUDED</div>
+            </div>
+            <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:800;color:white;text-align:center;margin-bottom:4px;line-height:1.1;">LAWN TRANSFORMATION IN ONE DAY</div>
+            <div style="font-size:10px;color:var(--t2);text-align:center;margin-bottom:3px;">Green Valley Landscaping • Austin, TX</div>
+            <div style="font-size:10px;color:var(--t3);text-align:center;">Licensed & Insured • Satisfaction Guaranteed</div>
+          </div>
+          <div style="background:#2ea043;padding:10px 14px;text-align:center;">
+            <div style="font-size:11px;font-weight:800;color:white;letter-spacing:.3px;">DM "CUT" FOR A FREE ESTIMATE</div>
+          </div>
+          <div style="background:var(--bg3);padding:4px 12px;text-align:right;"><span style="font-size:9px;color:var(--t3);">landscapeadsai.com</span></div>
         </div>
+
       </div>
-      <p style="text-align:center;font-size:13px;color:var(--t3);margin-top:20px;">↑ This is an example. Your real ad uses your actual lawn photo and business details.</p>
+      <p style="text-align:center;font-size:13px;color:var(--t3);margin-top:22px;">↑ These are static examples. Your real ads use your actual photos and business details.</p>
     </div>
   </div>
 
-  <!-- WHY NOT CHATGPT -->
+  <!-- TRUST / CREDIBILITY SECTION -->
+  <div style="padding:64px 48px;max-width:1240px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:44px;">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--g2);margin-bottom:10px;">Why It Works</div>
+      <div style="font-size:clamp(26px,4vw,40px);font-weight:900;letter-spacing:-1.2px;margin-bottom:12px;line-height:1.08;">Built For Real Lawn &amp;<br>Landscaping Businesses</div>
+      <p style="font-size:16px;color:var(--t2);max-width:520px;margin:0 auto;line-height:1.65;">Every feature is designed for one type of business: local landscapers who want more clients without hiring a marketing agency.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">📸</div>
+        <div><div style="font-size:14px;font-weight:700;margin-bottom:5px;">Creates visual ads, not just text</div><div style="font-size:13px;color:var(--t2);line-height:1.6;">Get a downloadable PNG ad — with your photo, offer badge, and CTA placed on it. Ready to post directly to Facebook or Instagram.</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">🎯</div>
+        <div><div style="font-size:14px;font-weight:700;margin-bottom:5px;">Made for local service marketing</div><div style="font-size:13px;color:var(--t2);line-height:1.6;">Every template, prompt, and output is tuned for landscaping businesses. Your city, your service, your offer — not generic filler copy.</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">🔀</div>
+        <div><div style="font-size:14px;font-weight:700;margin-bottom:5px;">5 angle variations per generation</div><div style="font-size:13px;color:var(--t2);line-height:1.6;">Don't guess which ad will work. Get 5 different versions — urgency, offer, trust, convenience, and neighborhood authority — and test what converts.</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">📝</div>
+        <div><div style="font-size:14px;font-weight:700;margin-bottom:5px;">Captions and content included</div><div style="font-size:13px;color:var(--t2);line-height:1.6;">After your ad, get Facebook and Instagram captions already formatted for each platform. Plus a 30-day content calendar for steady posting.</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">🚫</div>
+        <div><div style="font-size:14px;font-weight:700;margin-bottom:5px;">No design skills needed</div><div style="font-size:13px;color:var(--t2);line-height:1.6;">No Canva, no Photoshop, no designer. Fill in your business info, upload a lawn photo, and click generate. The whole process takes under 2 minutes.</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">📅</div>
+        <div><div style="font-size:14px;font-weight:700;margin-bottom:5px;">Campaign guidance built in</div><div style="font-size:13px;color:var(--t2);line-height:1.6;">Get a campaign setup guide with targeting, timing, and launch recommendations — so you know exactly how to run your ad after you download it.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY THIS WORKS BETTER -->
   <div class="section">
-    <div class="sec-label">Why Not Just Use ChatGPT?</div>
-    <div class="sec-title">ChatGPT gives you text.<br>We give you finished ads.</div>
+    <div class="sec-label">Built For Landscaping Businesses</div>
+    <div class="sec-title">Why This Works Better Than<br>General AI Tools</div>
     <div class="diff-grid">
-      <div class="diff-card"><div class="diff-icon">🖼️</div><div><div class="diff-title">Platform-ready visual creative, not just text</div><div class="diff-desc">We produce an actual downloadable PNG — your photo, your offer badge, your headline, your CTA — all placed professionally. ChatGPT gives you words in a text box.</div></div></div>
-      <div class="diff-card"><div class="diff-icon">🏷️</div><div><div class="diff-title">Offer badge auto-placed on every ad</div><div class="diff-desc">Enter "20% off first cut" and it automatically renders as a gold badge on the image. ChatGPT has no idea what your ad is supposed to look like.</div></div></div>
-      <div class="diff-card"><div class="diff-icon">🔀</div><div><div class="diff-title">5 structured ad angles for split testing</div><div class="diff-desc">Urgency, Transformation, Trust, Offer, and Local Authority — 5 different angles generated at once. That's a real marketing workflow, not a single answer.</div></div></div>
-      <div class="diff-card"><div class="diff-icon">✨</div><div><div class="diff-title">Photo enhancement built for lawn photos</div><div class="diff-desc">One click brightens your grass, boosts greens, and sharpens edges. ChatGPT cannot touch your photos.</div></div></div>
-      <div class="diff-card"><div class="diff-icon">🎯</div><div><div class="diff-title">Local targeting recommendations included</div><div class="diff-desc">After generating your ad, get exact targeting settings — location, age, interests, budget, and best times to run. A complete campaign launch, not just copy.</div></div></div>
-      <div class="diff-card"><div class="diff-icon">🧮</div><div><div class="diff-title">Lead estimate calculator</div><div class="diff-desc">Enter your ad budget and see estimated reach, leads, jobs, and potential revenue. ChatGPT cannot calculate your ROI based on your actual spend.</div></div></div>
+      <div class="diff-card"><div class="diff-icon">🖼️</div><div><div class="diff-title">Real ad layouts, not just text</div><div class="diff-desc">Get a finished downloadable image — your lawn photo, your offer badge, your headline, and your CTA all placed professionally. Not a block of text to paste into another tool.</div></div></div>
+      <div class="diff-card"><div class="diff-icon">🏷️</div><div><div class="diff-title">Offer badge placed automatically</div><div class="diff-desc">Enter "20% off first cut" and it renders as a gold badge directly on your ad. No extra steps, no separate design work — it just appears where it belongs.</div></div></div>
+      <div class="diff-card"><div class="diff-icon">🔀</div><div><div class="diff-title">5 angle variations built into every generation</div><div class="diff-desc">Each ad generation creates 5 different versions — urgency, offer-first, trust, convenience, and local authority. Pick the angle that fits your market and test what works.</div></div></div>
+      <div class="diff-card"><div class="diff-icon">📝</div><div><div class="diff-title">Platform captions generated alongside the ad</div><div class="diff-desc">After your ad is ready, get matching captions for Facebook, Instagram, and a short version — formatted correctly for each platform, ready to post immediately.</div></div></div>
+      <div class="diff-card"><div class="diff-icon">📅</div><div><div class="diff-title">A full local marketing workflow in one place</div><div class="diff-desc">Visual ads, ad variations, social captions, a 30-day content calendar, and a campaign setup guide — everything a landscaping business needs to stay consistent and get clients.</div></div></div>
+      <div class="diff-card"><div class="diff-icon">🎯</div><div><div class="diff-title">Designed specifically for local service businesses</div><div class="diff-desc">Every prompt, every template, and every output is tuned for landscaping businesses — not generic content. Your city, your service, your offer. The result feels like it was written for you.</div></div></div>
     </div>
   </div>
 
@@ -740,6 +851,46 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
     </div>
   </div>
 
+  <!-- FAQ -->
+  <div style="padding:72px 48px;background:var(--bg2);border-top:1px solid var(--border);">
+    <div style="max-width:720px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:44px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--g2);margin-bottom:10px;">Common Questions</div>
+        <div style="font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-1px;line-height:1.1;">Quick Answers</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <details style="background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:18px 22px;cursor:pointer;" open>
+          <summary style="font-size:15px;font-weight:700;color:var(--t);list-style:none;display:flex;align-items:center;justify-content:space-between;">
+            Do I need design experience?
+            <span style="color:var(--g2);font-size:18px;flex-shrink:0;margin-left:12px;">+</span>
+          </summary>
+          <p style="font-size:14px;color:var(--t2);line-height:1.7;margin-top:12px;margin-bottom:0;">No. You just fill in your business name, city, service, and offer — then upload a lawn photo. The tool handles all the layout, design, and copywriting. No Canva, no Photoshop, no experience needed.</p>
+        </details>
+        <details style="background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:18px 22px;cursor:pointer;">
+          <summary style="font-size:15px;font-weight:700;color:var(--t);list-style:none;display:flex;align-items:center;justify-content:space-between;">
+            Can I use my own lawn photos?
+            <span style="color:var(--g2);font-size:18px;flex-shrink:0;margin-left:12px;">+</span>
+          </summary>
+          <p style="font-size:14px;color:var(--t2);line-height:1.7;margin-top:12px;margin-bottom:0;">Yes. Upload any photo from your phone or computer and it gets placed directly on the ad canvas. Real photos of your work always outperform stock images — homeowners want to see your actual results.</p>
+        </details>
+        <details style="background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:18px 22px;cursor:pointer;">
+          <summary style="font-size:15px;font-weight:700;color:var(--t);list-style:none;display:flex;align-items:center;justify-content:space-between;">
+            Can I create ads for Facebook and Instagram?
+            <span style="color:var(--g2);font-size:18px;flex-shrink:0;margin-left:12px;">+</span>
+          </summary>
+          <p style="font-size:14px;color:var(--t2);line-height:1.7;margin-top:12px;margin-bottom:0;">Yes. You can download in Square (1080×1080) for Facebook and Instagram Feed, or Portrait (1080×1350) for Stories. Matching captions for Facebook and Instagram are generated alongside every ad.</p>
+        </details>
+        <details style="background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:18px 22px;cursor:pointer;">
+          <summary style="font-size:15px;font-weight:700;color:var(--t);list-style:none;display:flex;align-items:center;justify-content:space-between;">
+            What does the free plan include?
+            <span style="color:var(--g2);font-size:18px;flex-shrink:0;margin-left:12px;">+</span>
+          </summary>
+          <p style="font-size:14px;color:var(--t2);line-height:1.7;margin-top:12px;margin-bottom:0;">The free plan includes 3 ad generations. Each generation can include up to 5 different angle variations, a social caption, and a campaign setup guide. Downloads include a small watermark. Pro removes the watermark and gives you unlimited generations.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+
   <div class="cta-final">
     <div class="cta-icon-wrap">🚀</div>
     <h2>Your next customer<br>is one ad away.</h2>
@@ -761,6 +912,15 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
       <div class="wm-banner" id="wmBanner">
         <p>Free plan: downloads include a <strong>watermark</strong>. <strong>Pro</strong> removes it.</p>
         <button onclick="openModal()">Upgrade — $19/mo</button>
+      </div>
+
+      <!-- SAVED BUSINESS PROFILE -->
+      <div id="bizProfileBar" class="biz-profile-bar" onclick="loadSavedProfile()" style="display:none;">
+        <div>
+          <div class="biz-profile-name" id="bizProfileName">—</div>
+          <div class="biz-profile-meta" id="bizProfileMeta">Tap to auto-fill fields</div>
+        </div>
+        <button class="biz-profile-btn" onclick="event.stopPropagation();clearSavedProfile()">Clear</button>
       </div>
 
       <div class="sdiv">① Business Info</div>
@@ -786,10 +946,11 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <div class="tc" data-t="multiservice" onclick="selTmpl(this)"><div class="tt">📋</div><div class="tlbl">Multi-Service</div></div>
       </div>
 
-      <div class="sdiv">③ Layout</div>
+      <div class="sdiv">③ Ad Format / Export Size</div>
       <div class="layout-row">
-        <div class="lo active" data-l="square" onclick="selLayout(this)">⬜ Square 1080×1080</div>
-        <div class="lo" data-l="portrait" onclick="selLayout(this)">📱 Portrait 1080×1350</div>
+        <div class="lo active" data-l="square" onclick="selLayout(this)" style="font-size:10px;padding:7px 4px;">⬜<br><strong>Square</strong><br><span style="color:var(--t3);font-size:9px;">FB & IG Feed<br>1080×1080</span></div>
+        <div class="lo" data-l="portrait" onclick="selLayout(this)" style="font-size:10px;padding:7px 4px;">📱<br><strong>Story</strong><br><span style="color:var(--t3);font-size:9px;">IG & FB Story<br>1080×1350</span></div>
+        <div class="lo" data-l="square" onclick="selLayout(this);toast('Facebook Feed uses Square format — already selected!')" style="font-size:10px;padding:7px 4px;">📘<br><strong>FB Feed</strong><br><span style="color:var(--t3);font-size:9px;">Facebook Feed<br>1080×1080</span></div>
       </div>
 
       <div class="sdiv">④ Upload Photos</div>
@@ -842,6 +1003,15 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <div class="score-header"><div class="score-title">📊 Ad Quality Score</div><div class="score-num" id="scoreNum">—</div></div>
         <div class="score-track"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
         <div class="score-tips" id="scoreTips"></div>
+      </div>
+
+      <!-- RECENT ADS -->
+      <div class="recent-ads-panel" id="recentAdsPanel">
+        <div class="recent-ads-header">
+          <h3>🕒 Recent Generations</h3>
+          <button class="biz-profile-btn" onclick="clearRecentAds()">Clear</button>
+        </div>
+        <div class="recent-ads-grid" id="recentAdsGrid"></div>
       </div>
 
       <!-- 5 VARIATIONS -->
@@ -1185,8 +1355,8 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   </div>
 </div>
 
-<!-- ======= DEBUG PANEL ======= -->
-<div id="debugPanel" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;font-size:12px;background:#0a0a0a;border-top:2px solid #ff6b35;display:none">
+<!-- DEBUG PANELS — hidden in production (DEBUG=false) -->
+<div id="debugPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9000;font-family:monospace;font-size:12px;background:#0a0a0a;border-top:2px solid #ff6b35;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#111;border-bottom:1px solid #333;cursor:pointer" onclick="dbToggleBody()">
     <span style="color:#ff6b35;font-weight:bold">🐛 DEVELOPER DEBUG PANEL <span id="dbBadge" style="background:#ff6b35;color:#000;padding:1px 7px;border-radius:3px;font-size:11px;margin-left:8px">0 events</span></span>
     <span style="display:flex;gap:10px;align-items:center">
@@ -1196,13 +1366,13 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
     </span>
   </div>
   <div id="dbBody" style="max-height:340px;overflow-y:auto;padding:0">
-    <div id="dbEmpty" style="padding:14px 18px;color:#555">No debug events yet. Click a button like Generate Ad or Generate Variations to see logs here.</div>
+    <div id="dbEmpty" style="padding:14px 18px;color:#555">No debug events yet.</div>
     <div id="dbLog"></div>
   </div>
 </div>
 
-<!-- DEBUG TRIGGER BUTTON (always visible in corner) -->
-<button id="dbTrigger" onclick="dbOpen()" title="Open Debug Panel" style="position:fixed;bottom:14px;left:14px;z-index:8999;background:#111;border:1px solid #ff6b35;color:#ff6b35;font-family:monospace;font-size:11px;font-weight:bold;padding:5px 10px;border-radius:5px;cursor:pointer;opacity:.7">🐛 DEBUG</button>
+<!-- debug trigger hidden in production -->
+<button id="dbTrigger" onclick="dbOpen()" title="Open Debug Panel" style="display:none;position:fixed;bottom:14px;left:14px;z-index:8999;background:#111;border:1px solid #ff6b35;color:#ff6b35;font-family:monospace;font-size:11px;font-weight:bold;padding:5px 10px;border-radius:5px;cursor:pointer;opacity:.7">🐛 DEBUG</button>
 
 <div class="toast" id="toastEl"></div>
 
@@ -1356,20 +1526,76 @@ function enhancePhoto() {
 
 // ── AD SCORE ──────────────────────────────────────────────
 function showAdScore() {
-  const biz = document.getElementById('bBiz').value.trim();
-  const city = document.getElementById('bCity').value.trim();
-  const offer = document.getElementById('bOffer').value.trim();
-  const headline = document.getElementById('bHeadline').value.trim();
+  const biz     = document.getElementById('bBiz').value.trim();
+  const city    = document.getElementById('bCity').value.trim();
+  const offer   = document.getElementById('bOffer').value.trim();
+  const headline= document.getElementById('bHeadline').value.trim();
   const subtext = document.getElementById('bSubtext').value.trim();
-  const cta = document.getElementById('bCta').value.trim();
-  let score = 0, tips = [];
-  if (biz) score += 1; if (city) score += 1.5; else tips.push('Add your city for local credibility');
-  if (offer) { score += 2; } else tips.push('Add a special offer — significantly boosts response rate');
-  if (headline) score += 1.5; else tips.push('A strong headline gets more attention');
-  if (subtext) score += 1; if (cta) score += 1.5; else tips.push('Add clear CTA button text');
-  if (img1) score += 0.5; if (/(\d+%|off|save|free|special|deal)/i.test(offer)) score += 0.5;
-  if (tips.length === 0) tips.push('Looking strong! Try variations to find the best angle.');
-  score = Math.min(10, parseFloat(score.toFixed(1)));
+  const cta     = document.getElementById('bCta').value.trim();
+  const hasPhoto = !!img1;
+
+  let score = 0;
+  const tips = [];
+
+  // Photo — biggest single factor (up to 3 pts)
+  if (hasPhoto) {
+    score += 3;
+  } else {
+    tips.push('Upload a real lawn photo — ads with photos get dramatically more engagement');
+  }
+
+  // Offer — second biggest factor (up to 2.5 pts)
+  if (offer && /(\d+%|off|save|free|special|deal|estimate|discount)/i.test(offer)) {
+    score += 2.5; // strong offer with keyword
+  } else if (offer) {
+    score += 1.5;
+    tips.push('Make your offer more specific — "20% off first cut" converts better than vague offers');
+  } else {
+    tips.push('Add a specific offer — free estimate, discount, or seasonal deal — this is the #1 conversion driver');
+  }
+
+  // City / local (up to 1.5 pts)
+  if (city && city.length > 2) {
+    score += 1.5;
+  } else {
+    tips.push('Add your city — local copy always outperforms generic copy for service businesses');
+  }
+
+  // Headline quality (up to 1.5 pts)
+  if (headline && headline.length >= 10) {
+    score += 1.5;
+  } else if (headline) {
+    score += 0.5;
+    tips.push('Your headline is short — aim for 5-8 strong words that speak to the customer');
+  } else {
+    tips.push('Generate a headline — a strong headline is what stops people from scrolling past');
+  }
+
+  // Supporting text (up to 0.5 pts)
+  if (subtext && subtext.length > 10) {
+    score += 0.5;
+  } else {
+    tips.push('Add supporting text with trust signals like "Licensed & Insured • Free Estimates"');
+  }
+
+  // CTA (up to 0.5 pts)
+  if (cta && cta.length > 5 && !/^(call now|contact us)$/i.test(cta.trim())) {
+    score += 0.5;
+  } else if (!cta) {
+    tips.push('Add a specific CTA — "Get Your Free Estimate" outperforms "Call Now" every time');
+  } else if (/^(call now|contact us)$/i.test(cta.trim())) {
+    tips.push('Upgrade your CTA — try "Get Your Free Estimate" or "Book Before Spots Fill"');
+  }
+
+  // Business name (up to 0.5 pts)
+  if (biz && biz.length > 2) score += 0.5;
+
+  score = Math.min(10, Math.max(1, parseFloat(score.toFixed(1))));
+
+  if (tips.length === 0) {
+    tips.push('Strong ad — generate 5 variations to find the best angle for your market');
+  }
+
   document.getElementById('scoreNum').textContent = score + '/10';
   document.getElementById('scoreFill').style.width = (score * 10) + '%';
   const col = score >= 8 ? 'var(--g2)' : score >= 6 ? '#fde047' : score >= 4 ? '#fb923c' : '#f87171';
@@ -1480,6 +1706,9 @@ async function genAndRender() {
   document.getElementById('tgLoc').textContent = `Homeowners within 10 miles of ${city}`;
   renderCanvas();
   showAdScore();
+  // Save to profile and recent ads
+  saveProfile();
+  saveRecentAd(biz, city, service, offer, curTmpl);
 }
 
 // ── GENERATE 5 VARIATIONS ─────────────────────────────────
@@ -1919,82 +2148,104 @@ const IDEAS=[
 ];
 // Visual preview HTML per idea title — static, no API
 const IDEA_PREVIEWS = {
-  'Before & After Post': `<div style="display:grid;grid-template-columns:1fr 1fr;height:56px;border-radius:7px;overflow:hidden;margin-bottom:10px;gap:2px;">
-    <div style="background:linear-gradient(135deg,#1a2e1a,#0d1a0d);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;">
-      <span style="background:#ef4444;color:white;font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;">BEFORE</span>
+  'Before & After Post': `<div style="display:grid;grid-template-columns:1fr 1fr;height:70px;border-radius:8px;overflow:hidden;margin-bottom:11px;gap:2px;">
+    <div style="background:linear-gradient(135deg,#1a2e1a,#0d1a0d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-right:2px solid rgba(255,255,255,.8);">
+      <span style="background:#ef4444;color:white;font-size:8px;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">BEFORE</span>
+      <span style="font-size:9px;color:rgba(255,255,255,.35);">overgrown</span>
     </div>
-    <div style="background:linear-gradient(135deg,#1a4020,#2d7a35);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;">
-      <span style="background:#2ea043;color:white;font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;">AFTER</span>
+    <div style="background:linear-gradient(135deg,#1a4020,#2d7a35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+      <span style="background:#2ea043;color:white;font-size:8px;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">AFTER</span>
+      <span style="font-size:9px;color:rgba(255,255,255,.45);">crisp &amp; clean</span>
     </div>
   </div>`,
-  'Seasonal Promo': `<div style="background:linear-gradient(135deg,#0d1f0a,#1a3d10);border-radius:7px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
-    <div style="background:#facc15;color:#1a1a1a;font-size:8px;font-weight:800;padding:2px 7px;border-radius:4px;">🌱 SPRING DEAL</div>
-    <div style="font-size:10px;font-weight:700;color:white;">20% OFF</div>
-  </div>`,
-  'Time-lapse Mow': `<div style="background:#0a0a14;border-radius:7px;height:54px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;">
-    <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0d1a0a,#1a3010);opacity:.8;"></div>
-    <div style="position:relative;z-index:1;width:20px;height:20px;background:rgba(255,255,255,.15);border-radius:50%;border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;">
-      <div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid white;margin-left:2px;"></div>
+  'Seasonal Promo': `<div style="background:linear-gradient(135deg,#0d1f0a,#1a3d10);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <span style="background:#facc15;color:#1a1a1a;font-size:8px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:.4px;">🌱 SPRING DEAL</span>
+      <span style="font-size:11px;font-weight:800;color:#facc15;">20% OFF</span>
     </div>
-    <div style="position:relative;z-index:1;font-size:10px;color:rgba(255,255,255,.6);font-weight:600;">:15 time-lapse</div>
+    <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:white;line-height:1.2;">Spring Cleanup Season Is Here</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;">Limited seasonal spots available</div>
   </div>`,
-  'Referral Program Script': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
-    <div style="font-size:9px;color:var(--t3);margin-bottom:4px;">MESSAGE SCRIPT</div>
-    <div style="font-size:10px;color:var(--t2);line-height:1.5;">"Hey [Name], know anyone who needs lawn care? Send them our way and get $25 off!"</div>
+  'Time-lapse Mow': `<div style="background:#0a0a14;border-radius:8px;height:68px;margin-bottom:11px;overflow:hidden;position:relative;">
+    <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0d1a0a,#1a3010);"></div>
+    <div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);border-radius:4px;padding:1px 6px;font-size:8px;color:rgba(255,255,255,.6);font-weight:700;">● REC  :15</div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <div style="width:24px;height:24px;background:rgba(255,255,255,.15);border-radius:50%;border:2px solid rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:10px solid white;margin-left:2px;"></div>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:600;">15-sec time-lapse<br><span style="font-size:9px;opacity:.6;">Full mow in 15 seconds</span></div>
+    </div>
   </div>`,
-  'Local Search Ad': `<div style="background:#fff;border-radius:7px;padding:7px 10px;margin-bottom:10px;">
-    <div style="font-size:9px;color:#1a73e8;font-weight:600;margin-bottom:1px;">🔗 Green Valley Landscaping · Austin, TX</div>
-    <div style="font-size:10px;color:#1a0dab;font-weight:600;margin-bottom:1px;">Lawn Care Austin TX — Free Estimates</div>
-    <div style="font-size:9px;color:#4d5156;line-height:1.3;">Licensed & insured. Same-week service available. Call today!</div>
+  'Referral Program Script': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
+    <div style="font-size:9px;color:var(--t3);font-weight:700;letter-spacing:.5px;margin-bottom:5px;">💬 MESSAGE TEMPLATE</div>
+    <div style="font-size:10px;color:var(--t2);line-height:1.55;font-style:italic;">"Hey [Name], if you know anyone who needs their lawn done — send them my way. They get 10% off, you get $25 off your next cut."</div>
+    <div style="font-size:9px;color:var(--g2);margin-top:5px;font-weight:600;">→ Copy-ready referral script</div>
   </div>`,
-  'Customer Review Post': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
-    <div style="font-size:11px;color:#facc15;margin-bottom:3px;">★★★★★</div>
-    <div style="font-size:10px;color:var(--t2);font-style:italic;line-height:1.4;">"Best lawn service in the area. Fast and professional!"</div>
-    <div style="font-size:9px;color:var(--t3);margin-top:3px;">— Sarah M., Happy Customer</div>
+  'Local Search Ad': `<div style="background:#fff;border-radius:8px;padding:8px 11px;margin-bottom:11px;">
+    <div style="font-size:8px;color:#1a73e8;font-weight:700;margin-bottom:1px;">🔗 yoursite.com · Austin, TX</div>
+    <div style="font-size:11px;color:#1a0dab;font-weight:700;line-height:1.3;margin-bottom:2px;">Lawn Care Austin TX — Free Estimates</div>
+    <div style="font-size:9px;color:#4d5156;line-height:1.4;">Licensed &amp; insured. Same-week service.<br>20% off first cut — call today!</div>
+    <div style="display:flex;gap:6px;margin-top:5px;">
+      <span style="font-size:8px;color:#1a73e8;font-weight:600;">📞 Call</span>
+      <span style="font-size:8px;color:#1a73e8;font-weight:600;">📍 Directions</span>
+    </div>
   </div>`,
-  'Meet the Crew': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-    <div style="display:flex;gap:-4px;">
-      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--g),#1a3a1a);border:2px solid var(--bg2);"></div>
-      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#2d7a35,var(--g));border:2px solid var(--bg2);margin-left:-8px;"></div>
-      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1a4020,var(--g2));border:2px solid var(--bg2);margin-left:-8px;"></div>
+  'Customer Review Post': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+      <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--g),#1a3a1a);border-radius:50%;flex-shrink:0;"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--t);">Sarah M.</div><div style="font-size:10px;color:#facc15;">★★★★★</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--t2);font-style:italic;line-height:1.5;">"Best lawn service we've used. Showed up on time and the yard looked incredible."</div>
+    <div style="font-size:9px;color:var(--g2);margin-top:4px;font-weight:600;">→ Turn reviews into social ads</div>
+  </div>`,
+  'Meet the Crew': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;display:flex;align-items:center;gap:10px;">
+    <div style="display:flex;">
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2d7a35,#1a4020);border:2px solid var(--bg2);"></div>
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1a4020,var(--g));border:2px solid var(--bg2);margin-left:-8px;"></div>
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--g),#2d7a35);border:2px solid var(--bg2);margin-left:-8px;"></div>
     </div>
     <div>
-      <div style="font-size:10px;font-weight:700;color:var(--t);">Meet The Team</div>
-      <div style="font-size:9px;color:var(--t3);">Local, trusted, professional</div>
+      <div style="font-size:10px;font-weight:700;color:var(--t);margin-bottom:2px;">Meet The Team 👋</div>
+      <div style="font-size:9px;color:var(--t3);line-height:1.4;">Local crew. Licensed &amp; insured.<br>Trusted by 100+ homeowners.</div>
     </div>
   </div>`,
-  'Slow Season Plan': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
-    <div style="font-size:9px;color:var(--t3);margin-bottom:5px;font-weight:700;letter-spacing:.5px;">WINTER CONTENT PLAN</div>
-    <div style="display:flex;flex-direction:column;gap:3px;">
-      <div style="font-size:10px;color:var(--t2);display:flex;gap:5px;"><span style="color:var(--g2);">✓</span>Leaf cleanup promo</div>
-      <div style="font-size:10px;color:var(--t2);display:flex;gap:5px;"><span style="color:var(--g2);">✓</span>Holiday yard cleanup</div>
+  'Slow Season Plan': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
+    <div style="font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.5px;margin-bottom:6px;">❄️ WINTER CONTENT IDEAS</div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div style="font-size:10px;color:var(--t2);display:flex;gap:6px;align-items:center;"><span style="color:var(--g2);font-size:11px;">✓</span>Leaf removal promo post</div>
+      <div style="font-size:10px;color:var(--t2);display:flex;gap:6px;align-items:center;"><span style="color:var(--g2);font-size:11px;">✓</span>Holiday yard cleanup deal</div>
+      <div style="font-size:10px;color:var(--t2);display:flex;gap:6px;align-items:center;"><span style="color:var(--g2);font-size:11px;">✓</span>Spring pre-book campaign</div>
     </div>
   </div>`,
-  'HOA Community Ad': `<div style="background:linear-gradient(135deg,#0a1020,#111828);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
-    <div style="font-size:9px;color:#93c5fd;font-weight:700;margin-bottom:3px;">🏘 HOA COMMUNITY AD</div>
-    <div style="font-size:10px;font-weight:700;color:white;margin-bottom:2px;">Serving Ridgemont Heights</div>
-    <div style="font-size:9px;color:rgba(255,255,255,.5);">Trusted by 40+ homeowners nearby</div>
+  'HOA Community Ad': `<div style="background:linear-gradient(135deg,#0a1020,#111828);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
+    <div style="font-size:8px;color:#93c5fd;font-weight:800;letter-spacing:.5px;margin-bottom:4px;">🏘 HOA NEIGHBORHOOD AD</div>
+    <div style="font-size:12px;font-weight:800;color:white;margin-bottom:3px;line-height:1.2;">Serving Ridgemont Heights</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.45);margin-bottom:4px;">Trusted by 40+ homeowners nearby</div>
+    <div style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:3px 8px;display:inline-block;"><span style="font-size:9px;color:#93c5fd;font-weight:700;">Book Your Free Quote →</span></div>
   </div>`,
-  'Services & Pricing': `<div style="background:var(--bg3);border-radius:7px;padding:8px 10px;margin-bottom:10px;">
-    <div style="font-size:9px;color:var(--t3);margin-bottom:4px;font-weight:700;">SERVICES</div>
-    <div style="display:flex;flex-wrap:wrap;gap:4px;">
-      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;">Mowing</span>
-      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;">Edging</span>
-      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;">Cleanup</span>
+  'Services & Pricing': `<div style="background:var(--bg3);border-radius:8px;padding:9px 11px;margin-bottom:11px;">
+    <div style="font-size:9px;color:var(--t3);font-weight:700;letter-spacing:.5px;margin-bottom:6px;">SERVICES &amp; PRICING GRAPHIC</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">
+      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Mowing</span>
+      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Edging</span>
+      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Cleanup</span>
+      <span style="background:rgba(46,160,67,.12);color:var(--g3);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;">Mulching</span>
     </div>
+    <div style="font-size:9px;color:var(--t3);">Starting at $45/visit · Free estimate</div>
   </div>`,
-  'Google Business Tips': `<div style="background:#fff;border-radius:7px;padding:7px 10px;margin-bottom:10px;display:flex;gap:6px;align-items:flex-start;">
-    <div style="width:20px;height:20px;background:linear-gradient(135deg,#4285f4,#34a853);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:white;">G</div>
+  'Google Business Tips': `<div style="background:#fff;border-radius:8px;padding:8px 11px;margin-bottom:11px;display:flex;gap:9px;align-items:flex-start;">
+    <div style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#4285f4,#34a853);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:white;font-family:sans-serif;">G</div>
     <div>
-      <div style="font-size:10px;font-weight:700;color:#1a0dab;">Green Valley Landscaping</div>
-      <div style="font-size:9px;color:#f59e0b;">★★★★★</div>
+      <div style="font-size:10px;font-weight:700;color:#1a0dab;margin-bottom:1px;">Green Valley Landscaping</div>
+      <div style="font-size:9px;color:#f59e0b;margin-bottom:1px;">★★★★★ <span style="color:#4d5156;">4.9 (38 reviews)</span></div>
+      <div style="font-size:9px;color:#137333;font-weight:600;">Open · Closes 7 PM</div>
     </div>
   </div>`,
-  'Equipment Showcase': `<div style="background:linear-gradient(135deg,#0d1a0a,#1a3010);border-radius:7px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-    <div style="font-size:22px;">🚜</div>
+  'Equipment Showcase': `<div style="background:linear-gradient(135deg,#0d1a0a,#1a3010);border-radius:8px;padding:9px 11px;margin-bottom:11px;display:flex;align-items:center;gap:10px;">
+    <div style="font-size:28px;flex-shrink:0;">🚜</div>
     <div>
-      <div style="font-size:10px;font-weight:700;color:white;">Pro Equipment</div>
-      <div style="font-size:9px;color:rgba(255,255,255,.5);">Commercial-grade tools</div>
+      <div style="font-size:11px;font-weight:800;color:white;margin-bottom:2px;">Commercial-Grade Equipment</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.45);line-height:1.4;">Zero-turn mowers · Pro edgers<br>Commercial blowers &amp; trimmers</div>
     </div>
   </div>`
 };
@@ -2115,6 +2366,181 @@ async function genLeadMagnets() {
   } catch(e) { showErr('lmError', 'Generation failed: ' + e.message); }
   setBtn('lmBtn', false, 'Generate Lead Magnets');
 }
+
+// ── SAMPLE DEMO ───────────────────────────────────────────
+function runSampleDemo() {
+  // Switch to builder page
+  show('builder');
+  // Small delay so the page has rendered before filling and scrolling
+  setTimeout(() => {
+    // Auto-fill sample values
+    const bizEl     = document.getElementById('bBiz');
+    const cityEl    = document.getElementById('bCity');
+    const serviceEl = document.getElementById('bService');
+    const offerEl   = document.getElementById('bOffer');
+    const phoneEl   = document.getElementById('bPhone');
+    if (bizEl)     bizEl.value     = 'Green Valley Landscaping';
+    if (cityEl)    cityEl.value    = 'Local Service Area';
+    if (serviceEl) serviceEl.value = 'Lawn Mowing';
+    if (offerEl)   offerEl.value   = '20% Off First Cut';
+    if (phoneEl)   phoneEl.value   = 'Call (555) 012-3456';
+    // Leave headline / subtext / CTA blank so AI generates them
+    const headlineEl = document.getElementById('bHeadline');
+    const subtextEl  = document.getElementById('bSubtext');
+    const ctaEl      = document.getElementById('bCta');
+    if (headlineEl) headlineEl.value = '';
+    if (subtextEl)  subtextEl.value  = '';
+    if (ctaEl)      ctaEl.value      = '';
+    // Select Spring Offer template
+    document.querySelectorAll('.tc').forEach(c => c.classList.remove('sel'));
+    const springTc = document.querySelector('.tc[data-t="springoffer"]');
+    if (springTc) { springTc.classList.add('sel'); curTmpl = 'springoffer'; }
+    toast('Sample loaded — generating your demo ad...');
+    // Trigger the generator
+    genAndRender();
+    // Scroll canvas into view after a moment
+    setTimeout(() => {
+      const canvas = document.getElementById('adCanvas');
+      if (canvas) canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 800);
+  }, 150);
+}
+
+// ── BUSINESS PROFILE (localStorage) ─────────────────────
+const PROFILE_KEY = 'lsai_profile';
+const RECENT_KEY  = 'lsai_recent';
+
+function saveProfile() {
+  const p = {
+    biz:     document.getElementById('bBiz').value.trim(),
+    city:    document.getElementById('bCity').value.trim(),
+    service: document.getElementById('bService').value,
+    offer:   document.getElementById('bOffer').value.trim(),
+    phone:   document.getElementById('bPhone').value.trim()
+  };
+  if (!p.biz && !p.city) return;
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch(e) {}
+  showBizProfileBar(p);
+}
+
+function loadSavedProfile() {
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (p.biz)     document.getElementById('bBiz').value     = p.biz;
+    if (p.city)    document.getElementById('bCity').value    = p.city;
+    if (p.service) document.getElementById('bService').value = p.service;
+    if (p.offer)   document.getElementById('bOffer').value   = p.offer;
+    if (p.phone)   document.getElementById('bPhone').value   = p.phone;
+    toast('Business info loaded ✓');
+  } catch(e) {}
+}
+
+function clearSavedProfile() {
+  try { localStorage.removeItem(PROFILE_KEY); } catch(e) {}
+  const bar = document.getElementById('bizProfileBar');
+  if (bar) bar.style.display = 'none';
+  toast('Saved profile cleared');
+}
+
+function showBizProfileBar(p) {
+  const bar  = document.getElementById('bizProfileBar');
+  const name = document.getElementById('bizProfileName');
+  const meta = document.getElementById('bizProfileMeta');
+  if (!bar || !name || !meta) return;
+  if (p && p.biz) {
+    name.textContent = p.biz;
+    meta.textContent = [p.city, p.service].filter(Boolean).join(' · ') || 'Tap to auto-fill';
+    bar.style.display = 'flex';
+  }
+}
+
+// Auto-attach save-on-blur to builder fields
+(function initProfile() {
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    if (raw) { const p = JSON.parse(raw); showBizProfileBar(p); }
+  } catch(e) {}
+  ['bBiz','bCity','bService','bOffer','bPhone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', saveProfile);
+  });
+})();
+
+// ── RECENT ADS (localStorage) ─────────────────────────────
+const MAX_RECENT = 5;
+
+function saveRecentAd(biz, city, service, offer, template) {
+  try {
+    const existing = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    const entry = {
+      id: Date.now(),
+      biz:      biz     || 'Ad',
+      city:     city    || '',
+      service:  service || '',
+      offer:    offer   || '',
+      template: template || 'beforeafter',
+      ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    existing.unshift(entry);
+    const trimmed = existing.slice(0, MAX_RECENT);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(trimmed));
+    renderRecentAds(trimmed);
+  } catch(e) {}
+}
+
+function clearRecentAds() {
+  try { localStorage.removeItem(RECENT_KEY); } catch(e) {}
+  renderRecentAds([]);
+  const panel = document.getElementById('recentAdsPanel');
+  if (panel) panel.classList.remove('show');
+  toast('Recent ads cleared');
+}
+
+const TMPL_ICONS = { beforeafter:'⬛⬜', spotsopen:'⚡', springoffer:'🌱', testimonial:'⭐', multiservice:'📋' };
+
+function renderRecentAds(list) {
+  const panel = document.getElementById('recentAdsPanel');
+  const grid  = document.getElementById('recentAdsGrid');
+  if (!panel || !grid) return;
+  if (!list || list.length === 0) { panel.classList.remove('show'); return; }
+  grid.innerHTML = '';
+  list.forEach(entry => {
+    const row = document.createElement('div');
+    row.className = 'recent-ad-item';
+    row.innerHTML = `
+      <div class="recent-ad-thumb">${TMPL_ICONS[entry.template] || '🖼️'}</div>
+      <div class="recent-ad-info">
+        <div class="recent-ad-title">${esc(entry.biz)}${entry.offer ? ' · ' + esc(entry.offer) : ''}</div>
+        <div class="recent-ad-meta">${esc(entry.service)}${entry.city ? ' · ' + esc(entry.city) : ''} · ${entry.ts}</div>
+      </div>
+      <button class="recent-ad-btn" onclick='reloadRecent(${JSON.stringify(entry)})'>Reload →</button>`;
+    grid.appendChild(row);
+  });
+  panel.classList.add('show');
+}
+
+function reloadRecent(entry) {
+  if (entry.biz)     document.getElementById('bBiz').value     = entry.biz;
+  if (entry.city)    document.getElementById('bCity').value    = entry.city;
+  if (entry.service) document.getElementById('bService').value = entry.service;
+  if (entry.offer)   document.getElementById('bOffer').value   = entry.offer;
+  // Re-select template
+  document.querySelectorAll('.tc').forEach(c => {
+    c.classList.toggle('sel', c.dataset.t === entry.template);
+  });
+  curTmpl = entry.template || 'beforeafter';
+  toast('Previous ad settings reloaded ✓');
+}
+
+// Load recent ads on page load
+(function initRecent() {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    if (raw) renderRecentAds(JSON.parse(raw));
+  } catch(e) {}
+})();
 
 function useSugg(btn){document.getElementById('coachIn').value=btn.textContent;sendCoach();}
 
