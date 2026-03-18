@@ -904,7 +904,7 @@ paypal.Buttons({
         <h3 id="canvasLabel">Preview will appear here</h3>
         <div class="tbns">
           <button class="tbtn" onclick="renderCanvas()" id="rrBtn2" style="display:none">🔄 Refresh</button>
-          <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none">⬇ Download PNG</button>
+          <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none" title="On iPhone: image opens in new tab — tap and hold to save">⬇ Download PNG</button>
         </div>
       </div>
       <div class="canvas-empty" id="canvasEmpty">
@@ -1046,15 +1046,31 @@ let img1 = null, img2 = null;
 let curAd = {};
 
 // ── OFFER ANGLE ROTATION ──────────────────────────────────
-// Rotates through different ad angles so not every ad says "20% OFF"
-// Only 1-2 of the 6 angles include a price discount
 const AD_ANGLES = [
-  { angle: 'Urgency',       offerHint: 'urgency — book now, limited spots this week, no price discount' },
-  { angle: 'Discount',      offerHint: null }, // use user's actual offer
-  { angle: 'Transformation',offerHint: 'transformation — before and after results, no price mentioned' },
-  { angle: 'Trust',         offerHint: 'trust — licensed, insured, locally trusted, satisfaction guaranteed' },
-  { angle: 'Convenience',   offerHint: 'convenience — we handle everything, no hassle service' },
-  { angle: 'Premium',       offerHint: 'premium quality — professional results, top-tier service' },
+  {
+    angle: 'Urgency',
+    offerHint: 'urgency — emphasize limited spots or time pressure, NO price discount. Headline example: "Last Spots This Week for Fast, Reliable Lawn Care"'
+  },
+  {
+    angle: 'Discount',
+    offerHint: null // use user's actual offer as-is
+  },
+  {
+    angle: 'Transformation',
+    offerHint: 'transformation — focus on the before/after result, the visual change, outcome for the homeowner, NO price. Headline example: "Turn Your Patchy Yard Into a Clean, Green Lawn in Days"'
+  },
+  {
+    angle: 'Trust',
+    offerHint: 'trust — local experts, licensed, insured, reliable service, NO price discount. Headline example: "Local Lawn Experts Delivering Clean Cuts and Reliable Service"'
+  },
+  {
+    angle: 'Convenience',
+    offerHint: 'convenience — we handle everything, set it and forget it, easy process, NO price. Headline example: "Set It and Forget It Lawn Care — We Handle Everything"'
+  },
+  {
+    angle: 'Premium',
+    offerHint: 'premium quality — high-end results, precision work, healthy growth, NO price. Headline example: "High-End Lawn Care With Precision Edging and Healthy Growth"'
+  },
 ];
 let _angleIdx = 0;
 function nextAngle() {
@@ -1475,40 +1491,62 @@ function copyActiveCaption() {
 
 // ── 30-DAY CONTENT PLAN ───────────────────────────────────
 async function genContent30() {
-  const biz = document.getElementById('bBiz').value.trim() || '';
-  const city = document.getElementById('bCity').value.trim() || '';
-  const service = document.getElementById('bService').value || '';
-  const offer = document.getElementById('bOffer').value.trim() || '';
+  const biz     = document.getElementById('bBiz').value.trim()    || '';
+  const city    = document.getElementById('bCity').value.trim()   || '';
+  const service = document.getElementById('bService').value       || '';
+  const offer   = document.getElementById('bOffer').value.trim()  || '';
   hideErr('c30Error');
-  setBtn('c30Btn', true, 'Generating 30-day plan...');
+  setBtn('c30Btn', true, 'Generating plan...');
   try {
     const d = await apiCall({ type:'content30', biz, city, service, offer, _button: 'Generate 30-Day Content Plan' });
     const weeks = d.weeks || [];
     if (weeks.length === 0) throw new Error('No content weeks returned. Please try again.');
     const body = document.getElementById('contentBody');
     body.innerHTML = '';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.innerHTML = `<div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--g2);margin-bottom:4px;">📅 Simple Weekly Plan</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:16px;line-height:1.5;">1–3 posts per week · Realistic for a busy landscaping business</div>`;
+    body.appendChild(hdr);
+
     weeks.forEach(week => {
-      const wDiv = document.createElement('div'); wDiv.className = 'c30-week';
-      wDiv.innerHTML = `<div class="c30-week-title">Week ${week.week}${week.theme ? ' — ' + esc(week.theme) : ''}</div>`;
-      (week.posts || []).forEach(post => {
-        const pDiv = document.createElement('div'); pDiv.className = 'c30-post';
-        // Support both new field names (postType, idea, captionIdea) and legacy (type, concept, cta)
+      const wDiv = document.createElement('div');
+      wDiv.style.cssText = 'background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;';
+
+      // Week header
+      const wHead = document.createElement('div');
+      wHead.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;';
+      wHead.innerHTML = `<div style="font-size:13px;font-weight:700;color:var(--g2);">Week ${week.week}${week.theme ? ' — ' + esc(week.theme) : ''}</div>
+        <div style="font-size:10px;color:var(--t3);">${(week.posts||[]).length} post${(week.posts||[]).length !== 1 ? 's' : ''}</div>`;
+      wDiv.appendChild(wHead);
+
+      // Posts — simple card per post
+      (week.posts || []).slice(0, 3).forEach((post, idx) => {
         const postType    = post.postType    || post.type    || 'Post';
         const idea        = post.idea        || post.concept || '';
         const captionIdea = post.captionIdea || post.cta     || '';
         const goal        = post.goal        || '';
+        const isOptional  = idx >= 1;
+
+        const pDiv = document.createElement('div');
+        pDiv.style.cssText = 'border-left:3px solid ' + (idx === 0 ? 'var(--g)' : 'var(--border)') +
+          ';padding:8px 12px;margin-bottom:8px;background:var(--bg2);border-radius:0 6px 6px 0;';
         pDiv.innerHTML = `
-          <div class="c30-meta">
-            <span class="c30-badge c30-plat">${esc(post.platform||'')}</span>
-            <span class="c30-badge c30-type">${esc(postType)}</span>
-            <span class="c30-badge c30-goal">${esc(goal)}</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
+            <span style="font-size:10px;font-weight:700;background:rgba(46,160,67,.12);color:var(--g3);padding:2px 7px;border-radius:4px;">${esc(post.platform||'')}</span>
+            <span style="font-size:10px;font-weight:600;background:var(--bg3);color:var(--t2);padding:2px 7px;border-radius:4px;">${esc(postType)}</span>
+            ${isOptional ? '<span style="font-size:9px;color:var(--t3);font-style:italic;">optional</span>' : '<span style="font-size:9px;color:var(--g2);font-weight:700;">✓ main post</span>'}
+            ${goal ? '<span style="font-size:9px;color:var(--t3);margin-left:auto;">Goal: ' + esc(goal) + '</span>' : ''}
           </div>
-          <div class="c30-concept"><strong>Day ${post.day||''}:</strong> ${esc(idea)}</div>
-          <div class="c30-cta">${esc(captionIdea)}</div>`;
+          <div style="font-size:12px;color:var(--t);line-height:1.55;margin-bottom:${captionIdea ? '4px' : '0'};">${esc(idea)}</div>
+          ${captionIdea ? '<div style="font-size:11px;color:var(--t2);font-style:italic;line-height:1.4;">Caption idea: ' + esc(captionIdea) + '</div>' : ''}`;
         wDiv.appendChild(pDiv);
       });
+
       body.appendChild(wDiv);
     });
+
     document.getElementById('contentPanel').classList.add('show');
   } catch(e) { showErr('c30Error', '30-day plan failed: ' + e.message); }
   setBtn('c30Btn', false, '📅 Generate 30-Day Content Plan');
@@ -1551,80 +1589,224 @@ function renderCanvas() {
 
 // ── TEMPLATES ─────────────────────────────────────────────
 function tmplBA(ctx, W, H, a) {
-  const mid = W/2, imgH = H*.56;
-  if (img1){ctx.save();ctx.beginPath();ctx.rect(0,0,mid,imgH);ctx.clip();dCover(ctx,img1,0,0,mid,imgH);ctx.restore();}
-  else{ctx.fillStyle='#1a2e1a';ctx.fillRect(0,0,mid,imgH);ctx.fillStyle='rgba(255,255,255,.1)';ctx.font='bold 22px Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Upload Photo 1',mid/2,imgH/2);}
-  if (img2){ctx.save();ctx.beginPath();ctx.rect(mid,0,mid,imgH);ctx.clip();dCover(ctx,img2,mid,0,mid,imgH);ctx.restore();}
-  else{ctx.fillStyle='#1a3d20';ctx.fillRect(mid,0,mid,imgH);ctx.fillStyle='rgba(255,255,255,.1)';ctx.font='bold 22px Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Upload Photo 2',mid+mid/2,imgH/2);}
-  ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(mid,0);ctx.lineTo(mid,imgH);ctx.stroke();
-  const g=ctx.createLinearGradient(0,imgH*.5,0,imgH);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.6)');ctx.fillStyle=g;ctx.fillRect(0,0,W,imgH);
-  dBadge(ctx,'BEFORE',28,28,'#ef4444','#fff');dBadge(ctx,'AFTER',mid+28,28,'#2ea043','#fff');
-  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='500 16px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.d1,W/2,imgH-18);
+  const mid = W/2, imgH = H * 0.52;
+  // Photos
+  if(img1){ctx.save();ctx.beginPath();ctx.rect(0,0,mid,imgH);ctx.clip();dCover(ctx,img1,0,0,mid,imgH);ctx.restore();}
+  else{ctx.fillStyle='#1a2e1a';ctx.fillRect(0,0,mid,imgH);}
+  if(img2){ctx.save();ctx.beginPath();ctx.rect(mid,0,mid,imgH);ctx.clip();dCover(ctx,img2,mid,0,mid,imgH);ctx.restore();}
+  else{ctx.fillStyle='#1a3d20';ctx.fillRect(mid,0,mid,imgH);}
+  // Divider
+  ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(mid,0);ctx.lineTo(mid,imgH);ctx.stroke();
+  // Gradient over photos
+  const pg=ctx.createLinearGradient(0,imgH*0.4,0,imgH);pg.addColorStop(0,'rgba(0,0,0,0)');pg.addColorStop(1,'rgba(0,0,0,.5)');ctx.fillStyle=pg;ctx.fillRect(0,0,W,imgH);
+  // BEFORE/AFTER badges (TOP)
+  dBadge(ctx,'BEFORE',20,20,'#ef4444','#fff');
+  dBadge(ctx,'AFTER',mid+20,20,'#2ea043','#fff');
+  // Supporting detail line at bottom of photo area
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='500 18px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.d1, W/2, imgH - 20);
+
+  // Dark info panel
   ctx.fillStyle='#0d1117';ctx.fillRect(0,imgH,W,H-imgH);
-  if(a.offerBadge){ctx.fillStyle='#facc15';rr(ctx,W/2-215,imgH+16,430,52,10);ctx.fillStyle='#1a1a1a';ctx.font='bold 24px Oswald,sans-serif';ctx.textAlign='center';ctx.fillText(a.offerBadge,W/2,imgH+48);}
-  ctx.fillStyle='#3fb950';ctx.font='700 20px Inter,sans-serif';ctx.textAlign='center';ctx.fillText((a.biz+(a.cityLine?'  •  '+a.cityLine:'')).toUpperCase(),W/2,imgH+(a.offerBadge?88:48));
-  ctx.fillStyle='#fff';ctx.font='800 56px Oswald,Inter,sans-serif';wt(ctx,a.headline.toUpperCase(),W/2,imgH+(a.offerBadge?155:108),W-80,66,'center');
-  ctx.fillStyle='#8b949e';ctx.font='400 20px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.trustLine,W/2,H-106);
-  ctx.fillStyle='rgba(255,255,255,.45)';ctx.font='400 17px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.d2,W/2,H-82);
-  ctx.fillStyle='#2ea043';rr(ctx,60,H-72,W-120,60,12);ctx.fillStyle='#fff';ctx.font='bold 26px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.cta,W/2,H-32);
+
+  // TOP of panel: offer badge
+  const panelTop = imgH + 18;
+  if(a.offerBadge){
+    ctx.fillStyle='#facc15';rr(ctx,W/2-200,panelTop,400,48,10);
+    ctx.fillStyle='#1a1a1a';ctx.font='bold 22px Oswald,sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.offerBadge,W/2,panelTop+32);
+  }
+
+  // MIDDLE: biz line + headline
+  const hTop = panelTop + (a.offerBadge ? 66 : 14);
+  ctx.fillStyle='#3fb950';ctx.font='700 18px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText((a.biz+(a.cityLine?'  •  '+a.cityLine:'')).toUpperCase(),W/2,hTop);
+  ctx.fillStyle='#fff';ctx.font='800 54px Oswald,sans-serif';
+  wt(ctx,a.headline.toUpperCase(),W/2,hTop+52,W-80,62,'center');
+
+  // LOWER: trust + detail
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='400 17px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.trustLine,W/2,H-86);
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='400 15px Inter,sans-serif';
+  ctx.fillText(a.d2,W/2,H-65);
+
+  // BOTTOM: CTA bar (full width)
+  ctx.fillStyle='#2ea043';ctx.fillRect(0,H-52,W,52);
+  ctx.fillStyle='#fff';ctx.font='bold 24px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.cta,W/2,H-20);
 }
+
 function tmplSO(ctx, W, H, a) {
-  if(img1){dCover(ctx,img1,0,0,W,H);}else{ctx.fillStyle='#0d2010';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,.07)';ctx.font='bold 24px Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Upload Background Photo',W/2,H/2);}
-  const ov=ctx.createLinearGradient(0,0,0,H);ov.addColorStop(0,'rgba(0,0,0,.62)');ov.addColorStop(.5,'rgba(0,0,0,.46)');ov.addColorStop(1,'rgba(0,0,0,.9)');ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#2ea043';ctx.fillRect(0,0,W,10);
-  if(a.cityLine){ctx.fillStyle='rgba(46,160,67,.22)';rr(ctx,W/2-115,26,230,34,17);ctx.fillStyle='#56d364';ctx.font='700 15px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.cityLine,W/2,48);}
-  if(a.offerBadge){ctx.fillStyle='#facc15';rr(ctx,W/2-190,68,380,54,27);ctx.fillStyle='#1a1a1a';ctx.font='bold 26px Oswald,sans-serif';ctx.textAlign='center';ctx.fillText(a.offerBadge,W/2,103);}
-  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='500 21px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.biz,W/2,a.offerBadge?148:104);
-  ctx.fillStyle='#fff';ctx.font='800 82px Oswald,sans-serif';ctx.textAlign='center';wt(ctx,a.headline.toUpperCase(),W/2,H*.36,W-80,94,'center');
-  ctx.fillStyle='#2ea043';ctx.fillRect(W/2-60,H*.56,120,4);
-  const bullets=a.subtext.split(/[,\n]/).map(s=>s.trim()).filter(Boolean).slice(0,4);
-  ctx.fillStyle='#e6edf3';ctx.font='400 25px Inter,sans-serif';ctx.textAlign='center';
-  bullets.forEach((b,i)=>ctx.fillText('✓  '+b,W/2,H*.62+i*44));
-  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='500 18px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.urgency+'  •  '+a.d2,W/2,H-118);
-  ctx.fillStyle='rgba(255,255,255,.38)';ctx.font='400 17px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.trustLine,W/2,H-94);
-  ctx.fillStyle='#2ea043';ctx.fillRect(0,H-98,W,98);ctx.fillStyle='#fff';ctx.font='bold 32px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.cta,W/2,H-50);
+  // Background photo with strong overlay
+  if(img1){dCover(ctx,img1,0,0,W,H);}
+  else{ctx.fillStyle='#0d2010';ctx.fillRect(0,0,W,H);}
+  const ov=ctx.createLinearGradient(0,0,0,H);
+  ov.addColorStop(0,'rgba(0,0,0,.55)');ov.addColorStop(0.5,'rgba(0,0,0,.42)');ov.addColorStop(1,'rgba(0,0,0,.88)');
+  ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
+
+  // TOP: green accent bar + city tag + offer badge
+  ctx.fillStyle='#2ea043';ctx.fillRect(0,0,W,8);
+  let topY = 28;
+  if(a.cityLine){
+    ctx.fillStyle='rgba(46,160,67,.25)';rr(ctx,W/2-110,topY,220,32,16);
+    ctx.fillStyle='#56d364';ctx.font='700 14px Inter,sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.cityLine,W/2,topY+22); topY += 46;
+  }
+  if(a.offerBadge){
+    ctx.fillStyle='#facc15';rr(ctx,W/2-175,topY,350,50,25);
+    ctx.fillStyle='#1a1a1a';ctx.font='bold 24px Oswald,sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.offerBadge,W/2,topY+34); topY += 64;
+  }
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='500 20px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.biz,W/2,topY+16);
+
+  // MIDDLE: big headline
+  ctx.fillStyle='#fff';ctx.font='800 80px Oswald,sans-serif';ctx.textAlign='center';
+  wt(ctx,a.headline.toUpperCase(),W/2,H*0.38,W-80,90,'center');
+
+  // Green divider
+  ctx.fillStyle='#2ea043';ctx.fillRect(W/2-50,H*0.56,100,4);
+
+  // Supporting bullets from subtext
+  const bullets=a.subtext.split(/[,\n]/).map(s=>s.trim()).filter(Boolean).slice(0,3);
+  ctx.fillStyle='#e6edf3';ctx.font='400 22px Inter,sans-serif';ctx.textAlign='center';
+  bullets.forEach((b,i)=>ctx.fillText('✓  '+b,W/2,H*0.61+i*40));
+
+  // LOWER: trust line
+  ctx.fillStyle='rgba(255,255,255,.45)';ctx.font='400 16px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.trustLine,W/2,H-100);
+
+  // BOTTOM: full-width CTA bar
+  ctx.fillStyle='#2ea043';ctx.fillRect(0,H-88,W,88);
+  ctx.fillStyle='#fff';ctx.font='bold 30px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.cta,W/2,H-48);
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='400 16px Inter,sans-serif';
+  ctx.fillText(a.urgency,W/2,H-24);
 }
+
 function tmplSP(ctx, W, H, a) {
-  if(img1){dCover(ctx,img1,0,0,W,H);}else{const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0d1f0a');g.addColorStop(1,'#1a3d0d');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,.07)';ctx.font='bold 24px Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Upload Background Photo',W/2,H/2);}
-  const ov=ctx.createLinearGradient(0,0,0,H);ov.addColorStop(0,'rgba(0,0,0,.33)');ov.addColorStop(.5,'rgba(0,0,0,.22)');ov.addColorStop(1,'rgba(0,0,0,.91)');ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#2ea043';ctx.fillRect(0,0,W,10);
-  if(a.offerBadge){ctx.font='bold 26px Oswald,sans-serif';const bw=Math.min(460,ctx.measureText(a.offerBadge).width+60);ctx.fillStyle='#facc15';rr(ctx,30,24,bw,60,12);ctx.fillStyle='#1a1a1a';ctx.textAlign='left';ctx.fillText(a.offerBadge,58,64);}
-  ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='600 20px Inter,sans-serif';ctx.textAlign='right';ctx.fillText(a.biz,W-32,56);
-  if(a.cityLine){ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='500 17px Inter,sans-serif';ctx.textAlign='right';ctx.fillText(a.cityLine,W-32,80);}
-  ctx.fillStyle='#fff';ctx.font='800 90px Oswald,sans-serif';ctx.textAlign='center';wt(ctx,a.headline.toUpperCase(),W/2,H*.42,W-80,102,'center');
-  ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='300 27px Inter,sans-serif';ctx.textAlign='center';wt(ctx,a.subtext,W/2,H*.65,W-120,38,'center');
-  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='500 19px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.d1+'  •  '+a.urgency,W/2,H-120);
-  ctx.fillStyle='rgba(255,255,255,.38)';ctx.font='400 17px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.trustLine,W/2,H-96);
-  ctx.fillStyle='#2ea043';rr(ctx,80,H-80,W-160,72,36);ctx.fillStyle='#fff';ctx.font='bold 29px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.cta,W/2,H-34);
+  // Background photo
+  if(img1){dCover(ctx,img1,0,0,W,H);}
+  else{const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0d1f0a');g.addColorStop(1,'#1a3d0d');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  // Strong gradient — darker top and bottom, lighter middle
+  const ov=ctx.createLinearGradient(0,0,0,H);
+  ov.addColorStop(0,'rgba(0,0,0,.55)');ov.addColorStop(0.45,'rgba(0,0,0,.25)');ov.addColorStop(1,'rgba(0,0,0,.88)');
+  ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#2ea043';ctx.fillRect(0,0,W,8);
+
+  // TOP: offer badge (left) + biz name (right)
+  if(a.offerBadge){
+    ctx.font='bold 24px Oswald,sans-serif';
+    const bw=Math.min(430,ctx.measureText(a.offerBadge).width+60);
+    ctx.fillStyle='#facc15';rr(ctx,28,22,bw,56,12);
+    ctx.fillStyle='#1a1a1a';ctx.textAlign='left';ctx.fillText(a.offerBadge,56,60);
+  }
+  ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='600 18px Inter,sans-serif';ctx.textAlign='right';
+  ctx.fillText(a.biz,W-28,48);
+  if(a.cityLine){ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='500 15px Inter,sans-serif';ctx.textAlign='right';ctx.fillText(a.cityLine,W-28,70);}
+
+  // MIDDLE: big headline
+  ctx.fillStyle='#fff';ctx.font='800 88px Oswald,sans-serif';ctx.textAlign='center';
+  wt(ctx,a.headline.toUpperCase(),W/2,H*0.38,W-80,100,'center');
+
+  // Supporting text below headline
+  ctx.fillStyle='rgba(255,255,255,.82)';ctx.font='300 26px Inter,sans-serif';ctx.textAlign='center';
+  wt(ctx,a.subtext,W/2,H*0.62,W-120,36,'center');
+
+  // LOWER: detail + trust
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='500 17px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.d1+'  •  '+a.urgency,W/2,H-108);
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='400 15px Inter,sans-serif';
+  ctx.fillText(a.trustLine,W/2,H-86);
+
+  // BOTTOM: rounded CTA button
+  ctx.fillStyle='#2ea043';rr(ctx,70,H-74,W-140,66,33);
+  ctx.fillStyle='#fff';ctx.font='bold 27px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.cta,W/2,H-30);
 }
+
 function tmplTEST(ctx, W, H, a) {
-  if(img1){dCover(ctx,img1,0,0,W,H);}else{const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0a0e1a');g.addColorStop(1,'#111828');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
-  const ov=ctx.createLinearGradient(0,0,0,H);ov.addColorStop(0,'rgba(0,0,0,.72)');ov.addColorStop(1,'rgba(0,0,0,.88)');ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#1d4ed8';ctx.fillRect(0,0,W,10);
-  ctx.fillStyle='#facc15';ctx.font='36px Inter,sans-serif';ctx.textAlign='center';ctx.fillText('★★★★★',W/2,78);
-  if(a.offerBadge){ctx.fillStyle='rgba(250,204,21,.15)';rr(ctx,W/2-185,94,370,46,23);ctx.fillStyle='#facc15';ctx.font='bold 20px Oswald,sans-serif';ctx.textAlign='center';ctx.fillText(a.offerBadge,W/2,122);}
-  ctx.fillStyle='rgba(29,78,216,.35)';ctx.font='110px Georgia,serif';ctx.textAlign='left';ctx.fillText('"',52,H*.42+26);
-  ctx.fillStyle='#fff';ctx.font='300 30px Inter,sans-serif';ctx.textAlign='center';wt(ctx,a.headline,W/2,H*.37,W-160,40,'center');
-  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='600 19px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.subtext||('— Happy Customer, '+(a.cityLine||'local area')),W/2,H*.62);
-  ctx.fillStyle='rgba(255,255,255,.45)';ctx.font='400 17px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.d1+'  •  '+a.d2,W/2,H*.71);
-  ctx.fillStyle='#3fb950';ctx.font='600 19px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.biz+(a.cityLine?'  •  '+a.cityLine:''),W/2,H*.78);
-  ctx.fillStyle='rgba(255,255,255,.38)';ctx.font='400 16px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.trustLine,W/2,H-108);
-  ctx.fillStyle='#1d4ed8';ctx.fillRect(0,H-92,W,92);ctx.fillStyle='#fff';ctx.font='bold 29px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.cta,W/2,H-50);
+  // Background with strong overlay
+  if(img1){dCover(ctx,img1,0,0,W,H);}
+  else{const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0a0e1a');g.addColorStop(1,'#111828');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  const ov=ctx.createLinearGradient(0,0,0,H);ov.addColorStop(0,'rgba(0,0,0,.7)');ov.addColorStop(1,'rgba(0,0,0,.88)');
+  ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#1d4ed8';ctx.fillRect(0,0,W,8);
+
+  // TOP: stars + offer badge
+  ctx.fillStyle='#facc15';ctx.font='34px Inter,sans-serif';ctx.textAlign='center';ctx.fillText('★★★★★',W/2,80);
+  if(a.offerBadge){
+    ctx.fillStyle='rgba(250,204,21,.15)';rr(ctx,W/2-170,98,340,42,21);
+    ctx.fillStyle='#facc15';ctx.font='bold 18px Oswald,sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.offerBadge,W/2,124);
+  }
+
+  // Decorative quote mark
+  ctx.fillStyle='rgba(29,78,216,.3)';ctx.font='100px Georgia,serif';ctx.textAlign='left';ctx.fillText('"',50,H*0.4+20);
+
+  // MIDDLE: headline (quote style)
+  ctx.fillStyle='#fff';ctx.font='300 28px Inter,sans-serif';ctx.textAlign='center';
+  wt(ctx,a.headline,W/2,H*0.36,W-160,38,'center');
+
+  // Attribution
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='600 18px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.subtext||('— Happy Customer, '+(a.cityLine||'local area')),W/2,H*0.6);
+
+  // LOWER: detail lines + biz name + trust
+  ctx.fillStyle='rgba(255,255,255,.45)';ctx.font='400 16px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.d1+'  •  '+a.d2,W/2,H*0.69);
+  ctx.fillStyle='#3fb950';ctx.font='600 18px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.biz+(a.cityLine?'  •  '+a.cityLine:''),W/2,H*0.77);
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='400 15px Inter,sans-serif';
+  ctx.fillText(a.trustLine,W/2,H-100);
+
+  // BOTTOM: full-width CTA bar
+  ctx.fillStyle='#1d4ed8';ctx.fillRect(0,H-86,W,86);
+  ctx.fillStyle='#fff';ctx.font='bold 28px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.cta,W/2,H-46);
+  ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='400 15px Inter,sans-serif';
+  ctx.fillText(a.urgency,W/2,H-22);
 }
+
 function tmplMULTI(ctx, W, H, a) {
-  if(img1){dCover(ctx,img1,0,0,W,H);}else{const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0d1a0a');g.addColorStop(1,'#1a3515');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
-  const ov=ctx.createLinearGradient(0,0,0,H);ov.addColorStop(0,'rgba(0,0,0,.6)');ov.addColorStop(.5,'rgba(0,0,0,.5)');ov.addColorStop(1,'rgba(0,0,0,.9)');ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#2ea043';ctx.fillRect(0,0,W,10);
-  if(a.offerBadge){ctx.fillStyle='#facc15';rr(ctx,W/2-205,22,410,52,26);ctx.fillStyle='#1a1a1a';ctx.font='bold 24px Oswald,sans-serif';ctx.textAlign='center';ctx.fillText(a.offerBadge,W/2,55);}
-  ctx.fillStyle='#3fb950';ctx.font='700 18px Inter,sans-serif';ctx.textAlign='center';ctx.fillText((a.biz+(a.cityLine?'  •  '+a.cityLine:'')).toUpperCase(),W/2,a.offerBadge?94:54);
-  ctx.fillStyle='#fff';ctx.font='800 70px Oswald,sans-serif';ctx.textAlign='center';wt(ctx,a.headline.toUpperCase(),W/2,a.offerBadge?H*.28:H*.22,W-80,80,'center');
-  ctx.fillStyle='#2ea043';ctx.fillRect(W/2-60,H*.47,120,4);
-  const services=a.subtext.split(/[,\n]/).map(s=>s.trim()).filter(Boolean).slice(0,5);
-  ctx.fillStyle='#e6edf3';ctx.font='400 24px Inter,sans-serif';ctx.textAlign='center';
-  services.forEach((s,i)=>ctx.fillText('✓  '+s,W/2,H*.52+i*42));
-  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='500 18px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.d1+'  •  '+a.urgency,W/2,H-118);
-  ctx.fillStyle='rgba(255,255,255,.38)';ctx.font='400 16px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.trustLine,W/2,H-94);
-  ctx.fillStyle='#2ea043';ctx.fillRect(0,H-76,W,76);ctx.fillStyle='#fff';ctx.font='bold 29px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(a.cta,W/2,H-35);
+  if(img1){dCover(ctx,img1,0,0,W,H);}
+  else{const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0d1a0a');g.addColorStop(1,'#1a3515');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  const ov=ctx.createLinearGradient(0,0,0,H);ov.addColorStop(0,'rgba(0,0,0,.6)');ov.addColorStop(.5,'rgba(0,0,0,.48)');ov.addColorStop(1,'rgba(0,0,0,.9)');
+  ctx.fillStyle=ov;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#2ea043';ctx.fillRect(0,0,W,8);
+
+  // TOP: offer badge
+  let topY = 18;
+  if(a.offerBadge){
+    ctx.fillStyle='#facc15';rr(ctx,W/2-195,topY,390,50,25);
+    ctx.fillStyle='#1a1a1a';ctx.font='bold 22px Oswald,sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.offerBadge,W/2,topY+34); topY += 68;
+  }
+  ctx.fillStyle='#3fb950';ctx.font='700 17px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText((a.biz+(a.cityLine?'  •  '+a.cityLine:'')).toUpperCase(),W/2,topY+16);
+
+  // MIDDLE: big headline
+  ctx.fillStyle='#fff';ctx.font='800 68px Oswald,sans-serif';ctx.textAlign='center';
+  wt(ctx,a.headline.toUpperCase(),W/2,topY+76,W-80,78,'center');
+
+  // Green divider line
+  ctx.fillStyle='#2ea043';ctx.fillRect(W/2-55,H*0.48,110,4);
+
+  // Service bullets
+  const services=a.subtext.split(/[,\n]/).map(s=>s.trim()).filter(Boolean).slice(0,4);
+  ctx.fillStyle='#e6edf3';ctx.font='400 22px Inter,sans-serif';ctx.textAlign='center';
+  services.forEach((s,i)=>ctx.fillText('✓  '+s,W/2,H*0.53+i*40));
+
+  // LOWER: detail + trust
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='500 17px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.d1+'  •  '+a.urgency,W/2,H-106);
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='400 15px Inter,sans-serif';
+  ctx.fillText(a.trustLine,W/2,H-84);
+
+  // BOTTOM: full-width CTA
+  ctx.fillStyle='#2ea043';ctx.fillRect(0,H-70,W,70);
+  ctx.fillStyle='#fff';ctx.font='bold 28px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText(a.cta,W/2,H-32);
 }
 
 function dCover(ctx,img,x,y,w,h){const r=Math.max(w/img.width,h/img.height),nw=img.width*r,nh=img.height*r;ctx.drawImage(img,x+(w-nw)/2,y+(h-nh)/2,nw,nh);}
@@ -1633,9 +1815,35 @@ function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y)
 function wt(ctx,text,x,y,maxW,lh,align){ctx.textAlign=align;const words=text.split(' ');let line='',cy=y;words.forEach(word=>{const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxW&&line){ctx.fillText(line,x,cy);line=word;cy+=lh;}else line=test;});if(line)ctx.fillText(line,x,cy);}
 
 function dlAd(){
-  const canvas=document.getElementById('adCanvas'),a=document.createElement('a');
-  a.download='LandscapeAdsAI_'+curTmpl+'_'+curLayout+'.png';a.href=canvas.toDataURL('image/png');a.click();
-  toast(isPro?'Ad downloaded — no watermark!':'Downloaded! Upgrade to Pro to remove watermark.');
+  const canvas = document.getElementById('adCanvas');
+  const dataUrl = canvas.toDataURL('image/png');
+  const filename = 'LandscapeAdsAI_' + curTmpl + '_' + curLayout + '.png';
+
+  // Detect iOS/Safari where direct download doesn't work
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if (isIOS || isSafari) {
+    // Open image in new tab — user can tap and hold to save
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write('<html><head><title>' + filename + '</title><style>body{margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:12px;font-family:sans-serif;color:#fff;}</style></head><body>' +
+        '<p style="font-size:13px;opacity:.7;">Tap and hold the image below, then choose <strong>Save Image</strong></p>' +
+        '<img src="' + dataUrl + '" style="max-width:100%;border-radius:8px;"/>' +
+        '</body></html>');
+      win.document.close();
+    }
+    toast('Tap and hold the image to save it to your phone');
+  } else {
+    // Standard download for desktop / Android Chrome
+    const a = document.createElement('a');
+    a.download = filename;
+    a.href = dataUrl;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast(isPro ? 'Ad downloaded — no watermark!' : 'Downloaded! Upgrade to Pro to remove watermark.');
+  }
 }
 
 // ── TOOLS PAGE ────────────────────────────────────────────
