@@ -485,30 +485,42 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 <div class="overlay" id="upgradeModal">
   <div class="modal">
     <button class="modal-x" onclick="closeModal()">✕</button>
-    <h2>Upgrade to Pro 🌿</h2>
-    <p>Unlimited ads, no watermarks, 5 variations, 30-day content calendar, and every tool — for less than a tank of gas per month.</p>
+    <h2>Upgrade to Pro — $29/month</h2>
+    <p>Unlimited ads, no watermark, full access to all features — for one flat monthly price.</p>
     <div class="modal-feats">
       <div class="modal-feat"><span class="mfck">✓</span> Unlimited visual ad generations</div>
       <div class="modal-feat"><span class="mfck">✓</span> No watermark on any download</div>
       <div class="modal-feat"><span class="mfck">✓</span> Generate 5 ad variations per session</div>
       <div class="modal-feat"><span class="mfck">✓</span> Social caption for FB, Instagram & TikTok</div>
       <div class="modal-feat"><span class="mfck">✓</span> 30-day content calendar</div>
-      <div class="modal-feat"><span class="mfck">✓</span> High-converting offer generator</div>
-      <div class="modal-feat"><span class="mfck">✓</span> Hashtag generator + seasonal ideas</div>
-      <div class="modal-feat"><span class="mfck">✓</span> Lead estimate calculator</div>
       <div class="modal-feat"><span class="mfck">✓</span> Growth Coach — unlimited access</div>
     </div>
-    <button class="stripe-btn" id="stripeBtn" onclick="startCheckout()">
-      <span id="stripeBtnLabel">Subscribe — $19/month</span>
-    </button>
-    <p class="stripe-note">Secure payment via Stripe · Cancel anytime · No contracts</p>
-    <div class="dev-note" id="devNote">
-      <strong>⚙️ Stripe not yet configured.</strong> Add to Vercel environment variables:<br>
-      <code>STRIPE_SECRET_KEY</code> &nbsp;·&nbsp; <code>STRIPE_PUBLISHABLE_KEY</code> &nbsp;·&nbsp; <code>STRIPE_PRICE_ID</code><br><br>
-      Until configured, clicking Subscribe will show this message. Once keys are added, it opens a real Stripe Checkout.
-    </div>
+    <!-- PayPal subscription button -->
+    <div id="paypal-button-container-P-7KE17427S8023180VNG5A5YA" style="margin-top:8px;"></div>
+    <p class="stripe-note">Secure payment via PayPal · Cancel anytime · No contracts</p>
   </div>
 </div>
+
+<!-- PayPal SDK — single instance -->
+<script src="https://www.paypal.com/sdk/js?client-id=AYRbKJhz52e4M7YLId7O_BNKEQ8Yjoa5OZzNvItb0eoY9k6iMEfbvueDwKepW9btcM1gXZ6F17hujhoV&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+<script>
+paypal.Buttons({
+  style: {
+    shape: 'rect',
+    color: 'gold',
+    layout: 'vertical',
+    label: 'subscribe'
+  },
+  createSubscription: function(data, actions) {
+    return actions.subscription.create({
+      plan_id: 'P-7KE17427S8023180VNG5A5YA'
+    });
+  },
+  onApprove: function(data, actions) {
+    alert('Subscription successful! Welcome to Pro.');
+  }
+}).render('#paypal-button-container-P-7KE17427S8023180VNG5A5YA');
+</script>
 
 <div class="enhance-toast" id="enhToast">
   <div class="spin"><div class="sp"></div><div class="sp"></div><div class="sp"></div></div>
@@ -827,7 +839,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <div class="price-card pro">
           <div class="pop-tag">MOST POPULAR</div>
           <div class="plan-type">Pro Plan</div><div class="plan-name">Grow Faster</div><div class="plan-best">Best for landscapers posting every week</div>
-          <div class="plan-pr"><span class="plan-prn" style="color:var(--g2)">$19</span><span class="plan-prm">/month</span></div>
+          <div class="plan-pr"><span class="plan-prn" style="color:var(--g2)">$29</span><span class="plan-prm">/month</span></div>
           <div class="plan-prd">Unlimited ads. No watermark. Every feature.</div>
           <hr class="plan-div">
           <div class="pf inc"><span class="ck">✓</span> <strong>Unlimited</strong> visual ad generations</div>
@@ -842,10 +854,10 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
           <div class="pf inc"><span class="ck">✓</span> Lead estimate calculator</div>
           <div class="pf inc"><span class="ck">✓</span> Campaign setup guide</div>
           <div class="pf inc"><span class="ck">✓</span> Growth Coach — unlimited</div>
-          <button class="plan-btn plan-btn-pro" onclick="openModal()">Subscribe — $19/month</button>
+          <button class="plan-btn plan-btn-pro" onclick="openModal()">Subscribe — $29/month</button>
         </div>
       </div>
-      <p style="font-size:13px;color:var(--t3);margin-top:18px;text-align:center">$19/month is less than one hour of agency time. Cancel anytime via Stripe.</p>
+      <p style="font-size:13px;color:var(--t3);margin-top:18px;text-align:center">$29/month is less than one hour of agency time. Cancel anytime.</p>
     </div>
   </div>
 
@@ -909,7 +921,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
       <p>Fill in info → upload photo → generate → pick variation → download → get caption.</p>
       <div class="wm-banner" id="wmBanner">
         <p>Free plan: downloads include a <strong>watermark</strong>. <strong>Pro</strong> removes it.</p>
-        <button onclick="openModal()">Upgrade — $19/mo</button>
+        <button onclick="openModal()">Upgrade — $29/mo</button>
       </div>
 
       <!-- SAVED BUSINESS PROFILE -->
@@ -1122,38 +1134,15 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 // ═══════════════════════════════════════════════════════════
 
 const API = '/api/generate';
-const DEBUG = false; // Set to true to show the developer debug panel
 let isPro = false;
 let usage = 0, chatHistory = [];
 let curTmpl = 'beforeafter', curLayout = 'square';
 let img1 = null, img2 = null;
 let curAd = {};
 
-// ── STRIPE ────────────────────────────────────────────────
-let stripeConfigured = false;
-(async function initStripe() {
-  try {
-    const r = await fetch('/api/stripe-config', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
-    const d = await r.json();
-    stripeConfigured = d.configured === true;
-    if (!stripeConfigured) document.getElementById('devNote').style.display = 'block';
-  } catch(e) { document.getElementById('devNote').style.display = 'block'; }
-})();
-
-async function startCheckout() {
-  if (!stripeConfigured) { toast('Stripe not yet configured — see the developer note below.'); return; }
-  const btn = document.getElementById('stripeBtn');
-  btn.disabled = true; document.getElementById('stripeBtnLabel').textContent = 'Redirecting to Stripe...';
-  try {
-    const r = await fetch('/api/create-checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ successUrl: location.origin+'?upgraded=true', cancelUrl: location.origin+'?cancelled=true' }) });
-    const d = await r.json();
-    if (d.url) { window.location.href = d.url; return; }
-    toast('Checkout error: ' + (d.error || 'Unknown error'));
-  } catch(e) { toast('Checkout failed. Please try again.'); }
-  btn.disabled = false; document.getElementById('stripeBtnLabel').textContent = 'Subscribe — $19/month';
-}
-
-// Post-checkout
+// ── PAYMENT (PayPal handles subscription — no Stripe init needed) ──
+// activatePro is called when ?upgraded=true appears in URL (e.g. after redirect)
+// Post-checkout redirect handler
 (function() {
   const p = new URLSearchParams(location.search);
   if (p.get('upgraded') === 'true') { activatePro(); toast('Welcome to Pro! Subscription active.'); history.replaceState({}, '', location.pathname); }
@@ -1989,9 +1978,6 @@ function addMsg(role,text){
 
 function useSugg(btn){document.getElementById('coachIn').value=btn.textContent;sendCoach();}
 
-// ═══════════════════════════════════════════════════════════
-// DEBUG PANEL — temporary developer visibility tool
-// ═══════════════════════════════════════════════════════════
 // ── API CALL ──────────────────────────────────────────────
 async function apiCall(payload) {
   // Strip internal _button key — never sent to server
