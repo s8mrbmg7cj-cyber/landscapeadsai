@@ -132,13 +132,48 @@ async function genVisual(apiKey, b) {
   const service  = b.service || 'lawn care';
   const city     = b.city    || 'local area';
 
+  // Derive the ad angle from the template string (frontend passes e.g. "springoffer, Urgency angle (hint...)")
+  const tmplLower = (b.template || '').toLowerCase();
+  const isUrgency      = tmplLower.includes('urgency');
+  const isDiscount     = tmplLower.includes('discount') || tmplLower.includes('limited offer') || tmplLower.includes('spotsopen');
+  const isTransform    = tmplLower.includes('transform') || tmplLower.includes('beforeafter');
+  const isTrust        = tmplLower.includes('trust');
+  const isPremium      = tmplLower.includes('premium');
+  const isConvenience  = tmplLower.includes('convenience');
+
+  // Build angle-specific supporting text instruction
+  let supportingTextRule;
+  if (isUrgency) {
+    supportingTextRule = 'Supporting text: 3 bullet points separated by • focused on speed and scarcity. Include same-week service, fast response time, and limited availability. NO price mention. Example: "Same-week service • Fast response • Limited spots available"';
+  } else if (isDiscount) {
+    supportingTextRule = 'Supporting text: 3 bullet points separated by • focused on value. Mention what the discount covers (mowing, edging, cleanup), that estimate is free, and one trust signal. Example: "Save on mowing, edging & cleanup • Free estimate included • Licensed & Insured"';
+  } else if (isTransform) {
+    supportingTextRule = 'Supporting text: 3 bullet points separated by • focused on the visual transformation outcome. Describe the before/after improvement, sharp edges, and a healthy result. NO price or discount. Example: "From patchy to clean • Sharp edges • Healthier, greener lawn"';
+  } else if (isTrust) {
+    supportingTextRule = 'Supporting text: 3 bullet points separated by • focused on local credibility and reliability. Include locally trusted, reliable scheduling, and satisfaction guaranteed. NO price. Example: "Locally trusted • Reliable scheduling • Satisfaction guaranteed"';
+  } else if (isPremium) {
+    supportingTextRule = 'Supporting text: 3 bullet points separated by • focused on quality and craftsmanship. Include precision edging, deep lawn care, and premium quality finish. NO price or discount. Example: "Precision edging • Deep lawn care • Premium quality finish"';
+  } else if (isConvenience) {
+    supportingTextRule = 'Supporting text: 3 bullet points separated by • focused on effort-free experience. Include set-it-and-forget-it, scheduled recurring service, and no-hassle process. NO price. Example: "Set-it-and-forget-it • Scheduled service • No hassle lawn care"';
+  } else {
+    supportingTextRule = 'Supporting text: 3 bullet points separated by • combining one service-specific detail, one trust signal, and one outcome. Keep it short and punchy. Example: "Same-week service • Licensed & Insured • Satisfaction guaranteed"';
+  }
+
   const raw = await callAI(apiKey, [
     { role: 'system', content: 'Landscaping ad copywriter. Always respond with valid JSON only. Never leave any field empty.' },
-    { role: 'user', content: 'Write visual ad copy for a ' + (b.template || 'promotional') + ' landscaping ad.\n' + ctx(b) + '\n\nHeadline style: 4-8 words, punchy (e.g. "Perfect Lawn Without The Work" / "' + city + ' Lawn Care Done Right")\nCTA style: specific and strong (e.g. "Get Your Free Estimate" / "DM \\"CUT\\" For A Free Quote")\nSupporting text: 1-2 lines with trust signals\n\nReturn ONLY this JSON:\n{\n  "headline": "4-8 word punchy headline",\n  "supportingText": "1-2 lines with trust signals",\n  "ctaText": "strong specific CTA",\n  "ctaOptions": ["option1", "option2", "option3"],\n  "offerBadge": "' + offerUp + '",\n  "trustLine": "Licensed & Insured • Free Estimates • Locally Trusted",\n  "detailLine1": "service detail e.g. Same-Week Service Available",\n  "detailLine2": "another detail e.g. Satisfaction Guaranteed",\n  "urgencyLine": "urgency e.g. Limited spots this week",\n  "cityLine": "' + cityUp + '"\n}' }
+    { role: 'user', content: 'Write visual ad copy for a ' + (b.template || 'promotional') + ' landscaping ad.\n' + ctx(b) + '\n\nHeadline style: 4-8 words, punchy (e.g. "Perfect Lawn Without The Work" / "' + city + ' Lawn Care Done Right")\nCTA style: specific and strong (e.g. "Get Your Free Estimate" / "DM \\"CUT\\" For A Free Quote")\n' + supportingTextRule + '\n\nReturn ONLY this JSON:\n{\n  "headline": "4-8 word punchy headline",\n  "supportingText": "3 bullet points with • separator — max 1 line, no discount language unless this is a discount ad",\n  "ctaText": "strong specific CTA",\n  "ctaOptions": ["option1", "option2", "option3"],\n  "offerBadge": "' + offerUp + '",\n  "trustLine": "Licensed & Insured • Free Estimates • Locally Trusted",\n  "detailLine1": "service detail e.g. Same-Week Service Available",\n  "detailLine2": "another detail e.g. Satisfaction Guaranteed",\n  "urgencyLine": "urgency e.g. Limited spots this week",\n  "cityLine": "' + cityUp + '"\n}' }
   ], 700);
 
   const { d, ok, err } = safeJSON(raw);
   if (!ok || !d) return { ok: false, error: err || 'Visual ad generation failed' };
+
+  const fallbackSupporting = isUrgency     ? 'Same-week service • Fast response • Limited spots available'
+    : isDiscount    ? 'Save on mowing, edging & cleanup • Free estimate included • Licensed & Insured'
+    : isTransform   ? 'From patchy to clean • Sharp edges • Healthier, greener lawn'
+    : isTrust       ? 'Locally trusted • Reliable scheduling • Satisfaction guaranteed'
+    : isPremium     ? 'Precision edging • Deep lawn care • Premium quality finish'
+    : isConvenience ? 'Set-it-and-forget-it • Scheduled service • No hassle lawn care'
+    : 'Same-week service • Licensed & Insured • Satisfaction guaranteed';
 
   const fallback = ['Get Your Free Estimate', 'Book Before Spots Fill', 'Claim ' + offerUp + ' Today'];
   const opts = Array.isArray(d.ctaOptions) && d.ctaOptions.length > 0 ? d.ctaOptions.slice(0, 3) : fallback;
@@ -146,7 +181,7 @@ async function genVisual(apiKey, b) {
   return {
     ok:             true,
     headline:       d.headline       || 'Professional ' + service,
-    supportingText: d.supportingText || 'Licensed & Insured • Free Estimates',
+    supportingText: d.supportingText || fallbackSupporting,
     ctaText:        d.ctaText        || d.cta || opts[0],
     ctaOptions:     opts,
     offerBadge:     d.offerBadge     || offerUp,
@@ -166,7 +201,7 @@ async function genVariations(apiKey, b) {
 
   const raw = await callAI(apiKey, [
     { role: 'system', content: 'Landscaping ad copywriter. Always respond with valid JSON only. Never leave any field empty.' },
-    { role: 'user', content: 'Generate exactly 5 ad variations for a landscaping business.\n' + ctx(b) + '\n\n5 angles in order:\n1. Urgency — scarcity, limited spots, act now\n2. Limited Offer — lead with the discount\n3. Premium Quality — craftsmanship, results\n4. Convenience — no hassle, easy process\n5. Neighborhood Trust — local, community, trusted nearby\n\nRules:\n- offerBadge MUST be "' + offerUp + '" for all 5\n- Headline: 4-8 words, punchy real-ad style\n- ctaText: strong and specific, never just "Call Now"\n- All fields required for all 5\n\nReturn ONLY this JSON:\n{\n  "variations": [\n    {"id":1,"angle":"Urgency","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":2,"angle":"Limited Offer","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":3,"angle":"Premium Quality","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Satisfaction Guaranteed"},\n    {"id":4,"angle":"Convenience","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":5,"angle":"Neighborhood Trust","headline":"...","supportingText":"...","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Locally Trusted • Free Estimates"}\n  ]\n}' }
+    { role: 'user', content: 'Generate exactly 5 ad variations for a landscaping business.\n' + ctx(b) + '\n\n5 angles in order:\n1. Urgency — scarcity, limited spots, act now\n2. Limited Offer — lead with the discount\n3. Premium Quality — craftsmanship, results\n4. Convenience — no hassle, easy process\n5. Neighborhood Trust — local, community, trusted nearby\n\nRules:\n- offerBadge MUST be "' + offerUp + '" for all 5\n- Headline: 4-8 words, punchy real-ad style\n- ctaText: strong and specific, never just "Call Now"\n- All fields required for all 5\n- supportingText rules by angle (3 bullet points with • separator, max 1 line each, NO generic filler):\n  Angle 1 Urgency: same-week service + fast response + limited spots. Example: "Same-week service • Fast response • Limited spots available"\n  Angle 2 Limited Offer: what discount covers + free estimate + licensed. Example: "Save on mowing, edging & cleanup • Free estimate included • Licensed & Insured"\n  Angle 3 Premium Quality: precision detail + quality of finish + care type. Example: "Precision edging • Deep lawn care • Premium quality finish"\n  Angle 4 Convenience: set-it-and-forget-it + scheduled service + no hassle. Example: "Set-it-and-forget-it • Scheduled service • No hassle lawn care"\n  Angle 5 Neighborhood Trust: locally trusted + reliable scheduling + satisfaction guaranteed. Example: "Locally trusted • Reliable scheduling • Satisfaction guaranteed"\n- DO NOT repeat the same supportingText across variations\n\nReturn ONLY this JSON:\n{\n  "variations": [\n    {"id":1,"angle":"Urgency","headline":"...","supportingText":"Same-week service • Fast response • Limited spots available","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":2,"angle":"Limited Offer","headline":"...","supportingText":"Save on mowing, edging & cleanup • Free estimate included • Licensed & Insured","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":3,"angle":"Premium Quality","headline":"...","supportingText":"Precision edging • Deep lawn care • Premium quality finish","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Satisfaction Guaranteed"},\n    {"id":4,"angle":"Convenience","headline":"...","supportingText":"Set-it-and-forget-it • Scheduled service • No hassle lawn care","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Licensed & Insured • Free Estimates"},\n    {"id":5,"angle":"Neighborhood Trust","headline":"...","supportingText":"Locally trusted • Reliable scheduling • Satisfaction guaranteed","ctaText":"...","offerBadge":"' + offerUp + '","detailLine":"...","trustLine":"Locally Trusted • Free Estimates"}\n  ]\n}' }
   ], 1600);
 
   const { d, ok, err } = safeJSON(raw);
