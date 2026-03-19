@@ -517,7 +517,18 @@ paypal.Buttons({
     });
   },
   onApprove: function(data, actions) {
-    alert('Subscription successful! Welcome to Pro.');
+    // Persist Pro status so it survives page reloads
+    try { localStorage.setItem('landscapeadsai_pro', 'true'); } catch(e) {}
+    // Close the upgrade modal
+    closeModal();
+    // Activate Pro UI immediately — function defined in main script block
+    if (typeof activatePro === 'function') activatePro();
+    // Show success toast (defined in main script, falls back to alert if not ready)
+    if (typeof toast === 'function') {
+      toast('🎉 Pro activated successfully — enjoy unlimited ads!');
+    } else {
+      alert('Pro activated successfully! Enjoy unlimited ads with no watermark.');
+    }
   }
 }).render('#paypal-button-container-P-7KE17427S8023180VNG5A5YA');
 </script>
@@ -1123,20 +1134,67 @@ function nextAngle() {
 }
 
 // ── PAYMENT (PayPal handles subscription — no Stripe init needed) ──
-// activatePro is called when ?upgraded=true appears in URL (e.g. after redirect)
-// Post-checkout redirect handler
-(function() {
-  const p = new URLSearchParams(location.search);
-  if (p.get('upgraded') === 'true') { activatePro(); toast('Welcome to Pro! Subscription active.'); history.replaceState({}, '', location.pathname); }
-  if (p.get('cancelled') === 'true') { toast('Checkout cancelled. Upgrade anytime.'); history.replaceState({}, '', location.pathname); }
-})();
-
+// ── PRO ACTIVATION ────────────────────────────────────────
+// Called on PayPal success, on ?upgraded=true redirect, and on page load if localStorage is set
 function activatePro() {
   isPro = true;
-  const b = document.getElementById('planBadge'), wb = document.getElementById('wmBanner');
-  b.className = 'plan-pro'; b.textContent = '✓ PRO'; b.onclick = null;
+  // Persist
+  try { localStorage.setItem('landscapeadsai_pro', 'true'); } catch(e) {}
+
+  // 1. Nav badge: FREE → Pro Active
+  const badge = document.getElementById('planBadge');
+  if (badge) {
+    badge.className = 'plan-pro';
+    badge.innerHTML = '✓ Pro Active';
+    badge.onclick = null;
+    badge.style.cursor = 'default';
+  }
+
+  // 2. Hide the watermark banner in the builder
+  const wb = document.getElementById('wmBanner');
   if (wb) wb.style.display = 'none';
+
+  // 3. Update canvas label if canvas is already showing
+  const cl = document.getElementById('canvasLabel');
+  if (cl && cl.textContent && cl.textContent !== 'Preview will appear here') {
+    cl.textContent = '✓ Pro — clean download · ' + (curLayout === 'portrait' ? '1080×1350' : '1080×1080');
+  }
+
+  // 4. Update pricing section button so it reflects Pro state
+  document.querySelectorAll('.plan-btn-pro').forEach(btn => {
+    btn.textContent = '✓ Pro Plan Active';
+    btn.style.opacity = '.65';
+    btn.style.cursor = 'default';
+    btn.onclick = null;
+  });
+
+  // 5. Hero trust line — swap "3 free generations" for "Pro: unlimited generations"
+  document.querySelectorAll('.hero-trust span, .cta-trust-row span').forEach(span => {
+    if (span.textContent.includes('3 free')) span.textContent = 'Unlimited generations';
+    if (span.textContent.includes('free generations')) span.textContent = 'Unlimited generations';
+  });
 }
+
+// Load Pro state from localStorage on every page load
+(function initProState() {
+  try {
+    if (localStorage.getItem('landscapeadsai_pro') === 'true') activatePro();
+  } catch(e) {}
+})();
+
+// Post-checkout URL redirect handler (?upgraded=true)
+(function() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('upgraded') === 'true') {
+    activatePro();
+    toast('Welcome to Pro! Subscription active.');
+    history.replaceState({}, '', location.pathname);
+  }
+  if (p.get('cancelled') === 'true') {
+    toast('Checkout cancelled. Upgrade anytime.');
+    history.replaceState({}, '', location.pathname);
+  }
+})();
 function openModal() { document.getElementById('upgradeModal').classList.add('open'); }
 function closeModal() { document.getElementById('upgradeModal').classList.remove('open'); }
 document.getElementById('upgradeModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
