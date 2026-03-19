@@ -486,51 +486,100 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   <div class="modal">
     <button class="modal-x" onclick="closeModal()">✕</button>
     <h2>Upgrade to Pro — $29/month</h2>
-    <p>Unlimited ads, no watermark, full access to all features — for one flat monthly price.</p>
+    <p style="font-size:14px;color:var(--t2);margin-bottom:18px;line-height:1.6;">Unlimited ads, no watermark, full access to all features — for one flat monthly price.</p>
     <div class="modal-feats">
       <div class="modal-feat"><span class="mfck">✓</span> Unlimited visual ad generations</div>
       <div class="modal-feat"><span class="mfck">✓</span> No watermark on any download</div>
-      <div class="modal-feat"><span class="mfck">✓</span> Generate 5 ad variations per session</div>
-      <div class="modal-feat"><span class="mfck">✓</span> Social caption for FB, Instagram & TikTok</div>
+      <div class="modal-feat"><span class="mfck">✓</span> 5 ad angle variations per generation</div>
+      <div class="modal-feat"><span class="mfck">✓</span> Social captions for FB &amp; Instagram</div>
       <div class="modal-feat"><span class="mfck">✓</span> 30-day content calendar</div>
       <div class="modal-feat"><span class="mfck">✓</span> Growth Coach — unlimited access</div>
     </div>
-    <!-- PayPal subscription button -->
-    <div id="paypal-button-container-P-7KE17427S8023180VNG5A5YA" style="margin-top:8px;"></div>
-    <p class="stripe-note">Secure payment via PayPal · Cancel anytime · No contracts</p>
+
+    <!-- PayPal button container -->
+    <div id="paypal-button-container-P-7KE17427S8023180VNG5A5YA" style="margin-top:4px;"></div>
+
+    <!-- Status message area (success / cancel / error) -->
+    <div id="ppStatusMsg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;"></div>
+
+    <!-- Helper notes -->
+    <p class="stripe-note" style="margin-top:10px;">🔒 Secure checkout with PayPal · Cancel anytime · No contracts</p>
+    <p class="stripe-note" id="ppMobileHint" style="display:none;margin-top:6px;color:var(--t3);">After subscribing, return to this tab to continue using Pro.</p>
+    <p class="stripe-note" style="margin-top:6px;">Use your PayPal account to subscribe. If checkout doesn't open, try a different browser or PayPal account.</p>
   </div>
 </div>
 
-<!-- PayPal SDK — single instance -->
+<!-- PayPal SDK — single instance, loaded once -->
 <script src="https://www.paypal.com/sdk/js?client-id=AYRbKJhz52e4M7YLId7O_BNKEQ8Yjoa5OZzNvItb0eoY9k6iMEfbvueDwKepW9btcM1gXZ6F17hujhoV&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
 <script>
-paypal.Buttons({
-  style: {
-    shape: 'rect',
-    color: 'gold',
-    layout: 'vertical',
-    label: 'subscribe'
-  },
-  createSubscription: function(data, actions) {
-    return actions.subscription.create({
-      plan_id: 'P-7KE17427S8023180VNG5A5YA'
-    });
-  },
-  onApprove: function(data, actions) {
-    // Persist Pro status so it survives page reloads
-    try { localStorage.setItem('landscapeadsai_pro', 'true'); } catch(e) {}
-    // Close the upgrade modal
-    closeModal();
-    // Activate Pro UI immediately — function defined in main script block
-    if (typeof activatePro === 'function') activatePro();
-    // Show success toast (defined in main script, falls back to alert if not ready)
-    if (typeof toast === 'function') {
-      toast('🎉 Pro activated successfully — enjoy unlimited ads!');
+(function initPayPalButton() {
+  // Guard: only render once even if this script somehow runs twice
+  var container = document.getElementById('paypal-button-container-P-7KE17427S8023180VNG5A5YA');
+  if (!container || container.dataset.ppRendered) return;
+  container.dataset.ppRendered = 'true';
+
+  // Show mobile return hint on phones
+  var isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
+  var mobileHint = document.getElementById('ppMobileHint');
+  if (isMobile && mobileHint) mobileHint.style.display = 'block';
+
+  function ppMsg(text, type) {
+    var el = document.getElementById('ppStatusMsg');
+    if (!el) return;
+    el.textContent = text;
+    el.style.display = 'block';
+    if (type === 'success') {
+      el.style.background = 'rgba(46,160,67,.12)';
+      el.style.border = '1px solid rgba(46,160,67,.3)';
+      el.style.color = '#3fb950';
+    } else if (type === 'error') {
+      el.style.background = 'rgba(248,81,73,.1)';
+      el.style.border = '1px solid rgba(248,81,73,.3)';
+      el.style.color = '#f85149';
     } else {
-      alert('Pro activated successfully! Enjoy unlimited ads with no watermark.');
+      el.style.background = 'var(--bg3)';
+      el.style.border = '1px solid var(--border)';
+      el.style.color = 'var(--t2)';
     }
   }
-}).render('#paypal-button-container-P-7KE17427S8023180VNG5A5YA');
+
+  paypal.Buttons({
+    style: {
+      shape: 'rect',
+      color: 'gold',
+      layout: 'vertical',
+      label: 'subscribe'
+    },
+    createSubscription: function(data, actions) {
+      return actions.subscription.create({
+        plan_id: 'P-7KE17427S8023180VNG5A5YA'
+      });
+    },
+    onApprove: function(data, actions) {
+      // 1. Persist Pro status to localStorage
+      try { localStorage.setItem('landscapeadsai_pro', 'true'); } catch(e) {}
+      // 2. Activate Pro UI (function defined in main script block)
+      if (typeof activatePro === 'function') activatePro();
+      // 3. Show success message inside modal
+      ppMsg('Pro activated successfully.', 'success');
+      // 4. Show toast notification
+      if (typeof toast === 'function') {
+        toast('🎉 Pro activated — unlimited ads, no watermark!');
+      }
+      // 5. Close modal after brief delay so user sees the success message
+      setTimeout(function() {
+        if (typeof closeModal === 'function') closeModal();
+      }, 1800);
+    },
+    onCancel: function(data) {
+      ppMsg('Checkout was canceled.', 'neutral');
+    },
+    onError: function(err) {
+      ppMsg('PayPal checkout could not be completed. Please try a different PayPal account or try again later.', 'error');
+      console.warn('PayPal error:', err);
+    }
+  }).render('#paypal-button-container-P-7KE17427S8023180VNG5A5YA');
+})();
 </script>
 
 <div class="enhance-toast" id="enhToast">
