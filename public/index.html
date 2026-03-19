@@ -30,6 +30,18 @@ nav{background:rgba(13,17,23,.97);border-bottom:1px solid var(--border);padding:
 .plan-pro{display:inline-flex;align-items:center;gap:6px;background:rgba(46,160,67,.15);border:1px solid rgba(46,160,67,.3);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;color:var(--g2);margin-left:6px}
 .plan-free{display:inline-flex;align-items:center;gap:6px;background:rgba(139,148,158,.1);border:1px solid var(--border);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;color:var(--t2);margin-left:6px;cursor:pointer;transition:all .15s}
 .plan-free:hover{border-color:var(--g);color:var(--g2)}
+/* Pro success banner */
+#proBanner{display:none;position:fixed;top:64px;left:0;right:0;z-index:400;background:linear-gradient(90deg,#1a4020,#2ea043 50%,#1a4020);border-bottom:1px solid rgba(46,160,67,.4);padding:10px 24px;text-align:center;animation:slideDown .35s ease}
+#proBanner.show{display:block}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+#proBanner .pb-inner{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+#proBanner .pb-msg{font-size:14px;font-weight:700;color:#fff}
+#proBanner .pb-sub{font-size:12px;color:rgba(255,255,255,.75)}
+#proBanner .pb-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:16px;cursor:pointer;padding:0 0 0 8px;line-height:1;transition:color .15s}
+#proBanner .pb-close:hover{color:#fff}
+/* Pro-active pricing card overlay */
+.price-card.pro-active-card{position:relative}
+.price-card.pro-active-card::after{content:'✓ Pro Active';position:absolute;top:16px;right:16px;background:rgba(46,160,67,.15);border:1px solid rgba(46,160,67,.35);color:var(--g2);font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.3px}
 .page{display:none}.page.active{display:block}
 
 /* MODAL */
@@ -481,6 +493,15 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   </div>
 </nav>
 
+<!-- PRO SUCCESS BANNER — hidden until Pro activated -->
+<div id="proBanner">
+  <div class="pb-inner">
+    <span class="pb-msg">🎉 You're now on Pro — unlimited ads, no watermark, full access unlocked.</span>
+    <span class="pb-sub">No watermark • Unlimited generations • All features active</span>
+    <button class="pb-close" onclick="document.getElementById('proBanner').classList.remove('show')" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
 <!-- UPGRADE MODAL -->
 <div class="overlay" id="upgradeModal">
   <div class="modal">
@@ -560,13 +581,15 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
       try { localStorage.setItem('landscapeadsai_pro', 'true'); } catch(e) {}
       // 2. Activate Pro UI (function defined in main script block)
       if (typeof activatePro === 'function') activatePro();
-      // 3. Show success message inside modal
+      // 3. Show the success banner at the top of the page
+      if (typeof showProBanner === 'function') showProBanner();
+      // 4. Show success message inside modal
       ppMsg('Pro activated successfully.', 'success');
-      // 4. Show toast notification
+      // 5. Show toast notification
       if (typeof toast === 'function') {
         toast('🎉 Pro activated — unlimited ads, no watermark!');
       }
-      // 5. Close modal after brief delay so user sees the success message
+      // 6. Close modal after brief delay so user sees the success message
       setTimeout(function() {
         if (typeof closeModal === 'function') closeModal();
       }, 1800);
@@ -1187,10 +1210,9 @@ function nextAngle() {
 // Called on PayPal success, on ?upgraded=true redirect, and on page load if localStorage is set
 function activatePro() {
   isPro = true;
-  // Persist
   try { localStorage.setItem('landscapeadsai_pro', 'true'); } catch(e) {}
 
-  // 1. Nav badge: FREE → Pro Active
+  // 1. Nav badge: FREE — Upgrade → ✓ Pro Active (non-clickable)
   const badge = document.getElementById('planBadge');
   if (badge) {
     badge.className = 'plan-pro';
@@ -1199,29 +1221,57 @@ function activatePro() {
     badge.style.cursor = 'default';
   }
 
-  // 2. Hide the watermark banner in the builder
+  // 2. Hide watermark banner in builder
   const wb = document.getElementById('wmBanner');
   if (wb) wb.style.display = 'none';
 
-  // 3. Update canvas label if canvas is already showing
+  // 3. Update canvas label if a preview is already visible
   const cl = document.getElementById('canvasLabel');
   if (cl && cl.textContent && cl.textContent !== 'Preview will appear here') {
     cl.textContent = '✓ Pro — clean download · ' + (curLayout === 'portrait' ? '1080×1350' : '1080×1080');
   }
 
-  // 4. Update pricing section button so it reflects Pro state
+  // 4. Pricing card: swap Subscribe button → Pro Active; add badge overlay
   document.querySelectorAll('.plan-btn-pro').forEach(btn => {
-    btn.textContent = '✓ Pro Plan Active';
-    btn.style.opacity = '.65';
+    btn.textContent = '✓ Pro Active';
+    btn.style.background = 'rgba(46,160,67,.25)';
+    btn.style.border = '1px solid rgba(46,160,67,.4)';
     btn.style.cursor = 'default';
+    btn.style.opacity = '1';
     btn.onclick = null;
+    btn.removeAttribute('onclick');
+  });
+  // Mark the Pro price card visually
+  document.querySelectorAll('.price-card.pro').forEach(card => {
+    card.classList.add('pro-active-card');
   });
 
-  // 5. Hero trust line — swap "3 free generations" for "Pro: unlimited generations"
-  document.querySelectorAll('.hero-trust span, .cta-trust-row span').forEach(span => {
-    if (span.textContent.includes('3 free')) span.textContent = 'Unlimited generations';
-    if (span.textContent.includes('free generations')) span.textContent = 'Unlimited generations';
+  // 5. Hide ALL elements that contain "Upgrade" prompts
+  //    — the nav-cta "Create My First Ad" stays; only pure upgrade triggers are hidden
+  document.querySelectorAll('[onclick*="openModal"]').forEach(el => {
+    // Keep the plan-btn-pro (already updated above); hide anything else triggering the modal
+    if (!el.classList.contains('plan-btn-pro') && !el.classList.contains('modal-x')) {
+      el.style.display = 'none';
+    }
   });
+
+  // 6. Hero + CTA trust spans — swap free messaging to Pro messaging
+  document.querySelectorAll('.hero-trust span, .cta-trust-row span').forEach(span => {
+    if (/3 free|free generation/i.test(span.textContent)) span.textContent = 'Unlimited generations';
+    if (/no credit card/i.test(span.textContent)) span.textContent = 'Pro Active ✓';
+  });
+
+  // 7. Pricing footnote lines — swap to Pro confirmation
+  document.querySelectorAll('[data-upgrade-note]').forEach(el => el.style.display = 'none');
+}
+
+// ── PRO BANNER SHOW/HIDE ──────────────────────────────────
+function showProBanner() {
+  const b = document.getElementById('proBanner');
+  if (!b) return;
+  b.classList.add('show');
+  // Auto-hide after 6 seconds
+  setTimeout(() => b.classList.remove('show'), 6000);
 }
 
 // Load Pro state from localStorage on every page load
@@ -1236,6 +1286,7 @@ function activatePro() {
   const p = new URLSearchParams(location.search);
   if (p.get('upgraded') === 'true') {
     activatePro();
+    showProBanner();
     toast('Welcome to Pro! Subscription active.');
     history.replaceState({}, '', location.pathname);
   }
