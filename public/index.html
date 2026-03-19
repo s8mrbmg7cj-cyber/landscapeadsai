@@ -39,6 +39,19 @@ nav{background:rgba(13,17,23,.97);border-bottom:1px solid var(--border);padding:
 #proBanner .pb-sub{font-size:12px;color:rgba(255,255,255,.75)}
 #proBanner .pb-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:16px;cursor:pointer;padding:0 0 0 8px;line-height:1;transition:color .15s}
 #proBanner .pb-close:hover{color:#fff}
+/* Persistent Pro status bar — stays visible while Pro is active */
+#proStatusBar{display:none;background:rgba(46,160,67,.07);border-bottom:1px solid rgba(46,160,67,.18);padding:7px 24px;text-align:center}
+#proStatusBar.show{display:block}
+#proStatusBar .psb-inner{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+#proStatusBar .psb-badge{background:rgba(46,160,67,.18);border:1px solid rgba(46,160,67,.35);color:var(--g2);font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.4px}
+#proStatusBar .psb-text{font-size:12px;color:var(--t2)}
+#proStatusBar .psb-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#proStatusBar .psb-pill{font-size:11px;color:var(--t3)}
+/* Pro active watermark banner replacement */
+#wmBannerPro{display:none;background:rgba(46,160,67,.06);border:1px solid rgba(46,160,67,.18);border-radius:10px;padding:11px 14px;margin-bottom:14px;align-items:center;gap:10px}
+#wmBannerPro.show{display:flex}
+#wmBannerPro p{font-size:12px;color:var(--t2);line-height:1.4}
+#wmBannerPro strong{color:var(--g2)}
 /* Pro-active pricing card overlay */
 .price-card.pro-active-card{position:relative}
 .price-card.pro-active-card::after{content:'✓ Pro Active';position:absolute;top:16px;right:16px;background:rgba(46,160,67,.15);border:1px solid rgba(46,160,67,.35);color:var(--g2);font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.3px}
@@ -502,6 +515,21 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   </div>
 </div>
 
+<!-- PERSISTENT PRO STATUS BAR — stays visible while Pro is active -->
+<div id="proStatusBar">
+  <div class="psb-inner">
+    <span class="psb-badge">✓ Pro Active</span>
+    <span class="psb-text">Unlimited ads · No watermark · Full access unlocked</span>
+    <div class="psb-pills">
+      <span class="psb-pill">No watermark</span>
+      <span class="psb-pill">·</span>
+      <span class="psb-pill">Unlimited generations</span>
+      <span class="psb-pill">·</span>
+      <span class="psb-pill">All features active</span>
+    </div>
+  </div>
+</div>
+
 <!-- UPGRADE MODAL -->
 <div class="overlay" id="upgradeModal">
   <div class="modal">
@@ -954,6 +982,11 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <p>Free plan: downloads include a <strong>watermark</strong>. <strong>Pro</strong> removes it.</p>
         <button onclick="openModal()">Upgrade — $29/mo</button>
       </div>
+      <!-- Shown in place of wmBanner when Pro is active -->
+      <div id="wmBannerPro">
+        <span style="font-size:16px;">✓</span>
+        <p><strong>Pro unlocked</strong> — no watermark and unlimited generations.</p>
+      </div>
 
       <!-- SAVED BUSINESS PROFILE -->
       <div id="bizProfileBar" class="biz-profile-bar" onclick="loadSavedProfile()" style="display:none;">
@@ -1221,17 +1254,23 @@ function activatePro() {
     badge.style.cursor = 'default';
   }
 
-  // 2. Hide watermark banner in builder
+  // 2. Persistent status bar under nav — always visible while Pro is active
+  const sb = document.getElementById('proStatusBar');
+  if (sb) sb.classList.add('show');
+
+  // 3. Builder panel: hide free watermark banner, show Pro replacement
   const wb = document.getElementById('wmBanner');
   if (wb) wb.style.display = 'none';
+  const wbPro = document.getElementById('wmBannerPro');
+  if (wbPro) wbPro.classList.add('show');
 
-  // 3. Update canvas label if a preview is already visible
+  // 4. Update canvas label if a preview is already visible
   const cl = document.getElementById('canvasLabel');
   if (cl && cl.textContent && cl.textContent !== 'Preview will appear here') {
     cl.textContent = '✓ Pro — clean download · ' + (curLayout === 'portrait' ? '1080×1350' : '1080×1080');
   }
 
-  // 4. Pricing card: swap Subscribe button → Pro Active; add badge overlay
+  // 5. Pricing card: swap Subscribe button → Pro Active; add badge overlay
   document.querySelectorAll('.plan-btn-pro').forEach(btn => {
     btn.textContent = '✓ Pro Active';
     btn.style.background = 'rgba(46,160,67,.25)';
@@ -1241,27 +1280,24 @@ function activatePro() {
     btn.onclick = null;
     btn.removeAttribute('onclick');
   });
-  // Mark the Pro price card visually
   document.querySelectorAll('.price-card.pro').forEach(card => {
     card.classList.add('pro-active-card');
   });
 
-  // 5. Hide ALL elements that contain "Upgrade" prompts
-  //    — the nav-cta "Create My First Ad" stays; only pure upgrade triggers are hidden
+  // 6. Hide all remaining openModal upgrade triggers (except plan-btn-pro and modal close)
   document.querySelectorAll('[onclick*="openModal"]').forEach(el => {
-    // Keep the plan-btn-pro (already updated above); hide anything else triggering the modal
     if (!el.classList.contains('plan-btn-pro') && !el.classList.contains('modal-x')) {
       el.style.display = 'none';
     }
   });
 
-  // 6. Hero + CTA trust spans — swap free messaging to Pro messaging
+  // 7. Hero + CTA trust spans — swap free messaging to Pro messaging
   document.querySelectorAll('.hero-trust span, .cta-trust-row span').forEach(span => {
     if (/3 free|free generation/i.test(span.textContent)) span.textContent = 'Unlimited generations';
     if (/no credit card/i.test(span.textContent)) span.textContent = 'Pro Active ✓';
   });
 
-  // 7. Pricing footnote lines — swap to Pro confirmation
+  // 8. Hide pricing footnote upgrade notes
   document.querySelectorAll('[data-upgrade-note]').forEach(el => el.style.display = 'none');
 }
 
