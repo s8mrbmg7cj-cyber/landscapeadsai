@@ -257,17 +257,20 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 .tbtn.dl:active{background:var(--g2);transform:scale(.96)}
 .abtn:active{transform:scale(.98)}
 .abtn.sec:active{transform:scale(.98)}
-/* Mobile Save Modal */
-.dl-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6000;display:none;align-items:flex-end;justify-content:center;padding:0}
+/* Mobile Save Modal — full-screen centered overlay */
+.dl-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:6000;display:none;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
 .dl-overlay.open{display:flex}
-.dl-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:24px 24px 36px;position:relative;animation:sheetUp .28s ease}
-@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.dl-sheet-title{font-size:17px;font-weight:800;color:var(--t);margin-bottom:6px;letter-spacing:-.2px}
-.dl-sheet-hint{font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.55}
-.dl-sheet-hint strong{color:var(--g2)}
-.dl-img-wrap{width:100%;border-radius:12px;overflow:hidden;margin-bottom:18px;border:1px solid var(--border);background:var(--bg3)}
+.dl-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:18px;width:100%;max-width:480px;padding:24px 22px 28px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.7)}
+@keyframes sheetUp{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.dl-overlay.open .dl-sheet{animation:sheetUp .22s ease}
+.dl-sheet-title{font-size:20px;font-weight:900;color:var(--t);margin-bottom:6px;letter-spacing:-.3px;text-align:center}
+.dl-sheet-instruction{font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6;text-align:center}
+.dl-sheet-instruction strong{color:var(--g2)}
+.dl-img-wrap{width:100%;border-radius:12px;overflow:hidden;margin-bottom:16px;border:2px solid rgba(46,160,67,.25);background:var(--bg3);box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .dl-img-wrap img{width:100%;display:block}
-.dl-close{position:absolute;top:14px;right:16px;background:var(--bg3);border:1px solid var(--border);color:var(--t2);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s}
+.dl-tap-btn{width:100%;padding:15px;background:rgba(46,160,67,.12);border:2px dashed rgba(46,160,67,.45);border-radius:12px;color:var(--g2);font-size:14px;font-weight:800;cursor:default;font-family:var(--font);text-align:center;margin-bottom:12px;letter-spacing:.2px}
+.dl-fallback{font-size:11px;color:var(--t3);text-align:center;line-height:1.5}
+.dl-close{position:absolute;top:14px;right:14px;background:var(--bg3);border:1px solid var(--border);color:var(--t2);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s;z-index:1}
 .dl-close:hover{color:var(--t);border-color:var(--t3)}
 #adCanvas{border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-width:100%}
 .canvas-empty{text-align:center;padding:60px 32px;color:var(--t3);max-width:400px}
@@ -1147,7 +1150,8 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <h3 id="canvasLabel">Preview will appear here</h3>
         <div class="tbns">
           <button class="tbtn" onclick="renderCanvas()" id="rrBtn2" style="display:none">🔄 Refresh</button>
-          <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none">⬇ Download Ad</button>
+          <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none">💾 Save Ad</button>
+          <div id="dlMobileHint" style="display:none;font-size:10px;color:var(--t3);text-align:center;margin-top:4px;width:100%;">iPhone: tap &amp; hold to save</div>
         </div>
       </div>
       <div class="canvas-empty" id="canvasEmpty">
@@ -1910,6 +1914,10 @@ function renderCanvas() {
   canvas.style.display = 'block';
   document.getElementById('canvasEmpty').style.display = 'none';
   document.getElementById('dlBtn').style.display = 'flex';
+  // Show iOS hint if on iPhone/iPad
+  const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const _dlHint = document.getElementById('dlMobileHint');
+  if (_isIOS && _dlHint) _dlHint.style.display = 'block';
   document.getElementById('rrBtn2').style.display = 'flex';
   document.getElementById('canvasLabel').textContent = (isPro ? '✓ Pro — clean download' : '⚠️ Free — watermark on download') + ' · ' + (curLayout === 'portrait' ? '1080×1350' : '1080×1080');
   const maxW = document.getElementById('canvasArea').clientWidth - 48, scale = Math.min(1, maxW / W);
@@ -2607,16 +2615,21 @@ function closeLegal() {
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLegal(); });
 </script>
 
-<!-- MOBILE SAVE MODAL -->
+<!-- MOBILE SAVE MODAL — iOS tap-and-hold experience -->
 <div class="dl-overlay" id="dlMobileOverlay" onclick="if(event.target===this)closeDlModal()">
   <div class="dl-sheet">
     <button class="dl-close" onclick="closeDlModal()" aria-label="Close">✕</button>
-    <div class="dl-sheet-title">Save Your Ad</div>
-    <div class="dl-sheet-hint">Tap and hold the image below, then tap <strong>"Save to Photos"</strong> to save it to your device.</div>
+    <div class="dl-sheet-title">💾 Save Your Ad</div>
+    <div class="dl-sheet-instruction">
+      <strong>Tap and hold the image below</strong>, then tap <strong>"Save to Photos"</strong> to save it to your Camera Roll.
+    </div>
+    <!-- Ad image — full quality, no compression -->
     <div class="dl-img-wrap">
       <img id="dlMobileImg" src="" alt="Your generated ad">
     </div>
-    <div style="font-size:11px;color:var(--t3);text-align:center;">Tip: you can also screenshot this screen to save your ad.</div>
+    <!-- Visual cue button — not interactive, just instructional -->
+    <div class="dl-tap-btn">👆 Tap &amp; Hold the Image Above to Save</div>
+    <div class="dl-fallback">Can't save? Take a screenshot of this screen instead.</div>
   </div>
 </div>
 
