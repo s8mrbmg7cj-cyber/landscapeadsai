@@ -1151,7 +1151,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <div class="tbns">
           <button class="tbtn" onclick="renderCanvas()" id="rrBtn2" style="display:none">🔄 Refresh</button>
           <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none">💾 Save Ad</button>
-          <div id="dlMobileHint" style="display:none;font-size:10px;color:var(--t3);text-align:center;margin-top:4px;width:100%;">iPhone: tap Save Ad to open share options</div>
+          <div id="dlMobileHint" style="display:none;font-size:10px;color:var(--t3);text-align:center;margin-top:4px;width:100%;">Opens iPhone share options — choose Save Image</div>
         </div>
       </div>
       <div class="canvas-empty" id="canvasEmpty">
@@ -1914,10 +1914,15 @@ function renderCanvas() {
   canvas.style.display = 'block';
   document.getElementById('canvasEmpty').style.display = 'none';
   document.getElementById('dlBtn').style.display = 'flex';
-  // Show iOS hint if on iPhone/iPad
-  const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  // Robust iOS detection: covers iPhone/iPad/iPod + iPadOS (reports as MacIntel but has touch)
+  const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const _dlBtn  = document.getElementById('dlBtn');
   const _dlHint = document.getElementById('dlMobileHint');
-  if (_isIOS && _dlHint) _dlHint.style.display = 'block';
+  if (_isIOS) {
+    if (_dlBtn)  _dlBtn.textContent  = '📤 Share / Save Ad';
+    if (_dlHint) _dlHint.style.display = 'block';
+  }
   document.getElementById('rrBtn2').style.display = 'flex';
   document.getElementById('canvasLabel').textContent = (isPro ? '✓ Pro — clean download' : '⚠️ Free — watermark on download') + ' · ' + (curLayout === 'portrait' ? '1080×1350' : '1080×1080');
   const maxW = document.getElementById('canvasArea').clientWidth - 48, scale = Math.min(1, maxW / W);
@@ -2156,37 +2161,56 @@ function dlAd() {
   if (!canvas) return;
   const filename = 'LandscapeAdsAI_' + curTmpl + '_' + curLayout + '.png';
 
-  // Detect iOS
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  // ── Robust iOS detection ─────────────────────────────────
+  // Covers: iPhone, iPad (user-agent), iPod, and iPadOS 13+ which
+  // reports as MacIntel but has maxTouchPoints > 1.
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+  // ── iOS path — MUST return before reaching desktop download code ─
   if (isIOS) {
-    // iOS: try native share sheet first (no download banner, opens share options)
+    console.log('[LandscapeAdsAI] iOS detected — using share/modal path. NO download.');
     canvas.toBlob(function(blob) {
-      if (!blob) { showDlModal(canvas); return; }
+      if (!blob) {
+        console.log('[LandscapeAdsAI] blob generation failed — showing fallback modal.');
+        showDlModal(canvas);
+        return;
+      }
 
-      // Check if Web Share API supports file sharing
       const file = new File([blob], filename, { type: 'image/png' });
+
+      // Try native share sheet (iOS 15+ Safari supports file sharing)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({
-          files: [file],
-          title: 'My Landscape Ad'
-        }).then(function() {
-          toast('✓ Shared! Choose "Save Image" to save to Photos.');
-        }).catch(function(err) {
-          // User cancelled or share failed — fall through to modal
-          if (err.name !== 'AbortError') {
-            showDlModal(canvas);
-          }
-        });
+        console.log('[LandscapeAdsAI] navigator.canShare supported — opening native share sheet.');
+        navigator.share({ files: [file], title: 'Landscape Ad' })
+          .then(function() {
+            console.log('[LandscapeAdsAI] Share sheet resolved.');
+            toast('Choose "Save Image" to save to your Photos.');
+          })
+          .catch(function(err) {
+            console.log('[LandscapeAdsAI] Share sheet error:', err.name, err.message);
+            if (err.name !== 'AbortError') {
+              // Share failed for a real reason — show in-page modal
+              console.log('[LandscapeAdsAI] Non-abort error — showing fallback modal.');
+              showDlModal(canvas);
+            } else {
+              console.log('[LandscapeAdsAI] User cancelled share sheet (AbortError) — no action.');
+            }
+          });
       } else {
-        // Web Share not supported — show full-screen tap-and-hold modal
+        // Web Share file API not available — stay in-page with tap-and-hold modal
+        console.log('[LandscapeAdsAI] navigator.canShare NOT supported — showing tap-and-hold modal.');
         showDlModal(canvas);
       }
+
     }, 'image/png');
+
+    // ── HARD RETURN — iOS must NEVER fall through to desktop download ──
     return;
   }
 
-  // Desktop + Android Chrome: trigger real file download via blob URL
+  // ── Desktop / Android path ───────────────────────────────
+  console.log('[LandscapeAdsAI] Non-iOS device — using direct download path.');
   try {
     canvas.toBlob(function(blob) {
       const url = URL.createObjectURL(blob);
@@ -2200,6 +2224,7 @@ function dlAd() {
       toast(isPro ? '✓ Ad downloaded — no watermark!' : '✓ Downloaded! Upgrade to Pro to remove watermark.');
     }, 'image/png');
   } catch(e) {
+    console.log('[LandscapeAdsAI] toBlob not supported — using dataURL fallback.');
     const a   = document.createElement('a');
     a.href     = canvas.toDataURL('image/png');
     a.download = filename;
@@ -2210,12 +2235,15 @@ function dlAd() {
   }
 }
 
-// Show full-screen iOS save modal (fallback when Web Share not available)
+// ── iOS fallback: full-screen tap-and-hold modal ──────────
+// Only shown when Web Share API is unavailable or fails.
+// Never opens a new tab. Image stays in-page at full quality.
 function showDlModal(canvas) {
+  console.log('[LandscapeAdsAI] Showing iOS fallback tap-and-hold modal.');
   const img = document.getElementById('dlMobileImg');
   const ov  = document.getElementById('dlMobileOverlay');
   if (img && ov) {
-    img.src = canvas.toDataURL('image/png'); // full quality, no compression
+    img.src = canvas.toDataURL('image/png'); // full PNG quality, no compression
     ov.classList.add('open');
   }
 }
