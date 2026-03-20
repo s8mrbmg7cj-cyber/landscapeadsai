@@ -230,8 +230,24 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 .tbns{display:flex;gap:6px;flex-wrap:wrap}
 .tbtn{background:var(--bg2);border:1px solid var(--border);color:var(--t2);font-size:12px;font-weight:600;padding:7px 13px;border-radius:8px;cursor:pointer;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:5px}
 .tbtn:hover{border-color:var(--g2);color:var(--g2)}
+.tbtn:active{transform:scale(.96)}
 .tbtn.dl{background:var(--g);border-color:var(--g);color:white}
 .tbtn.dl:hover{background:var(--g2)}
+.tbtn.dl:active{background:var(--g2);transform:scale(.96)}
+.abtn:active{transform:scale(.98)}
+.abtn.sec:active{transform:scale(.98)}
+/* Mobile Save Modal */
+.dl-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6000;display:none;align-items:flex-end;justify-content:center;padding:0}
+.dl-overlay.open{display:flex}
+.dl-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:24px 24px 36px;position:relative;animation:sheetUp .28s ease}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.dl-sheet-title{font-size:17px;font-weight:800;color:var(--t);margin-bottom:6px;letter-spacing:-.2px}
+.dl-sheet-hint{font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.55}
+.dl-sheet-hint strong{color:var(--g2)}
+.dl-img-wrap{width:100%;border-radius:12px;overflow:hidden;margin-bottom:18px;border:1px solid var(--border);background:var(--bg3)}
+.dl-img-wrap img{width:100%;display:block}
+.dl-close{position:absolute;top:14px;right:16px;background:var(--bg3);border:1px solid var(--border);color:var(--t2);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s}
+.dl-close:hover{color:var(--t);border-color:var(--t3)}
 #adCanvas{border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-width:100%}
 .canvas-empty{text-align:center;padding:60px 32px;color:var(--t3);max-width:400px}
 .canvas-empty-icon{font-size:48px;margin-bottom:16px;opacity:.35}
@@ -641,15 +657,16 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 <!-- ======= LANDING ======= -->
 <div class="page active" id="page-landing">
   <div class="hero">
-    <div class="hero-eyebrow"><span class="eyedot"></span> Purpose-built for landscaping businesses</div>
-    <h1>Get More Lawn Clients<br>With <em>Ads That Actually Bring In Jobs</em></h1>
-    <p class="hero-sub">Turn your lawn photos into client-getting ads in seconds — with your offer, your branding, and your CTA already placed.</p>
-    <p class="hero-proof">No marketing experience. No agency. No monthly contract.</p>
+    <div class="hero-eyebrow"><span class="eyedot"></span> Used by landscapers to get more local clients every week</div>
+    <h1>Get More Lawn Clients<br>With AI Ads in 30 Seconds</h1>
+    <p class="hero-sub">Turn your work into high-converting ads that bring in calls, messages, and booked jobs — in under a minute.</p>
+    <p class="hero-proof">Start getting leads this week — not next month.</p>
     <div class="hero-btns">
-      <button class="btn-hero" onclick="show('builder')">Create My First Ad →</button>
+      <button class="btn-hero" onclick="show('builder')">✨ Create My First Ad →</button>
       <button class="btn-ghost" onclick="runSampleDemo()">▶ See A Sample Ad</button>
     </div>
     <p class="hero-trust"><span>No credit card</span>·<span>3 free ad generations</span>·<span>Up to 5 angle variations each</span></p>
+    <p style="font-size:12px;color:var(--t3);margin-top:10px;position:relative;">Most landscapers don't post consistently — that's your advantage.</p>
   </div>
 
   <!-- SOCIAL PROOF / RESULTS STRIP -->
@@ -770,6 +787,11 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 
       </div>
       <p style="text-align:center;font-size:13px;color:var(--t3);margin-top:20px;">↑ Generated from sample photos. Your real ads use your actual lawn photos and business details.</p>
+      <div style="margin-top:28px;max-width:600px;margin-left:auto;margin-right:auto;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t3);"><span style="color:var(--g2);font-size:14px;">✓</span> This type of ad can generate 5–15 local leads per week when posted consistently</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t3);"><span style="color:var(--g2);font-size:14px;">✓</span> Many landscapers close 1–3 jobs from posts like this</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t3);"><span style="color:var(--g2);font-size:14px;">✓</span> Works best when posted consistently on Facebook &amp; Instagram</div>
+      </div>
     </div>
   </div>
 
@@ -810,7 +832,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 
   <!-- WHY THIS WORKS BETTER -->
   <div class="section">
-    <div class="sec-label">Built For Landscaping Businesses</div>
+    <div class="sec-label">Why It Gets Results</div>
     <div class="sec-title">Why This Works Better Than<br>General AI Tools</div>
     <div class="diff-grid">
       <div class="diff-card"><div class="diff-icon">🖼️</div><div><div class="diff-title">Real ad layouts, not just text</div><div class="diff-desc">Get a finished downloadable image — your lawn photo, your offer badge, your headline, and your CTA all placed professionally. Not a block of text to paste into another tool.</div></div></div>
@@ -825,15 +847,15 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   <!-- WHY LANDSCAPERS -->
   <div class="full-bleed">
     <div class="full-bleed-inner">
-      <div class="sec-label">Why Landscapers Use LandscapeAdsAI</div>
-      <div class="sec-title">Built for landscapers.<br>Not generic businesses.</div>
+      <div class="sec-label">Why Landscapers Use This</div>
+      <div class="sec-title">Get more calls, messages,<br>and booked jobs.</div>
       <div class="why-grid">
-        <div class="why-cell"><div class="why-icon">📸</div><div class="why-title">Ready-to-Post Visual Ads</div><div class="why-desc">Upload a lawn photo and get a finished visual ad — not just text to paste. Your photo, your offer badge, your CTA. Done in under 60 seconds.</div><span class="why-result">↑ Post across social media instantly</span></div>
-        <div class="why-cell"><div class="why-icon">⚡</div><div class="why-title">5 Variations Instantly</div><div class="why-desc">Get 5 different ad angles at once — pick the one that fits and test what converts in your market.</div><span class="why-result">↑ Real split-testing workflow</span></div>
-        <div class="why-cell"><div class="why-icon">📅</div><div class="why-title">30-Day Content Calendar</div><div class="why-desc">One click generates a full month of structured social content organized by week, platform, and goal.</div><span class="why-result">↑ Never run out of content ideas</span></div>
-        <div class="why-cell"><div class="why-icon">🌿</div><div class="why-title">Seasonal Marketing Ideas</div><div class="why-desc">Spring, summer, fall, winter — get specific marketing ideas and offers tailored to each season of the landscaping year.</div><span class="why-result">↑ Right message at the right time</span></div>
-        <div class="why-cell"><div class="why-icon">💰</div><div class="why-title">High-Converting Offer Generator</div><div class="why-desc">Get 6 proven offer ideas specific to your service — discounts, bundles, free add-ons, referral programs, and seasonal deals.</div><span class="why-result">↑ Stop guessing what offer to run</span></div>
-        <div class="why-cell"><div class="why-icon">🚫</div><div class="why-title">No Design Skills Required</div><div class="why-desc">No Canva. No Photoshop. No designer. Fill in info, upload a photo, click generate. Your ad is done in under 2 minutes.</div><span class="why-result">↑ Generate ads in under 30 seconds</span></div>
+        <div class="why-cell"><div class="why-icon">📞</div><div class="why-title">Get More Calls &amp; Messages</div><div class="why-desc">Ads that speak directly to local homeowners get responses. Upload a photo, set your offer, and start seeing DMs and calls from people in your area.</div><span class="why-result">↑ More inbound leads every week</span></div>
+        <div class="why-cell"><div class="why-icon">⚡</div><div class="why-title">Turn Photos Into Ads Instantly</div><div class="why-desc">Snap a photo of your finished lawn, upload it here, and get a professional Facebook or Instagram ad in under 60 seconds. No design, no agency needed.</div><span class="why-result">↑ From photo to posted ad in minutes</span></div>
+        <div class="why-cell"><div class="why-icon">📅</div><div class="why-title">Stay Consistent Without Effort</div><div class="why-desc">Consistency is what actually builds a client pipeline. Generate a month of content in one click and always have something ready to post.</div><span class="why-result">↑ Never run out of content ideas</span></div>
+        <div class="why-cell"><div class="why-icon">🔀</div><div class="why-title">5 Variations — Test What Works</div><div class="why-desc">Every generation gives you 5 angles — urgency, offer, trust, convenience, and local authority. Post different versions and see what converts in your market.</div><span class="why-result">↑ Real split-testing workflow</span></div>
+        <div class="why-cell"><div class="why-icon">💰</div><div class="why-title">Save Time on Marketing</div><div class="why-desc">Spending hours on marketing is time off the job. This tool does the creative work so you can focus on running your business and closing jobs.</div><span class="why-result">↑ More jobs, less marketing stress</span></div>
+        <div class="why-cell"><div class="why-icon">🚫</div><div class="why-title">No Design Skills Needed</div><div class="why-desc">No Canva. No Photoshop. No designer. Fill in your info, upload a lawn photo, and click generate. Professional ads in under 2 minutes, every time.</div><span class="why-result">↑ Generate ads in under 30 seconds</span></div>
       </div>
     </div>
   </div>
@@ -859,8 +881,8 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
   <div id="pricing" class="pricing-section">
     <div class="pricing-inner">
       <div class="sec-label" style="display:block;text-align:center">Pricing</div>
-      <div class="sec-title">Simple pricing. No surprises.</div>
-      <p style="color:var(--t2);font-size:15px;margin-top:10px">Start with 3 free ad generations. Each generation includes up to 5 angle variations. See real results, then decide.</p>
+      <div class="sec-title">Simple pricing. Real results.</div>
+      <p style="color:var(--t2);font-size:15px;margin-top:10px">Start with 3 free ad generations. See what the tool creates — then decide if it's worth $29/month to run it every week.</p>
       <div class="pricing-grid">
         <div class="price-card">
           <div class="plan-type">Free Plan</div><div class="plan-name">Get Started</div><div class="plan-best">Best for trying it out</div>
@@ -881,10 +903,16 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
           <button class="plan-btn plan-btn-free" onclick="show('builder')" style="border:1px solid var(--border)">Create 3 Free Ads</button>
         </div>
         <div class="price-card pro">
-          <div class="pop-tag">MOST POPULAR</div>
-          <div class="plan-type">Pro Plan</div><div class="plan-name">Grow Faster</div><div class="plan-best">Best for landscapers posting every week</div>
+          <div class="pop-tag">BEST VALUE</div>
+          <div class="plan-type">Pro Plan</div><div class="plan-name">Get More Clients</div><div class="plan-best">For landscapers who want consistent leads</div>
           <div class="plan-pr"><span class="plan-prn" style="color:var(--g2)">$29</span><span class="plan-prm">/month</span></div>
-          <div class="plan-prd">Unlimited ads, no watermark, full access to all features.</div>
+          <div class="plan-prd">Unlimited ads that bring you clients — no watermark, full access.</div>
+          <div style="margin-bottom:16px;display:flex;flex-direction:column;gap:5px;">
+            <div style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:7px;"><span style="color:var(--g2);font-weight:700;">✓</span> Unlimited ad generation</div>
+            <div style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:7px;"><span style="color:var(--g2);font-weight:700;">✓</span> No watermark on downloads</div>
+            <div style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:7px;"><span style="color:var(--g2);font-weight:700;">✓</span> Create ads in seconds</div>
+            <div style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:7px;"><span style="color:var(--g2);font-weight:700;">✓</span> Built for landscaping businesses</div>
+          </div>
           <hr class="plan-div">
           <div class="pf inc"><span class="ck">✓</span> <strong>Unlimited</strong> visual ad generations</div>
           <div class="pf inc"><span class="ck">✓</span> <strong>No watermark</strong> on any download</div>
@@ -901,7 +929,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
           <button class="plan-btn plan-btn-pro" onclick="openModal()">Subscribe — $29/month</button>
         </div>
       </div>
-      <p style="font-size:13px;color:var(--t3);margin-top:18px;text-align:center">$29/month is less than one hour of agency time. Cancel anytime.</p>
+      <p style="font-size:13px;color:var(--t3);margin-top:18px;text-align:center">$29/month is less than one new lawn job. If this tool helps you get even one extra client a month, it pays for itself many times over.</p>
       <p style="font-size:12px;color:var(--t3);margin-top:6px;text-align:center;letter-spacing:.3px;">No contracts · Cancel anytime · Billed monthly via PayPal</p>
     </div>
   </div>
@@ -948,10 +976,10 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 
   <div class="cta-final">
     <div class="cta-icon-wrap">🚀</div>
-    <h2>Your next customer<br>is one ad away.</h2>
+    <h2>Start getting leads<br>this week.</h2>
     <p>Upload a lawn photo right now. Your first 3 ads are free — no credit card, no setup.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative">
-      <button class="btn-hero" onclick="show('builder')" style="font-size:17px;padding:17px 42px">Turn Photos Into Ads →</button>
+      <button class="btn-hero" onclick="show('builder')" style="font-size:17px;padding:17px 42px">✨ Create My First Ad →</button>
       <button class="btn-ghost" onclick="show('ideas')" style="font-size:15px;padding:17px 28px">See Content Ideas</button>
     </div>
     <p class="cta-trust-row"><span>No credit card</span>·<span>3 free generations</span>·<span>Cancel anytime</span></p>
@@ -1066,7 +1094,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <h3 id="canvasLabel">Preview will appear here</h3>
         <div class="tbns">
           <button class="tbtn" onclick="renderCanvas()" id="rrBtn2" style="display:none">🔄 Refresh</button>
-          <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none" title="On iPhone: image opens in new tab — tap and hold to save">⬇ Download PNG</button>
+          <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none">⬇ Download Ad</button>
         </div>
       </div>
       <div class="canvas-empty" id="canvasEmpty">
@@ -2054,35 +2082,48 @@ function dBadge(ctx,text,x,y,bg,fg){ctx.font='bold 21px Inter,sans-serif';const 
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();ctx.fill();}
 function wt(ctx,text,x,y,maxW,lh,align){ctx.textAlign=align;const words=text.split(' ');let line='',cy=y;words.forEach(word=>{const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxW&&line){ctx.fillText(line,x,cy);line=word;cy+=lh;}else line=test;});if(line)ctx.fillText(line,x,cy);}
 
-function dlAd(){
+function dlAd() {
   const canvas = document.getElementById('adCanvas');
-  const dataUrl = canvas.toDataURL('image/png');
+  if (!canvas) return;
+  const dataUrl  = canvas.toDataURL('image/png');
   const filename = 'LandscapeAdsAI_' + curTmpl + '_' + curLayout + '.png';
 
-  // Detect iOS/Safari where direct download doesn't work
+  // Detect iOS — these devices cannot trigger file downloads via <a download>
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-  if (isIOS || isSafari) {
-    // Open image in new tab — user can tap and hold to save
-    const win = window.open('', '_blank');
-    if (win) {
-      win.document.write('<html><head><title>' + filename + '</title><style>body{margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:12px;font-family:sans-serif;color:#fff;}</style></head><body>' +
-        '<p style="font-size:13px;opacity:.7;">Tap and hold the image below, then choose <strong>Save Image</strong></p>' +
-        '<img src="' + dataUrl + '" style="max-width:100%;border-radius:8px;"/>' +
-        '</body></html>');
-      win.document.close();
+  if (isIOS) {
+    // Show in-page modal with the image so user can tap-and-hold to save
+    const img = document.getElementById('dlMobileImg');
+    const ov  = document.getElementById('dlMobileOverlay');
+    if (img && ov) {
+      img.src = dataUrl;
+      ov.classList.add('open');
     }
-    toast('Tap and hold the image to save it to your phone');
-  } else {
-    // Standard download for desktop / Android Chrome
-    const a = document.createElement('a');
+    return;
+  }
+
+  // Desktop + Android Chrome: trigger real file download via blob URL
+  try {
+    canvas.toBlob(function(blob) {
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.href     = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      toast(isPro ? '✓ Ad downloaded — no watermark!' : '✓ Downloaded! Upgrade to Pro to remove watermark.');
+    }, 'image/png');
+  } catch(e) {
+    // Fallback for browsers that don't support toBlob
+    const a   = document.createElement('a');
+    a.href     = dataUrl;
     a.download = filename;
-    a.href = dataUrl;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    toast(isPro ? 'Ad downloaded — no watermark!' : 'Downloaded! Upgrade to Pro to remove watermark.');
+    toast(isPro ? '✓ Ad downloaded — no watermark!' : '✓ Downloaded! Upgrade to Pro to remove watermark.');
   }
 }
 
@@ -2503,6 +2544,32 @@ function closeLegal() {
   document.body.style.overflow = '';
 }
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLegal(); });
+</script>
+
+<!-- MOBILE SAVE MODAL -->
+<div class="dl-overlay" id="dlMobileOverlay" onclick="if(event.target===this)closeDlModal()">
+  <div class="dl-sheet">
+    <button class="dl-close" onclick="closeDlModal()" aria-label="Close">✕</button>
+    <div class="dl-sheet-title">Save Your Ad</div>
+    <div class="dl-sheet-hint">Tap and hold the image below, then tap <strong>"Save to Photos"</strong> to save it to your device.</div>
+    <div class="dl-img-wrap">
+      <img id="dlMobileImg" src="" alt="Your generated ad">
+    </div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;">Tip: you can also screenshot this screen to save your ad.</div>
+  </div>
+</div>
+
+<script>
+function closeDlModal() {
+  const ov = document.getElementById('dlMobileOverlay');
+  if (ov) ov.classList.remove('open');
+  // Free the object URL if one was used
+  const img = document.getElementById('dlMobileImg');
+  if (img && img._objUrl) { URL.revokeObjectURL(img._objUrl); img._objUrl = null; }
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDlModal();
+});
 </script>
 
 </body>
