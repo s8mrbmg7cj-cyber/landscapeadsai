@@ -1151,7 +1151,7 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <div class="tbns">
           <button class="tbtn" onclick="renderCanvas()" id="rrBtn2" style="display:none">🔄 Refresh</button>
           <button class="tbtn dl" onclick="dlAd()" id="dlBtn" style="display:none">💾 Save Ad</button>
-          <div id="dlMobileHint" style="display:none;font-size:10px;color:var(--t3);text-align:center;margin-top:4px;width:100%;">iPhone: tap &amp; hold to save</div>
+          <div id="dlMobileHint" style="display:none;font-size:10px;color:var(--t3);text-align:center;margin-top:4px;width:100%;">iPhone: tap Save Ad to open share options</div>
         </div>
       </div>
       <div class="canvas-empty" id="canvasEmpty">
@@ -2154,20 +2154,35 @@ function wt(ctx,text,x,y,maxW,lh,align){ctx.textAlign=align;const words=text.spl
 function dlAd() {
   const canvas = document.getElementById('adCanvas');
   if (!canvas) return;
-  const dataUrl  = canvas.toDataURL('image/png');
   const filename = 'LandscapeAdsAI_' + curTmpl + '_' + curLayout + '.png';
 
-  // Detect iOS — these devices cannot trigger file downloads via <a download>
+  // Detect iOS
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
   if (isIOS) {
-    // Show in-page modal with the image so user can tap-and-hold to save
-    const img = document.getElementById('dlMobileImg');
-    const ov  = document.getElementById('dlMobileOverlay');
-    if (img && ov) {
-      img.src = dataUrl;
-      ov.classList.add('open');
-    }
+    // iOS: try native share sheet first (no download banner, opens share options)
+    canvas.toBlob(function(blob) {
+      if (!blob) { showDlModal(canvas); return; }
+
+      // Check if Web Share API supports file sharing
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: 'My Landscape Ad'
+        }).then(function() {
+          toast('✓ Shared! Choose "Save Image" to save to Photos.');
+        }).catch(function(err) {
+          // User cancelled or share failed — fall through to modal
+          if (err.name !== 'AbortError') {
+            showDlModal(canvas);
+          }
+        });
+      } else {
+        // Web Share not supported — show full-screen tap-and-hold modal
+        showDlModal(canvas);
+      }
+    }, 'image/png');
     return;
   }
 
@@ -2181,18 +2196,27 @@ function dlAd() {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
       toast(isPro ? '✓ Ad downloaded — no watermark!' : '✓ Downloaded! Upgrade to Pro to remove watermark.');
     }, 'image/png');
   } catch(e) {
-    // Fallback for browsers that don't support toBlob
     const a   = document.createElement('a');
-    a.href     = dataUrl;
+    a.href     = canvas.toDataURL('image/png');
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     toast(isPro ? '✓ Ad downloaded — no watermark!' : '✓ Downloaded! Upgrade to Pro to remove watermark.');
+  }
+}
+
+// Show full-screen iOS save modal (fallback when Web Share not available)
+function showDlModal(canvas) {
+  const img = document.getElementById('dlMobileImg');
+  const ov  = document.getElementById('dlMobileOverlay');
+  if (img && ov) {
+    img.src = canvas.toDataURL('image/png'); // full quality, no compression
+    ov.classList.add('open');
   }
 }
 
@@ -2621,7 +2645,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
     <button class="dl-close" onclick="closeDlModal()" aria-label="Close">✕</button>
     <div class="dl-sheet-title">💾 Save Your Ad</div>
     <div class="dl-sheet-instruction">
-      <strong>Tap and hold the image below</strong>, then tap <strong>"Save to Photos"</strong> to save it to your Camera Roll.
+      <strong>Tap and hold the image below</strong>, then tap <strong>"Save to Photos"</strong> to add it to your Camera Roll.
     </div>
     <!-- Ad image — full quality, no compression -->
     <div class="dl-img-wrap">
