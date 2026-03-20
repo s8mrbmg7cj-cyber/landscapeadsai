@@ -222,6 +222,24 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
 .abtn.gold:hover{background:#92400e}
 .abtn.blue{background:#1d4ed8;color:white;margin-top:5px}
 .abtn.blue:hover{background:#1e40af}
+/* Action Center */
+.action-center{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px 16px 14px;margin-top:16px}
+.action-center-value{background:linear-gradient(135deg,rgba(46,160,67,.1),rgba(46,160,67,.05));border:1px solid rgba(46,160,67,.2);border-radius:9px;padding:9px 13px;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.action-center-value span{font-size:18px;flex-shrink:0}
+.action-center-value p{font-size:12px;color:var(--t2);line-height:1.45;margin:0}
+.action-center-value strong{color:var(--g2)}
+.action-primary{margin-bottom:10px}
+.action-primary .abtn{padding:14px 11px;font-size:14px;border-radius:11px;margin-top:0;box-shadow:0 4px 16px rgba(46,160,67,.25)}
+.action-primary .abtn:hover{box-shadow:0 6px 22px rgba(46,160,67,.35);transform:translateY(-1px)}
+.action-secondary{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.action-secondary .abtn{margin-top:0;font-size:12px;padding:10px 8px}
+.action-utility{display:flex;flex-direction:column;gap:5px}
+.action-utility .abtn{margin-top:0;font-size:12px;padding:9px 11px}
+.action-divider{height:1px;background:var(--border);margin:10px 0}
+.action-hint{font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5}
+@media(max-width:960px){
+  .action-secondary{grid-template-columns:1fr}
+}
 
 /* CANVAS AREA */
 .canvas-area{background:var(--bg3);display:flex;flex-direction:column;align-items:center;padding:24px;overflow-y:auto;gap:0}
@@ -1080,13 +1098,41 @@ textarea.fi{resize:vertical;min-height:52px;line-height:1.5}
         <div id="ctaOptionsList" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
       </div>
       <div class="error-msg" id="buildError"></div>
-      <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:6px;letter-spacing:.3px;">Used by local landscapers to get more lawn clients</div>
-      <button class="abtn" id="buildBtn" onclick="genAndRender()">✨ Create My Ad</button>
-      <button class="abtn sec" id="varBtn" onclick="genVariations()" style="display:none">🔀 Get 5 High-Converting Ads</button>
-      <button class="abtn sec" id="captBtn" onclick="genCaption()" style="display:none">📝 Generate Social Caption</button>
-      <button class="abtn sec" id="tgBtn" onclick="showTargeting()" style="display:none">🎯 Campaign Setup Guide</button>
-      <button class="abtn sec" id="c30Btn" onclick="genContent30()" style="display:none">📅 Generate 30-Day Content Plan</button>
-      <button class="abtn sec" id="rrBtn" onclick="renderCanvas()" style="display:none">🔄 Re-render with My Edits</button>
+
+      <!-- ── ACTION CENTER ── -->
+      <div class="action-center">
+
+        <!-- Value / trust line -->
+        <div class="action-center-value">
+          <span>🎯</span>
+          <p>Turn one lawn photo into an <strong>ad, caption, and launch plan</strong> in minutes.</p>
+        </div>
+
+        <!-- PRIMARY: Create My Ad -->
+        <div class="action-primary">
+          <button class="abtn" id="buildBtn" onclick="genAndRender()">✨ Create My Ad</button>
+        </div>
+
+        <!-- SECONDARY: variations + caption — shown after first generation -->
+        <div class="action-secondary" id="actionSecondary" style="display:none">
+          <button class="abtn sec" id="varBtn" onclick="genVariations()">🔀 Get 5 High-Converting Ads</button>
+          <button class="abtn sec" id="captBtn" onclick="genCaption()">📝 Generate Caption</button>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="action-divider" id="actionDivider" style="display:none"></div>
+
+        <!-- UTILITY: guide + plan + re-render — shown after first generation -->
+        <div class="action-utility" id="actionUtility" style="display:none">
+          <button class="abtn sec" id="tgBtn" onclick="showTargeting()">🎯 Campaign Setup Guide</button>
+          <button class="abtn sec" id="c30Btn" onclick="genContent30()">📅 Generate 30-Day Content Plan</button>
+          <button class="abtn sec" id="rrBtn" onclick="renderCanvas()">🔄 Re-render with My Edits</button>
+        </div>
+
+        <!-- Microcopy -->
+        <p class="action-hint">Best results: generate the ad first, then test 5 angles.</p>
+
+      </div><!-- /action-center -->
     </div>
 
     <div class="canvas-area" id="canvasArea">
@@ -1644,6 +1690,14 @@ async function genAndRender() {
     };
   }
   setBtn('buildBtn', false, '✨ Create My Ad');
+  // Reveal the secondary and utility groups in the Action Center
+  const sec = document.getElementById('actionSecondary');
+  const div = document.getElementById('actionDivider');
+  const uti = document.getElementById('actionUtility');
+  if (sec) sec.style.display = 'grid';
+  if (div) div.style.display = 'block';
+  if (uti) uti.style.display = 'flex';
+  // Also ensure individual buttons are flex so setBtn can toggle them correctly
   ['varBtn','captBtn','tgBtn','c30Btn','rrBtn'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'flex'; });
   document.getElementById('tgLoc').textContent = `Homeowners within 10 miles of ${city}`;
   renderCanvas();
